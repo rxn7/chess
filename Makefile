@@ -1,4 +1,4 @@
-CC := g++
+CC := clang
 BIN_DIR := bin
 OUT := $(BIN_DIR)/chess
 OBJ_DIR := obj
@@ -6,7 +6,8 @@ DIR_SRC := src src/core src/chess
 INC := -Isrc
 SRC := $(wildcard $(addsuffix /*.cpp, $(DIR_SRC)))
 OBJ := $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRC))
-LDFLAGS := -lsfml-graphics -lsfml-window -lsfml-system
+CFLAGS := -std=c++20
+LDFLAGS := -Wl,--copy-dt-needed-entries -lsfml-graphics -lsfml-window -lsfml-system
 
 all: create_dirs copy_res $(OBJ) $(OUT)
 
