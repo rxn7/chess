@@ -6,6 +6,10 @@
 #include <memory>
 
 Board::Board(const sf::Font &font, const BoardTheme &theme) : m_boardRenderer(font, theme) {
+	randomizePieces();
+}
+
+void Board::randomizePieces() {
 	for(auto i=0; i<64; ++i)
 		m_pieces[i] = (rand() % 6 + 1) | 8 * (rand() % 2 + 1);
 }

@@ -10,6 +10,7 @@ class Board {
 public:
 	Board(const sf::Font &font, const BoardTheme &theme = DEFAULT_BOARD_THEME);
 	void render(sf::RenderWindow &window);
+	void randomizePieces();
 	inline BoardRenderer &getBoardRenderer() { return m_boardRenderer; }
 
 private:
