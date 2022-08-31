@@ -26,9 +26,19 @@ void Board::renderPieces(sf::RenderWindow &window) {
 }
 
 void Board::renderHeldPiece(sf::RenderWindow &window) {
+	if(!m_heldPiece || !(m_heldPiece & TYPE_MASK) || !(m_heldPiece & COLOR_MASK))
+		return;
+
 	sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 	pos.x -= 32;
 	pos.y -= 32;
+
+	if(pos.x < 0) pos.x = 0;
+	else if(pos.x > 512-64) pos.x = 512-64;
+
+	if(pos.y < 0) pos.y = 0;
+	else if(pos.y > 512-64) pos.y = 512-64;
+
 	m_pieceRenderer.renderPiece(window, m_heldPiece, pos);
 }
 
