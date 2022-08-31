@@ -25,7 +25,6 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 	m_window.setKeyRepeatEnabled(false);
 
 	std::cout << "\e[1;32mPress 'T' to generate random board theme!\e[0m" << std::endl;
-	std::cout << "\e[1;32mPress 'R' to randomize the pieces!\e[0m" << std::endl;
 }
 
 void Game::start() {
@@ -46,6 +45,8 @@ void Game::start() {
 
 
 void Game::handleEvent(const sf::Event &e) {
+	m_board->handleEvent(m_window, e);
+
 	switch(e.type) {
 		case sf::Event::Closed:
 			m_window.close();

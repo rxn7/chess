@@ -16,7 +16,7 @@ PieceRenderer::PieceRenderer(const std::string &piecesTexturePath) {
 }
 
 void PieceRenderer::renderPiece(sf::RenderWindow &window, PieceValue piece, const sf::Vector2f &pos) {
-	if(!piece || !(piece & TYPE_MASK) || !(piece & COLOR_MASK))
+	if(!piece)
 		return;
 
 	std::unordered_map<PieceValue, sf::Sprite>::iterator it = m_sprites.find(piece);
@@ -44,7 +44,7 @@ void PieceRenderer::generateSprites() {
 
 	// Six types of pieces
 	for(uint8_t c=0; c<6; ++c) {
-		PieceValue piece = (c+1) | Piece::Black;
+		PieceValue piece = (c+1) | Piece::White;
 		int x = c*singleTextureSize.x;
 
 		for(uint8_t r=0; r<2; ++r) {
@@ -55,7 +55,7 @@ void PieceRenderer::generateSprites() {
 			sprite.setScale(scale, scale);
 			m_sprites.insert({piece, sprite});
 
-			piece = (c+1) | Piece::White;
+			piece = (c+1) | Piece::Black;
 		}
 	}
 }

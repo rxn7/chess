@@ -8,12 +8,23 @@
 #include <array>
 #include <memory>
 
+struct HeldPieceData {
+	PieceValue value = 0;
+	uint8_t previousIdx = 64;
+
+	void restart() {
+		value = 0;
+		previousIdx = 64;
+	}
+};
+
 class Board {
 public:
 	Board(const sf::Font &font, const BoardTheme &theme = DEFAULT_BOARD_THEME);
 	void render(sf::RenderWindow &window);
 	inline BoardRenderer &getBoardRenderer() { return m_boardRenderer; }
 	void applyFen(const std::string &fen);
+	void handleEvent(sf::RenderWindow &window, const sf::Event &e);
 
 private:
 	void renderHeldPiece(sf::RenderWindow &window);
@@ -21,7 +32,7 @@ private:
 
 private:
 	std::array<PieceValue, 64> m_pieces;
-	PieceValue m_heldPiece = Piece::None;
+	HeldPieceData m_heldPiece;
 	BoardRenderer m_boardRenderer;
 	PieceRenderer m_pieceRenderer;
 };

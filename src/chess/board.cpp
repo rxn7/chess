@@ -10,7 +10,6 @@
 
 Board::Board(const sf::Font &font, const BoardTheme &theme) : m_boardRenderer(font, theme) {
 	applyFen(DEFAULT_FEN);
-	m_heldPiece = Piece::White | Piece::Bishop;
 }
 
 void Board::render(sf::RenderWindow &window) {
@@ -26,30 +25,24 @@ void Board::renderPieces(sf::RenderWindow &window) {
 }
 
 void Board::renderHeldPiece(sf::RenderWindow &window) {
-	if(!m_heldPiece || !(m_heldPiece & TYPE_MASK) || !(m_heldPiece & COLOR_MASK))
+	if(!m_heldPiece.value)
 		return;
 
 	sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 	pos.x -= 32;
 	pos.y -= 32;
 
-	if(pos.x < 0) pos.x = 0;
-	else if(pos.x > 512-64) pos.x = 512-64;
-
-	if(pos.y < 0) pos.y = 0;
-	else if(pos.y > 512-64) pos.y = 512-64;
-
-	m_pieceRenderer.renderPiece(window, m_heldPiece, pos);
+	m_pieceRenderer.renderPiece(window, m_heldPiece.value, pos);
 }
 
 void Board::applyFen(const std::string &fen) {
-	uint8_t file = 0, rank = 7;
+	uint8_t file = 0, rank = 0;
 
 	for(char c : fen) {
 		switch(c) {
 			case '/':
 				file = 0;
-				rank--;
+				rank++;
 				break;
 			default:
 				if(isdigit(c)) {
@@ -72,5 +65,54 @@ void Board::applyFen(const std::string &fen) {
 				}
 				break;
 		}
+	}
+}
+
+void Board::handleEvent(sf::RenderWindow &window, const sf::Event &e) {
+	switch(e.type) {
+		case sf::Event::EventType::MouseButtonPressed:
+			if(e.mouseButton.button == sf::Mouse::Left) {
+				sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+				sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
+				uint8_t idx = gridPos.y * 8 + gridPos.x;
+
+				PieceValue piece = m_pieces[idx];
+				if(!m_heldPiece.value && piece) {
+					m_pieces[idx] = 0;
+					m_heldPiece.value = piece;
+					m_heldPiece.previousIdx = idx;
+				}
+			}
+			break;
+
+		// TODO: Check if move is legal
+		case sf::Event::EventType::MouseButtonReleased:
+			if(e.mouseButton.button == sf::Mouse::Left) {
+				if(!m_heldPiece.value)
+					return;
+
+				sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+				sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
+				uint8_t idx = gridPos.y * 8 + gridPos.x;
+
+				if(idx < 0 || idx >= 64) {
+					m_pieces[m_heldPiece.previousIdx] = m_heldPiece.value;
+					m_heldPiece.restart();
+					return;
+				}
+
+				PieceValue piece = m_pieces[idx];
+				if(!piece || (piece && (piece & COLOR_MASK) != (m_heldPiece.value & COLOR_MASK))) {
+					m_pieces[idx] = m_heldPiece.value;
+					m_heldPiece.restart();
+				} else if(m_heldPiece.previousIdx > 0 && m_heldPiece.previousIdx < 64) {
+					m_pieces[m_heldPiece.previousIdx] = m_heldPiece.value;
+					m_heldPiece.restart();
+				}
+			}
+			break;
+
+		default:
+			break;
 	}
 }
