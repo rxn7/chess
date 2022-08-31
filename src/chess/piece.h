@@ -3,12 +3,13 @@
 
 namespace Piece {
 	constexpr uint8_t None = 0;
-	constexpr uint8_t Queen = 1;
-	constexpr uint8_t King = 2;
-	constexpr uint8_t Rook = 3;
+	constexpr uint8_t King = 1;
+	constexpr uint8_t Queen = 2;
+	constexpr uint8_t Bishop = 3;
 	constexpr uint8_t Knight = 4;
-	constexpr uint8_t Bishop = 5;
+	constexpr uint8_t Rook = 5;
 	constexpr uint8_t Pawn = 6;
+
 	constexpr uint8_t White = 8;
 	constexpr uint8_t Black = 16;
 }

@@ -15,7 +15,7 @@ PieceRenderer::PieceRenderer(const std::string &piecesTexturePath) {
 	generateSprites();
 }
 
-void PieceRenderer::renderPiece(sf::RenderWindow &window, PieceValue piece, uint8_t positionIdx) {
+void PieceRenderer::renderPiece(sf::RenderWindow &window, PieceValue piece, const sf::Vector2f &pos) {
 	if(!piece || !(piece & TYPE_MASK) || !(piece & COLOR_MASK))
 		return;
 
@@ -27,8 +27,12 @@ void PieceRenderer::renderPiece(sf::RenderWindow &window, PieceValue piece, uint
 	}
 
 	sf::Sprite &sprite = it->second;
-	sprite.setPosition(sf::Vector2f((positionIdx % 8) * 64, (positionIdx / 8) * 64));
+	sprite.setPosition(pos);
 	window.draw(sprite);
+}
+
+void PieceRenderer::renderPiece(sf::RenderWindow &window, PieceValue piece, uint8_t positionIdx) {
+	renderPiece(window, piece, sf::Vector2f((positionIdx % 8) * 64, (positionIdx / 8) * 64));
 }
 
 void PieceRenderer::generateSprites() {

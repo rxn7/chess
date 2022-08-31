@@ -2,7 +2,9 @@
 
 #include "board_renderer.h"
 #include "chess/board_theme.h"
+#include "chess/piece.h"
 #include "chess/piece_renderer.h"
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <array>
 #include <memory>
 
@@ -14,10 +16,12 @@ public:
 	void applyFen(const std::string &fen);
 
 private:
+	void renderHeldPiece(sf::RenderWindow &window);
 	void renderPieces(sf::RenderWindow &window);
 
 private:
 	std::array<PieceValue, 64> m_pieces;
+	PieceValue m_heldPiece = Piece::None;
 	BoardRenderer m_boardRenderer;
 	PieceRenderer m_pieceRenderer;
 };

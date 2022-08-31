@@ -10,17 +10,26 @@
 
 Board::Board(const sf::Font &font, const BoardTheme &theme) : m_boardRenderer(font, theme) {
 	applyFen(DEFAULT_FEN);
+	m_heldPiece = Piece::White | Piece::Bishop;
 }
 
 void Board::render(sf::RenderWindow &window) {
 	m_boardRenderer.renderSquares(window);
 	renderPieces(window);
 	m_boardRenderer.renderCoords(window);
+	renderHeldPiece(window);
 }
 
 void Board::renderPieces(sf::RenderWindow &window) {
 	for(auto i=0; i<m_pieces.size(); ++i)
 		m_pieceRenderer.renderPiece(window, m_pieces[i], i);
+}
+
+void Board::renderHeldPiece(sf::RenderWindow &window) {
+	sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+	pos.x -= 32;
+	pos.y -= 32;
+	m_pieceRenderer.renderPiece(window, m_heldPiece, pos);
 }
 
 void Board::applyFen(const std::string &fen) {
