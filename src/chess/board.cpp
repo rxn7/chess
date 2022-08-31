@@ -25,7 +25,7 @@ void Board::renderPieces(sf::RenderWindow &window) {
 }
 
 void Board::renderHeldPiece(sf::RenderWindow &window) {
-	if(!m_heldPiece.value)
+	if(Piece::isNull(m_heldPiece.value))
 		return;
 
 	sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -88,7 +88,7 @@ void Board::handleEvent(sf::RenderWindow &window, const sf::Event &e) {
 		// TODO: Check if move is legal
 		case sf::Event::EventType::MouseButtonReleased:
 			if(e.mouseButton.button == sf::Mouse::Left) {
-				if(!m_heldPiece.value)
+				if(Piece::isNull(m_heldPiece.value))
 					return;
 
 				sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -102,7 +102,7 @@ void Board::handleEvent(sf::RenderWindow &window, const sf::Event &e) {
 				}
 
 				PieceValue piece = m_pieces[idx];
-				if(!piece || (piece && (piece & COLOR_MASK) != (m_heldPiece.value & COLOR_MASK))) {
+				if(Piece::isNull(piece) || (piece & COLOR_MASK) != (m_heldPiece.value & COLOR_MASK)) {
 					m_pieces[idx] = m_heldPiece.value;
 					m_heldPiece.restart();
 				} else if(m_heldPiece.previousIdx > 0 && m_heldPiece.previousIdx < 64) {

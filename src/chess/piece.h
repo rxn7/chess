@@ -1,6 +1,13 @@
 #pragma once
 #include <cstdint>
 
+typedef uint8_t PieceValue;
+
+#define TYPE_MASK 0b00111
+#define COLOR_MASK 0b11000
+#define BLACK_MASK 0b10000
+#define WHITE_MASK 0b01000
+
 namespace Piece {
 	constexpr uint8_t None = 0;
 	constexpr uint8_t King = 1;
@@ -12,11 +19,8 @@ namespace Piece {
 
 	constexpr uint8_t White = 8;
 	constexpr uint8_t Black = 16;
+
+	static inline bool isNull(PieceValue val) {
+		return !(val & TYPE_MASK) || ((val & COLOR_MASK) != WHITE_MASK && (val & COLOR_MASK) != BLACK_MASK);
+	}
 }
-
-typedef uint8_t PieceValue;
-
-#define TYPE_MASK 0b00111
-#define COLOR_MASK 0b11000
-#define BLACK_MASK 0b10000
-#define WHITE_MASK 0b01000

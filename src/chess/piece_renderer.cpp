@@ -16,7 +16,7 @@ PieceRenderer::PieceRenderer(const std::string &piecesTexturePath) {
 }
 
 void PieceRenderer::renderPiece(sf::RenderWindow &window, PieceValue piece, const sf::Vector2f &pos) {
-	if(!piece)
+	if(Piece::isNull(piece))
 		return;
 
 	std::unordered_map<PieceValue, sf::Sprite>::iterator it = m_sprites.find(piece);
