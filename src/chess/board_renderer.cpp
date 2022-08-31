@@ -29,13 +29,13 @@ void BoardRenderer::setTheme(const BoardTheme &theme) {
 }
 
 void BoardRenderer::updateCoordTextsColors() {
-	for(uint8_t i = 0; i<8; ++i) {
+	for(auto i = 0; i<8; ++i) {
 		sf::Text &text = m_coordTexts[i];
 		sf::Color &color = i%2 != 0 ? m_theme.lightColor : m_theme.darkColor;
 		text.setFillColor(color);
 	}
 
-	for(uint8_t i = 8; i<16; ++i) {
+	for(auto i = 8; i<16; ++i) {
 		sf::Text &text = m_coordTexts[i];
 		sf::Color &color = i%2 == 0 ? m_theme.lightColor : m_theme.darkColor;
 		text.setFillColor(color);
@@ -69,7 +69,6 @@ void BoardRenderer::generateVa() {
 	for(auto c=0; c<8; ++c) {
 		for(auto r=0; r<8; ++r) {
 			const bool isLight = (r + c) % 2 == 0;
-
 			vertex.color = isLight ? m_theme.lightColor : m_theme.darkColor;
 
 			// bot left
