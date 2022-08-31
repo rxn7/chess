@@ -14,7 +14,7 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 		m_window.close();
 	}
 
-	m_boardRenderer = std::make_unique<BoardRenderer>(m_font);
+	m_boardRenderer = std::make_unique<BoardRenderer>(m_font, BoardTheme::generateRandomTheme());
 
 	m_view.setCenter(256, 256);
 	m_window.setVerticalSyncEnabled(true);
