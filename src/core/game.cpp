@@ -1,6 +1,8 @@
 #include "game.h"
 #include "chess/board_renderer.h"
 #include "chess/board_theme.h"
+#include "chess/piece_renderer.h"
+#include "chess/piece.h"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -9,12 +11,14 @@
 #include <memory>
 
 Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
+	srand(time(0));
+
 	if(!m_font.loadFromFile("res/RobotoMono-Regular.ttf")) {
-		std::cerr << "Failed to load font RobotoMono-Regular!";
+		std::cerr << "\e[1;31mFailed to load font RobotoMono-Regular!\e[0m\n";
 		m_window.close();
 	}
 
-	m_boardRenderer = std::make_unique<BoardRenderer>(m_font, BoardTheme::generateRandomTheme());
+	m_board = std::make_unique<Board>(m_font, BoardTheme::generateRandomTheme());
 
 	m_view.setCenter(256, 256);
 	m_window.setVerticalSyncEnabled(true);
@@ -24,7 +28,6 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 }
 
 void Game::start() {
-	srand(time(0));
 
 	sf::Event e;
 	for(;;) {
@@ -36,8 +39,7 @@ void Game::start() {
 
 		m_window.setView(m_view);
 		m_window.clear(CLEAR_COLOR);
-		m_boardRenderer->render(m_window);
-		m_window.draw(m_infoText);
+		m_board->render(m_window);
 		m_window.display();
 	}
 }
@@ -59,7 +61,7 @@ void Game::handleEvent(const sf::Event &e) {
 		case sf::Event::KeyPressed:
 			switch(e.key.code) {
 				case sf::Keyboard::Key::T:
-					m_boardRenderer->setTheme(BoardTheme::generateRandomTheme());
+					m_board->getBoardRenderer().setTheme(BoardTheme::generateRandomTheme());
 					break;
 
 				default:

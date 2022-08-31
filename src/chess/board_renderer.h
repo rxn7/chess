@@ -1,18 +1,19 @@
 #pragma once
 
 #include "board_theme.h"
-#include "core/renderable.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <array>
 
-class BoardRenderer : Renderable {
+class BoardRenderer {
 public:
 	BoardRenderer(const sf::Font &font, const BoardTheme &theme = DEFAULT_BOARD_THEME);
 
-	void render(sf::RenderWindow &window) override;
+	void renderCoords(sf::RenderWindow &window);
+	void renderSquares(sf::RenderWindow &window);
 	void setTheme(const BoardTheme &theme);
+	inline const BoardTheme &getTheme() { return m_theme; }
 
 private:
 	void generateVa();

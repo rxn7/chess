@@ -15,9 +15,11 @@ BoardRenderer::BoardRenderer(const sf::Font &font, const BoardTheme &theme) : m_
 	generateCoordTexts();
 }
 
-void BoardRenderer::render(sf::RenderWindow &window) {
+void BoardRenderer::renderSquares(sf::RenderWindow &window) {
 	window.draw(m_vertexArray);
+}
 
+void BoardRenderer::renderCoords(sf::RenderWindow &window) {
 	for(sf::Text &coordText : m_coordTexts)
 		window.draw(coordText);
 }
@@ -53,7 +55,7 @@ void BoardRenderer::generateCoordTexts() {
 	// Files
 	for(auto i=0; i<8; ++i) {
 		sf::Text text(sf::String((char)('a' + i)), m_font, 16);
-		text.setPosition(i*64+64-20, 512-20);
+		text.setPosition(i*64+64-12, 512-20);
 		m_coordTexts[8+i] = text;
 	}
 

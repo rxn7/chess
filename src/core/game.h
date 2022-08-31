@@ -1,6 +1,7 @@
 #pragma once
 
-#include "chess/board_renderer.h"
+#include "chess/board.h"
+#include "chess/piece_renderer.h"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/Window/Event.hpp>
@@ -21,7 +22,6 @@ private:
 private:
 	sf::Font m_font;
 	sf::View m_view;
-	sf::Text m_infoText;
 	sf::RenderWindow m_window;
-	std::unique_ptr<BoardRenderer> m_boardRenderer;
+	std::unique_ptr<Board> m_board;
 };
