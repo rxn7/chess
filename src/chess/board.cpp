@@ -12,11 +12,6 @@ Board::Board(const sf::Font &font, const BoardTheme &theme) : m_boardRenderer(fo
 	applyFen(DEFAULT_FEN);
 }
 
-void Board::randomizePieces() {
-	for(auto i=0; i<64; ++i)
-		m_pieces[i] = (rand() % 6 + 1) | 8 * (rand() % 2 + 1);
-}
-
 void Board::render(sf::RenderWindow &window) {
 	m_boardRenderer.renderSquares(window);
 	renderPieces(window);

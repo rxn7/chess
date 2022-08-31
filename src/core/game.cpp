@@ -64,10 +64,6 @@ void Game::handleEvent(const sf::Event &e) {
 					m_board->getBoardRenderer().setTheme(BoardTheme::generateRandomTheme());
 					break;
 
-				case sf::Keyboard::Key::R:
-					m_board->randomizePieces();
-					break;
-
 				default:
 					break;
 			}
