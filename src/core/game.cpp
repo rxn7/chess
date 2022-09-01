@@ -21,6 +21,7 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 	m_board = std::make_unique<Board>(m_font, BoardTheme::generateRandomTheme());
 
 	m_view.setCenter(256, 256);
+	m_view.setSize(512, 512);
 	m_window.setVerticalSyncEnabled(true);
 	m_window.setKeyRepeatEnabled(false);
 
@@ -54,8 +55,23 @@ void Game::handleEvent(const sf::Event &e) {
 
 		// TODO: Make sure the board is always visible.
 		case sf::Event::Resized: {
-			sf::Vector2f size(m_window.getSize());
-			m_view.setSize(size);
+			float winRatio = e.size.width / (float)e.size.height;
+			float viewRatio = m_view.getSize().x / (float)m_view.getSize().y;
+			float sizeX = 1, sizeY = 1;
+			float posX = 0, posY = 0;
+
+			bool horizontalSpacing = winRatio > viewRatio;
+
+			if(horizontalSpacing) {
+				sizeX = viewRatio / winRatio;
+				posX = (1 - sizeX) * 0.5f;
+			} else {
+				sizeY = winRatio / viewRatio;
+				posY = (1 - sizeY) * 0.5f;
+			}
+
+			m_view.setViewport({posX, posY, sizeX, sizeY});
+
 			break;
 		}
 
