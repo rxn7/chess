@@ -73,12 +73,18 @@ void Board::handleEvent(sf::RenderWindow &window, const sf::Event &e) {
 	switch(e.type) {
 		case sf::Event::EventType::MouseButtonPressed:
 			if(e.mouseButton.button == sf::Mouse::Left) {
+				if(!Piece::isNull(m_heldPiece.value))
+					break;
+
 				sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 				sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
 				uint8_t idx = gridPos.y * 8 + gridPos.x;
 
+				if(idx < 0 || idx >= 64)
+					break;
+
 				PieceValue piece = m_pieces[idx];
-				if(!m_heldPiece.value && piece) {
+				if(!Piece::isNull(piece)) {
 					m_pieces[idx] = 0;
 					m_heldPiece.value = piece;
 					m_heldPiece.previousIdx = idx;
@@ -90,7 +96,7 @@ void Board::handleEvent(sf::RenderWindow &window, const sf::Event &e) {
 		case sf::Event::EventType::MouseButtonReleased:
 			if(e.mouseButton.button == sf::Mouse::Left) {
 				if(Piece::isNull(m_heldPiece.value))
-					return;
+					break;
 
 				sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 				sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
@@ -99,7 +105,7 @@ void Board::handleEvent(sf::RenderWindow &window, const sf::Event &e) {
 				if(idx < 0 || idx >= 64) {
 					m_pieces[m_heldPiece.previousIdx] = m_heldPiece.value;
 					m_heldPiece.restart();
-					return;
+					break;
 				}
 
 				PieceValue piece = m_pieces[idx];
