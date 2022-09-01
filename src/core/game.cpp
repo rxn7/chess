@@ -18,7 +18,7 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 		m_window.close();
 	}
 
-	m_board = std::make_unique<Board>(m_window, m_font, BoardTheme::generateRandomTheme());
+	m_board = std::make_unique<Board>(m_window, m_font, DEFAULT_BOARD_THEME);
 
 	m_view.setCenter(256, 256);
 	m_view.setSize(512, 512);

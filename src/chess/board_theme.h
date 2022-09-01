@@ -16,6 +16,6 @@ struct BoardTheme {
 };
 
 const BoardTheme DEFAULT_BOARD_THEME = {
-	.lightColor = sf::Color(0xffffffff),
-	.darkColor = sf::Color(0x000000ff),
+	.lightColor = sf::Color(232, 235, 239),
+	.darkColor = sf::Color(125, 135, 150),
 };
