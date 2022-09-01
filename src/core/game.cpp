@@ -85,7 +85,7 @@ void Game::handleEvent(const sf::Event &e) {
 					break;
 
 				case sf::Keyboard::Key::Escape:
-					m_board->resetBoard();
+					m_board->reset();
 					break;
 
 				default:

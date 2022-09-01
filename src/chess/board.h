@@ -5,20 +5,11 @@
 #include "chess/piece.h"
 #include "chess/piece_renderer.h"
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Audio.hpp>
 #include <array>
 #include <memory>
 
-#define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
-
-struct HeldPieceData {
-	PieceValue value = 0;
-	uint8_t previousIdx = 64;
-
-	void reset() {
-		value = 0;
-		previousIdx = 64;
-	}
-};
+#define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 class Board {
 public:
@@ -26,10 +17,15 @@ public:
 	void render();
 	void handleEvent(const sf::Event &e);
 	void applyFen(const std::string &fen);
-	void resetBoard();
+	void movePiece(uint8_t fromIdx, uint8_t toIdx);
+	void reset();
 
 	inline BoardRenderer &getBoardRenderer() {
 		 return m_boardRenderer; 
+	}
+
+	inline bool isAnyPieceHeld() {
+		return m_heldPieceIdx < 64 && !Piece::isNull(m_pieces[m_heldPieceIdx]);
 	}
 
 private:
@@ -37,11 +33,19 @@ private:
 	void renderPieces();
 	void handlePieceDrag();
 	void handlePieceDrop();
+	void playMoveSound();
+
+	inline void resetHeldPiece() {
+		m_heldPieceIdx = 255; // every number above 63 and below 0 is ignored
+	}
 
 private:
 	sf::RenderWindow &m_window;
 	std::array<PieceValue, 64> m_pieces;
-	HeldPieceData m_heldPiece;
+	uint8_t m_heldPieceIdx;
 	BoardRenderer m_boardRenderer;
 	PieceRenderer m_pieceRenderer;
+
+	sf::SoundBuffer m_pieceMoveSb;
+	sf::Sound m_pieceMoveSound;
 };

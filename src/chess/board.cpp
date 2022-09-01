@@ -3,11 +3,24 @@
 #include "chess/board_theme.h"
 #include "chess/piece.h"
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <cctype>
+#include <iostream>
 #include <memory>
 
+#define MOVE_SOUND_PATH "res/move.flac"
+
 Board::Board(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme) : m_window(window), m_boardRenderer(font, theme) {
-	resetBoard();
+	if(!m_pieceMoveSb.loadFromFile(MOVE_SOUND_PATH))
+		std::cerr << "\e[1;31mFailed to load piece move sound (" MOVE_SOUND_PATH ")!\e[0m\n";
+
+	m_pieceMoveSound.setBuffer(m_pieceMoveSb);
+
+	reset();
+}
+
+void Board::reset() {
+	std::fill(m_pieces.begin(), m_pieces.end(), Piece::None); // Clear the board
+	resetHeldPiece();
+	applyFen(DEFAULT_FEN);
 }
 
 void Board::render() {
@@ -17,26 +30,75 @@ void Board::render() {
 	renderHeldPiece();
 }
 
+void Board::movePiece(uint8_t fromIdx, uint8_t toIdx) {
+	m_pieces[toIdx] = m_pieces[fromIdx];
+	m_pieces[fromIdx] = Piece::None;
+	playMoveSound();
+}
+
+void Board::playMoveSound() {
+	m_pieceMoveSound.setPitch((90 + rand() % 20) / 100.0f);
+	m_pieceMoveSound.play();
+}
+
+void Board::handlePieceDrag() {
+	if(isAnyPieceHeld())
+		return;
+
+	sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window));
+	sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
+	uint8_t idx = gridPos.y * 8 + gridPos.x;
+
+	if(idx < 0 || idx >= 64)
+		return;
+
+	PieceValue piece = m_pieces[idx];
+	if(!Piece::isNull(piece)) {
+		m_heldPieceIdx = idx;
+	}
+}
+
+void Board::handlePieceDrop() {
+	if(!isAnyPieceHeld())
+		return;
+
+	sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
+	sf::Vector2f pos = m_window.mapPixelToCoords(mousePos);
+	if(pos.x < 0 || pos.x > 512 || pos.y < 0 || pos.y > 512) {
+		resetHeldPiece();
+		return;
+	}
+
+	sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
+	uint8_t idx = gridPos.y * 8 + gridPos.x;
+
+	if(idx < 0 || idx >= 64) {
+		resetHeldPiece();
+		return;
+	}
+
+	PieceValue piece = m_pieces[idx];
+	if(Piece::isNull(piece) || (piece & COLOR_MASK) != (m_pieces[m_heldPieceIdx] & COLOR_MASK))
+		movePiece(m_heldPieceIdx, idx);
+	else
+		resetHeldPiece();
+}
+
 void Board::renderPieces() {
 	for(auto i=0; i<m_pieces.size(); ++i)
-		m_pieceRenderer.renderPiece(m_window, m_pieces[i], i);
+		if(i != m_heldPieceIdx) 
+			m_pieceRenderer.renderPiece(m_window, m_pieces[i], i);
 }
 
 void Board::renderHeldPiece() {
-	if(Piece::isNull(m_heldPiece.value))
+	if(!isAnyPieceHeld())
 		return;
 
 	sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window));
 	pos.x -= 32;
 	pos.y -= 32;
 
-	m_pieceRenderer.renderPiece(m_window, m_heldPiece.value, pos);
-}
-
-void Board::resetBoard() {
-	m_heldPiece.reset();
-	std::fill(m_pieces.begin(), m_pieces.end(), 0);
-	applyFen(DEFAULT_FEN);
+	m_pieceRenderer.renderPiece(m_window, m_pieces[m_heldPieceIdx], pos);
 }
 
 void Board::applyFen(const std::string &fen) {
@@ -62,6 +124,9 @@ void Board::applyFen(const std::string &fen) {
 						case 'b': type = Piece::Bishop; break;
 						case 'r': type = Piece::Rook; break;
 						case 'p': type = Piece::Pawn; break;
+						default: 
+							std::cerr << "\e[1;31mUnknown char '" << c << "' in fen notation '" << fen << "'!\e[0m\n";
+							return;
 					}
 
 					m_pieces[rank * 8 + file] = type | color;
@@ -80,7 +145,6 @@ void Board::handleEvent(const sf::Event &e) {
 
 			break;
 
-		// TODO: Check if move is legal
 		case sf::Event::EventType::MouseButtonReleased:
 			if(e.mouseButton.button == sf::Mouse::Left)
 				handlePieceDrop();
@@ -89,48 +153,5 @@ void Board::handleEvent(const sf::Event &e) {
 
 		default:
 			break;
-	}
-}
-
-void Board::handlePieceDrag() {
-	if(!Piece::isNull(m_heldPiece.value))
-		return;
-
-	sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window));
-	sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
-	uint8_t idx = gridPos.y * 8 + gridPos.x;
-
-	if(idx < 0 || idx >= 64)
-		return;
-
-	PieceValue piece = m_pieces[idx];
-	if(!Piece::isNull(piece)) {
-		m_pieces[idx] = 0;
-		m_heldPiece.value = piece;
-		m_heldPiece.previousIdx = idx;
-	}
-}
-
-void Board::handlePieceDrop() {
-	if(Piece::isNull(m_heldPiece.value))
-		return;
-
-	sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window));
-	sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
-	uint8_t idx = gridPos.y * 8 + gridPos.x;
-
-	if(idx < 0 || idx >= 64) {
-		m_pieces[m_heldPiece.previousIdx] = m_heldPiece.value;
-		m_heldPiece.reset();
-		return;
-	}
-
-	PieceValue piece = m_pieces[idx];
-	if(Piece::isNull(piece) || (piece & COLOR_MASK) != (m_heldPiece.value & COLOR_MASK)) {
-		m_pieces[idx] = m_heldPiece.value;
-		m_heldPiece.reset();
-	} else if(m_heldPiece.previousIdx > 0 && m_heldPiece.previousIdx < 64) {
-		m_pieces[m_heldPiece.previousIdx] = m_heldPiece.value;
-		m_heldPiece.reset();
 	}
 }

@@ -7,7 +7,7 @@ INC := -Isrc
 SRC := $(wildcard $(addsuffix /*.cpp, $(DIR_SRC)))
 OBJ := $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRC))
 CFLAGS := -std=c++20
-LDFLAGS := -Wl,--copy-dt-needed-entries -lsfml-graphics -lsfml-window -lsfml-system
+LDFLAGS := -Wl,--copy-dt-needed-entries -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
 all: create_dirs copy_res $(OBJ) $(OUT)
 
@@ -28,4 +28,4 @@ copy_res:
 	@cp -r res $(BIN_DIR)
 
 clean:
-	rm $(OBJ) $(OUT)
+	rm -rf $(OBJ) $(BIN_DIR)
