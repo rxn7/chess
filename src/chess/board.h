@@ -29,6 +29,8 @@ public:
 private:
 	void renderHeldPiece(sf::RenderWindow &window);
 	void renderPieces(sf::RenderWindow &window);
+	void handlePieceDrag(sf::RenderWindow &window);
+	void handlePieceDrop(sf::RenderWindow &window);
 
 private:
 	std::array<PieceValue, 64> m_pieces;
