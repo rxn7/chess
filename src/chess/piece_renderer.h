@@ -9,7 +9,7 @@
 class PieceRenderer {
 public:
 	PieceRenderer(const std::string &piecesTexurePath="res/pieces.png");
-	void renderPiece(sf::RenderWindow &window, PieceValue piece, uint8_t positionIdxc);
+	void renderPiece(sf::RenderWindow &window, PieceValue piece, uint8_t idx);
 	void renderPiece(sf::RenderWindow &window, PieceValue piece, const sf::Vector2f &pos);
 
 private:

@@ -1,4 +1,5 @@
 #include "board_renderer.h"
+#include "chess/board.h"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -30,11 +31,17 @@ void BoardRenderer::renderCoords() {
 }
 
 void BoardRenderer::renderSquareHighlight(uint8_t idx) {
+	if(!Board::isSquareIdxCorrect(idx))
+		return;
+
 	m_squareHighlight.setPosition(sf::Vector2f((idx % 8) * 64, (idx / 8) * 64));
 	m_window.draw(m_squareHighlight);
 }
 
 void BoardRenderer::renderSquareOutline(uint8_t idx) {
+	if(!Board::isSquareIdxCorrect(idx))
+		return;
+
 	m_squareOutline.setPosition(sf::Vector2f((idx % 8) * 64 + OUTLINE_THICKNESS, (idx / 8) * 64 + OUTLINE_THICKNESS));
 	m_window.draw(m_squareOutline);
 }

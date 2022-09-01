@@ -1,5 +1,6 @@
 #include "piece_renderer.h"
 #include "piece.h"
+#include "chess/board.h"
 #include <iostream>
 #include <unordered_map>
 
@@ -31,8 +32,11 @@ void PieceRenderer::renderPiece(sf::RenderWindow &window, PieceValue piece, cons
 	window.draw(sprite);
 }
 
-void PieceRenderer::renderPiece(sf::RenderWindow &window, PieceValue piece, uint8_t positionIdx) {
-	renderPiece(window, piece, sf::Vector2f((positionIdx % 8) * 64, (positionIdx / 8) * 64));
+void PieceRenderer::renderPiece(sf::RenderWindow &window, PieceValue piece, uint8_t idx) {
+	if(!Board::isSquareIdxCorrect(idx))
+		return;
+
+	renderPiece(window, piece, sf::Vector2f((idx % 8) * 64, (idx / 8) * 64));
 }
 
 void PieceRenderer::generateSprites() {

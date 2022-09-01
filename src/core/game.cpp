@@ -10,10 +10,13 @@
 #include <SFML/Window/VideoMode.hpp>
 #include <iostream>
 #include <memory>
+#include <sstream>
+
+Game *Game::s_instance;
 
 Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
+	s_instance = this;
 	srand(time(0));
-
 	SoundSystem::init();
 
 	if(!m_font.loadFromFile("res/RobotoMono-Regular.ttf")) {
@@ -25,6 +28,7 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 
 	m_view.setCenter(256, 256);
 	m_view.setSize(512, 512);
+
 	m_window.setVerticalSyncEnabled(true);
 	m_window.setKeyRepeatEnabled(false);
 
@@ -35,18 +39,30 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 
 void Game::start() {
 	sf::Event e;
+	sf::Clock frameClock;
 	for(;;) {
+		m_frameDuration = frameClock.restart().asSeconds();
+		m_fps = 1.0f / m_frameDuration;
+
 		while(m_window.pollEvent(e))
 			handleEvent(e);
 
 		if(!m_window.isOpen())
 			break;
 
-		m_window.setView(m_view);
-		m_window.clear(CLEAR_COLOR);
-		m_board->render();
-		m_window.display();
+		update();
+		render();
 	}
+}
+
+void Game::update() {
+}
+
+void Game::render() {
+	m_window.setView(m_view);
+	m_window.clear(CLEAR_COLOR);
+	m_board->render();
+	m_window.display();
 }
 
 void Game::handleEvent(const sf::Event &e) {

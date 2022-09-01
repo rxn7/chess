@@ -16,10 +16,26 @@ public:
 	Game();
 	void start();
 
-private:
-	void handleEvent(const sf::Event &e);
+	static inline Game *getInstance() {
+		return s_instance;
+	}
+
+	inline float getFps() const {
+		return m_fps;
+	}
+
+	inline float getFrameDuration() const {
+		return m_frameDuration;
+	}
 
 private:
+	void handleEvent(const sf::Event &e);
+	void update();
+	void render();
+
+private:
+	static Game *s_instance;
+	float m_fps, m_frameDuration;
 	sf::Font m_font;
 	sf::View m_view;
 	sf::RenderWindow m_window;
