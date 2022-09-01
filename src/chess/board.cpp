@@ -8,32 +8,32 @@
 
 #define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
-Board::Board(const sf::Font &font, const BoardTheme &theme) : m_boardRenderer(font, theme) {
+Board::Board(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme) : m_window(window), m_boardRenderer(font, theme) {
 	std::fill(m_pieces.begin(), m_pieces.end(), 0);
 	applyFen(DEFAULT_FEN);
 }
 
-void Board::render(sf::RenderWindow &window) {
-	m_boardRenderer.renderSquares(window);
-	renderPieces(window);
-	m_boardRenderer.renderCoords(window);
-	renderHeldPiece(window);
+void Board::render() {
+	m_boardRenderer.renderSquares(m_window);
+	renderPieces();
+	m_boardRenderer.renderCoords(m_window);
+	renderHeldPiece();
 }
 
-void Board::renderPieces(sf::RenderWindow &window) {
+void Board::renderPieces() {
 	for(auto i=0; i<m_pieces.size(); ++i)
-		m_pieceRenderer.renderPiece(window, m_pieces[i], i);
+		m_pieceRenderer.renderPiece(m_window, m_pieces[i], i);
 }
 
-void Board::renderHeldPiece(sf::RenderWindow &window) {
+void Board::renderHeldPiece() {
 	if(Piece::isNull(m_heldPiece.value))
 		return;
 
-	sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+	sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window));
 	pos.x -= 32;
 	pos.y -= 32;
 
-	m_pieceRenderer.renderPiece(window, m_heldPiece.value, pos);
+	m_pieceRenderer.renderPiece(m_window, m_heldPiece.value, pos);
 }
 
 void Board::applyFen(const std::string &fen) {
@@ -69,18 +69,18 @@ void Board::applyFen(const std::string &fen) {
 	}
 }
 
-void Board::handleEvent(sf::RenderWindow &window, const sf::Event &e) {
+void Board::handleEvent(const sf::Event &e) {
 	switch(e.type) {
 		case sf::Event::EventType::MouseButtonPressed:
 			if(e.mouseButton.button == sf::Mouse::Left)
-				handlePieceDrag(window);
+				handlePieceDrag();
 
 			break;
 
 		// TODO: Check if move is legal
 		case sf::Event::EventType::MouseButtonReleased:
 			if(e.mouseButton.button == sf::Mouse::Left)
-				handlePieceDrop(window);
+				handlePieceDrop();
 
 			break;
 
@@ -89,11 +89,11 @@ void Board::handleEvent(sf::RenderWindow &window, const sf::Event &e) {
 	}
 }
 
-void Board::handlePieceDrag(sf::RenderWindow &window) {
+void Board::handlePieceDrag() {
 	if(!Piece::isNull(m_heldPiece.value))
 		return;
 
-	sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+	sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window));
 	sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
 	uint8_t idx = gridPos.y * 8 + gridPos.x;
 
@@ -108,11 +108,11 @@ void Board::handlePieceDrag(sf::RenderWindow &window) {
 	}
 }
 
-void Board::handlePieceDrop(sf::RenderWindow &window) {
+void Board::handlePieceDrop() {
 	if(Piece::isNull(m_heldPiece.value))
 		return;
 
-	sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+	sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window));
 	sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
 	uint8_t idx = gridPos.y * 8 + gridPos.x;
 

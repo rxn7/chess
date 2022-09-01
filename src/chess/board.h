@@ -20,19 +20,20 @@ struct HeldPieceData {
 
 class Board {
 public:
-	Board(const sf::Font &font, const BoardTheme &theme = DEFAULT_BOARD_THEME);
-	void render(sf::RenderWindow &window);
+	Board(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme = DEFAULT_BOARD_THEME);
+	void render();
 	inline BoardRenderer &getBoardRenderer() { return m_boardRenderer; }
 	void applyFen(const std::string &fen);
-	void handleEvent(sf::RenderWindow &window, const sf::Event &e);
+	void handleEvent(const sf::Event &e);
 
 private:
-	void renderHeldPiece(sf::RenderWindow &window);
-	void renderPieces(sf::RenderWindow &window);
-	void handlePieceDrag(sf::RenderWindow &window);
-	void handlePieceDrop(sf::RenderWindow &window);
+	void renderHeldPiece();
+	void renderPieces();
+	void handlePieceDrag();
+	void handlePieceDrop();
 
 private:
+	sf::RenderWindow &m_window;
 	std::array<PieceValue, 64> m_pieces;
 	HeldPieceData m_heldPiece;
 	BoardRenderer m_boardRenderer;

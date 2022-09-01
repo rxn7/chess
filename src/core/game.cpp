@@ -18,7 +18,7 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 		m_window.close();
 	}
 
-	m_board = std::make_unique<Board>(m_font, BoardTheme::generateRandomTheme());
+	m_board = std::make_unique<Board>(m_window, m_font, BoardTheme::generateRandomTheme());
 
 	m_view.setCenter(256, 256);
 	m_view.setSize(512, 512);
@@ -39,14 +39,14 @@ void Game::start() {
 
 		m_window.setView(m_view);
 		m_window.clear(CLEAR_COLOR);
-		m_board->render(m_window);
+		m_board->render();
 		m_window.display();
 	}
 }
 
 
 void Game::handleEvent(const sf::Event &e) {
-	m_board->handleEvent(m_window, e);
+	m_board->handleEvent(e);
 
 	switch(e.type) {
 		case sf::Event::Closed:
@@ -59,9 +59,7 @@ void Game::handleEvent(const sf::Event &e) {
 			float sizeX = 1, sizeY = 1;
 			float posX = 0, posY = 0;
 
-			bool horizontalSpacing = winRatio > viewRatio;
-
-			if(horizontalSpacing) {
+			if(winRatio > viewRatio) {
 				sizeX = viewRatio / winRatio;
 				posX = (1 - sizeX) * 0.5f;
 			} else {
