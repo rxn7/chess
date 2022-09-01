@@ -53,7 +53,6 @@ void Game::handleEvent(const sf::Event &e) {
 			m_window.close();
 			break;
 
-		// TODO: Make sure the board is always visible.
 		case sf::Event::Resized: {
 			float winRatio = e.size.width / (float)e.size.height;
 			float viewRatio = m_view.getSize().x / (float)m_view.getSize().y;
