@@ -19,14 +19,19 @@ public:
 	void handleEvent(const sf::Event &e);
 	void applyFen(const std::string &fen);
 	bool movePiece(const Move &move);
+	uint8_t getHoveredSquareIdx() const;
 	void reset();
 
 	inline BoardRenderer &getBoardRenderer() {
 		 return m_boardRenderer; 
 	}
 
-	inline bool isAnyPieceHeld() {
+	inline bool isAnyPieceHeld() const {
 		return m_heldPieceIdx < 64 && !Piece::isNull(m_pieces[m_heldPieceIdx]);
+	}
+
+	static inline bool isSquareIdxCorrect(uint8_t idx) {
+		return idx >= 0 && idx < 64;
 	}
 
 private:

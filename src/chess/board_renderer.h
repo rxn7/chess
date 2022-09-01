@@ -16,8 +16,9 @@ public:
 	void renderCoords();
 	void renderSquares();
 	void setTheme(const BoardTheme &theme);
-	void highlightMoveSquares(const Move &move);
-	inline const BoardTheme &getTheme() { return m_theme; }
+	void renderSquareHighlight(uint8_t idx);
+	void renderSquareOutline(uint8_t idx);
+	inline const BoardTheme &getTheme() const { return m_theme; }
 
 private:
 	void generateVa();
@@ -25,7 +26,7 @@ private:
 	void updateCoordTextsColors();
 
 private:
-	sf::RectangleShape m_highlightSquare;
+	sf::RectangleShape m_squareHighlight, m_squareOutline;
 	sf::RenderWindow &m_window;
 	const sf::Font &m_font;
 	sf::VertexArray m_vertexArray;

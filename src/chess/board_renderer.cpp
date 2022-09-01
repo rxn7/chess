@@ -11,10 +11,13 @@
 #include <cstdint>
 #include <iostream>
 
-BoardRenderer::BoardRenderer(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme) : m_window(window), m_font(font), m_theme(theme), m_vertexArray(sf::PrimitiveType::Quads, 64*4), m_highlightSquare({64,64}) {
-	m_highlightSquare.setFillColor(sf::Color(100, 255, 100, 120));
-	generateVa();
+#define OUTLINE_THICKNESS 2
+
+BoardRenderer::BoardRenderer(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme) : m_window(window), m_font(font), m_vertexArray(sf::PrimitiveType::Quads, 64*4), m_squareHighlight({64,64}), m_squareOutline({64-OUTLINE_THICKNESS*2,64-OUTLINE_THICKNESS*2}) {
+	m_squareOutline.setFillColor(sf::Color::Transparent);
+	m_squareOutline.setOutlineThickness(OUTLINE_THICKNESS);
 	generateCoordTexts();
+	setTheme(theme);
 }
 
 void BoardRenderer::renderSquares() {
@@ -26,15 +29,22 @@ void BoardRenderer::renderCoords() {
 		m_window.draw(coordText);
 }
 
-void BoardRenderer::highlightMoveSquares(const Move &move) {
-	for(uint8_t idx : move.indices) {
-		m_highlightSquare.setPosition(sf::Vector2f((idx % 8) * 64, (idx / 8) * 64));
-		m_window.draw(m_highlightSquare);
-	}
+void BoardRenderer::renderSquareHighlight(uint8_t idx) {
+	m_squareHighlight.setPosition(sf::Vector2f((idx % 8) * 64, (idx / 8) * 64));
+	m_window.draw(m_squareHighlight);
+}
+
+void BoardRenderer::renderSquareOutline(uint8_t idx) {
+	m_squareOutline.setPosition(sf::Vector2f((idx % 8) * 64 + OUTLINE_THICKNESS, (idx / 8) * 64 + OUTLINE_THICKNESS));
+	m_window.draw(m_squareOutline);
 }
 
 void BoardRenderer::setTheme(const BoardTheme &theme) {
 	m_theme = theme;
+
+	m_squareHighlight.setFillColor(theme.highlightColor);
+	m_squareOutline.setOutlineColor(theme.outlineColor);
+
 	generateVa();
 	updateCoordTextsColors();
 }

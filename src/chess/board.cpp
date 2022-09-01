@@ -4,6 +4,7 @@
 #include "chess/piece.h"
 #include "core/sound_system.h"
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <cstddef>
 #include <iostream>
 #include <memory>
 
@@ -25,11 +26,16 @@ void Board::render() {
 	m_boardRenderer.renderSquares();
 
 	if(!m_lastMove.isNull())
-		m_boardRenderer.highlightMoveSquares(m_lastMove);
+		for(uint8_t idx : m_lastMove.indices)
+			m_boardRenderer.renderSquareHighlight(idx);
+
+	m_boardRenderer.renderSquareOutline(getHoveredSquareIdx());
 
 	renderPieces();
 	m_boardRenderer.renderCoords();
-	renderHeldPiece();
+
+	if(isAnyPieceHeld())
+		renderHeldPiece();
 }
 
 bool Board::movePiece(const Move &move) {
@@ -56,7 +62,7 @@ void Board::handlePieceDrag() {
 	sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
 	uint8_t idx = gridPos.y * 8 + gridPos.x;
 
-	if(idx < 0 || idx >= 64)
+	if(!isSquareIdxCorrect(idx))
 		return;
 
 	PieceValue piece = m_pieces[idx];
@@ -78,7 +84,7 @@ void Board::handlePieceDrop() {
 	sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
 	uint8_t idx = gridPos.y * 8 + gridPos.x;
 
-	if(idx < 0 || idx >= 64) {
+	if(!isSquareIdxCorrect(idx)) {
 		resetHeldPiece();
 		return;
 	}
@@ -97,14 +103,22 @@ void Board::renderPieces() {
 }
 
 void Board::renderHeldPiece() {
-	if(!isAnyPieceHeld())
-		return;
-
 	sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window));
 	pos.x -= 32;
 	pos.y -= 32;
 
 	m_pieceRenderer.renderPiece(m_window, m_pieces[m_heldPieceIdx], pos);
+}
+
+uint8_t Board::getHoveredSquareIdx() const {
+	sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
+	sf::Vector2f pos = m_window.mapPixelToCoords(mousePos);
+	if(pos.x < 0 || pos.x > 512 || pos.y < 0 || pos.y > 512) {
+		return 64;
+	}
+
+	sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
+	return gridPos.y * 8 + gridPos.x;
 }
 
 void Board::applyFen(const std::string &fen) {
