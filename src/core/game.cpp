@@ -26,6 +26,7 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 	m_window.setKeyRepeatEnabled(false);
 
 	std::cout << "\e[1;32mPress 'T' to generate random board theme!\e[0m" << std::endl;
+	std::cout << "\e[1;32mPress 'R' to bring back the default board theme!\e[0m" << std::endl;
 }
 
 void Game::start() {
@@ -76,6 +77,10 @@ void Game::handleEvent(const sf::Event &e) {
 			switch(e.key.code) {
 				case sf::Keyboard::Key::T:
 					m_board->getBoardRenderer().setTheme(BoardTheme::generateRandomTheme());
+					break;
+
+				case sf::Keyboard::Key::R:
+					m_board->getBoardRenderer().setTheme(DEFAULT_BOARD_THEME);
 					break;
 
 				default:
