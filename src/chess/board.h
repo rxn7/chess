@@ -18,7 +18,7 @@ public:
 	void render();
 	void handleEvent(const sf::Event &e);
 	void applyFen(const std::string &fen);
-	void movePiece(const Move &move);
+	bool movePiece(const Move &move);
 	void reset();
 
 	inline BoardRenderer &getBoardRenderer() {
@@ -34,7 +34,6 @@ private:
 	void renderPieces();
 	void handlePieceDrag();
 	void handlePieceDrop();
-	void playMoveSound();
 
 	inline void resetHeldPiece() {
 		m_heldPieceIdx = 255; // every number above 63 and below 0 is ignored
@@ -48,7 +47,4 @@ private:
 	PieceRenderer m_pieceRenderer;
 	uint8_t m_turnColor;
 	Move m_lastMove;
-
-	sf::SoundBuffer m_pieceMoveSb;
-	sf::Sound m_pieceMoveSound;
 };

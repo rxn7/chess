@@ -22,7 +22,7 @@ void PieceRenderer::renderPiece(sf::RenderWindow &window, PieceValue piece, cons
 	std::unordered_map<PieceValue, sf::Sprite>::iterator it = m_sprites.find(piece);
 
 	if(it == m_sprites.end()) {
-		std::cerr << "\e[1;31mSprite for PieceValue " << (int)piece << " (type: " << (piece & TYPE_MASK) << ", color: " << (piece & COLOR_MASK)  << ") not found!";
+		std::cerr << "\e[1;31mSprite for PieceValue " << (int)piece << " (type: " << (piece & TYPE_MASK) << ", color: " << (piece & COLOR_MASK)  << ") not found!\e[0m\n";
 		return;
 	}
 

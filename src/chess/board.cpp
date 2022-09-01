@@ -2,18 +2,15 @@
 #include "chess/board_renderer.h"
 #include "chess/board_theme.h"
 #include "chess/piece.h"
+#include "core/sound_system.h"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <iostream>
 #include <memory>
 
-#define MOVE_SOUND_PATH "res/move.flac"
+#define MOVE_SOUND_PATH "res/move.wav"
+#define TAKE_SOUND_PATH "res/move.wav"
 
 Board::Board(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme) : m_window(window), m_boardRenderer(m_window, font, theme) {
-	if(!m_pieceMoveSb.loadFromFile(MOVE_SOUND_PATH))
-		std::cerr << "\e[1;31mFailed to load piece move sound (" MOVE_SOUND_PATH ")!\e[0m\n";
-
-	m_pieceMoveSound.setBuffer(m_pieceMoveSb);
-
 	reset();
 }
 
@@ -35,18 +32,20 @@ void Board::render() {
 	renderHeldPiece();
 }
 
-void Board::movePiece(const Move &move) {
+bool Board::movePiece(const Move &move) {
+	if(Piece::isNull(m_pieces[move.toIdx]))
+		SoundSystem::playSound(SoundType::Move);
+	else if((m_pieces[move.toIdx] & COLOR_MASK) != (m_pieces[move.fromIdx] & COLOR_MASK))
+		SoundSystem::playSound(SoundType::Take);
+	else
+		return false;
+
 	m_pieces[move.toIdx] = m_pieces[move.fromIdx];
 	m_pieces[move.fromIdx] = Piece::None;
-	playMoveSound();
-
 	m_turnColor = m_turnColor == Piece::White ? Piece::Black : Piece::White;
 	m_lastMove = move;
-}
 
-void Board::playMoveSound() {
-	m_pieceMoveSound.setPitch((90 + rand() % 20) / 100.0f);
-	m_pieceMoveSound.play();
+	return true;
 }
 
 void Board::handlePieceDrag() {
@@ -85,9 +84,9 @@ void Board::handlePieceDrop() {
 	}
 
 	PieceValue piece = m_pieces[idx];
-	if(Piece::isNull(piece) || (piece & COLOR_MASK) != (m_pieces[m_heldPieceIdx] & COLOR_MASK))
-		movePiece({m_heldPieceIdx, idx});
-	else
+
+
+	if(!movePiece({m_heldPieceIdx, idx}))
 		resetHeldPiece();
 }
 

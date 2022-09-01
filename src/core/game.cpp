@@ -3,6 +3,7 @@
 #include "chess/board_theme.h"
 #include "chess/piece_renderer.h"
 #include "chess/piece.h"
+#include "sound_system.h"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -12,6 +13,8 @@
 
 Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 	srand(time(0));
+
+	SoundSystem::init();
 
 	if(!m_font.loadFromFile("res/RobotoMono-Regular.ttf")) {
 		std::cerr << "\e[1;31mFailed to load font RobotoMono-Regular!\e[0m\n";
@@ -45,7 +48,6 @@ void Game::start() {
 		m_window.display();
 	}
 }
-
 
 void Game::handleEvent(const sf::Event &e) {
 	m_board->handleEvent(e);
