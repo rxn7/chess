@@ -6,11 +6,8 @@
 #include <cctype>
 #include <memory>
 
-#define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
-
 Board::Board(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme) : m_window(window), m_boardRenderer(font, theme) {
-	std::fill(m_pieces.begin(), m_pieces.end(), 0);
-	applyFen(DEFAULT_FEN);
+	resetBoard();
 }
 
 void Board::render() {
@@ -34,6 +31,12 @@ void Board::renderHeldPiece() {
 	pos.y -= 32;
 
 	m_pieceRenderer.renderPiece(m_window, m_heldPiece.value, pos);
+}
+
+void Board::resetBoard() {
+	m_heldPiece.reset();
+	std::fill(m_pieces.begin(), m_pieces.end(), 0);
+	applyFen(DEFAULT_FEN);
 }
 
 void Board::applyFen(const std::string &fen) {
@@ -118,16 +121,16 @@ void Board::handlePieceDrop() {
 
 	if(idx < 0 || idx >= 64) {
 		m_pieces[m_heldPiece.previousIdx] = m_heldPiece.value;
-		m_heldPiece.restart();
+		m_heldPiece.reset();
 		return;
 	}
 
 	PieceValue piece = m_pieces[idx];
 	if(Piece::isNull(piece) || (piece & COLOR_MASK) != (m_heldPiece.value & COLOR_MASK)) {
 		m_pieces[idx] = m_heldPiece.value;
-		m_heldPiece.restart();
+		m_heldPiece.reset();
 	} else if(m_heldPiece.previousIdx > 0 && m_heldPiece.previousIdx < 64) {
 		m_pieces[m_heldPiece.previousIdx] = m_heldPiece.value;
-		m_heldPiece.restart();
+		m_heldPiece.reset();
 	}
 }
