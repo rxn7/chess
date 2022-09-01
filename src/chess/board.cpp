@@ -8,7 +8,7 @@
 
 #define MOVE_SOUND_PATH "res/move.flac"
 
-Board::Board(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme) : m_window(window), m_boardRenderer(font, theme) {
+Board::Board(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme) : m_window(window), m_boardRenderer(m_window, font, theme) {
 	if(!m_pieceMoveSb.loadFromFile(MOVE_SOUND_PATH))
 		std::cerr << "\e[1;31mFailed to load piece move sound (" MOVE_SOUND_PATH ")!\e[0m\n";
 
@@ -21,19 +21,27 @@ void Board::reset() {
 	std::fill(m_pieces.begin(), m_pieces.end(), Piece::None); // Clear the board
 	resetHeldPiece();
 	applyFen(DEFAULT_FEN);
+	m_turnColor = Piece::White;
 }
 
 void Board::render() {
-	m_boardRenderer.renderSquares(m_window);
+	m_boardRenderer.renderSquares();
+
+	if(!m_lastMove.isNull())
+		m_boardRenderer.highlightMoveSquares(m_lastMove);
+
 	renderPieces();
-	m_boardRenderer.renderCoords(m_window);
+	m_boardRenderer.renderCoords();
 	renderHeldPiece();
 }
 
-void Board::movePiece(uint8_t fromIdx, uint8_t toIdx) {
-	m_pieces[toIdx] = m_pieces[fromIdx];
-	m_pieces[fromIdx] = Piece::None;
+void Board::movePiece(const Move &move) {
+	m_pieces[move.toIdx] = m_pieces[move.fromIdx];
+	m_pieces[move.fromIdx] = Piece::None;
 	playMoveSound();
+
+	m_turnColor = m_turnColor == Piece::White ? Piece::Black : Piece::White;
+	m_lastMove = move;
 }
 
 void Board::playMoveSound() {
@@ -53,9 +61,8 @@ void Board::handlePieceDrag() {
 		return;
 
 	PieceValue piece = m_pieces[idx];
-	if(!Piece::isNull(piece)) {
+	if(!Piece::isNull(piece) && (piece & COLOR_MASK) == m_turnColor)
 		m_heldPieceIdx = idx;
-	}
 }
 
 void Board::handlePieceDrop() {
@@ -79,7 +86,7 @@ void Board::handlePieceDrop() {
 
 	PieceValue piece = m_pieces[idx];
 	if(Piece::isNull(piece) || (piece & COLOR_MASK) != (m_pieces[m_heldPieceIdx] & COLOR_MASK))
-		movePiece(m_heldPieceIdx, idx);
+		movePiece({m_heldPieceIdx, idx});
 	else
 		resetHeldPiece();
 }

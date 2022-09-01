@@ -4,6 +4,7 @@
 #include "chess/board_theme.h"
 #include "chess/piece.h"
 #include "chess/piece_renderer.h"
+#include "move.h"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Audio.hpp>
 #include <array>
@@ -17,7 +18,7 @@ public:
 	void render();
 	void handleEvent(const sf::Event &e);
 	void applyFen(const std::string &fen);
-	void movePiece(uint8_t fromIdx, uint8_t toIdx);
+	void movePiece(const Move &move);
 	void reset();
 
 	inline BoardRenderer &getBoardRenderer() {
@@ -45,6 +46,8 @@ private:
 	uint8_t m_heldPieceIdx;
 	BoardRenderer m_boardRenderer;
 	PieceRenderer m_pieceRenderer;
+	uint8_t m_turnColor;
+	Move m_lastMove;
 
 	sf::SoundBuffer m_pieceMoveSb;
 	sf::Sound m_pieceMoveSound;

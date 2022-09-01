@@ -1,18 +1,22 @@
 #pragma once
 
 #include "board_theme.h"
+#include "move.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <array>
 
 class BoardRenderer {
 public:
-	BoardRenderer(const sf::Font &font, const BoardTheme &theme = DEFAULT_BOARD_THEME);
+	BoardRenderer(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme = DEFAULT_BOARD_THEME);
 
-	void renderCoords(sf::RenderWindow &window);
-	void renderSquares(sf::RenderWindow &window);
+	void renderCoords();
+	void renderSquares();
 	void setTheme(const BoardTheme &theme);
+	void highlightMoveSquares(const Move &move);
 	inline const BoardTheme &getTheme() { return m_theme; }
 
 private:
@@ -21,6 +25,8 @@ private:
 	void updateCoordTextsColors();
 
 private:
+	sf::RectangleShape m_highlightSquare;
+	sf::RenderWindow &m_window;
 	const sf::Font &m_font;
 	sf::VertexArray m_vertexArray;
 	sf::Text m_coordTexts[16];

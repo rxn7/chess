@@ -1,6 +1,7 @@
 #include "board_renderer.h"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Vertex.hpp>
@@ -10,18 +11,26 @@
 #include <cstdint>
 #include <iostream>
 
-BoardRenderer::BoardRenderer(const sf::Font &font, const BoardTheme &theme) : m_font(font), m_theme(theme), m_vertexArray(sf::PrimitiveType::Quads, 64*4) {
+BoardRenderer::BoardRenderer(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme) : m_window(window), m_font(font), m_theme(theme), m_vertexArray(sf::PrimitiveType::Quads, 64*4), m_highlightSquare({64,64}) {
+	m_highlightSquare.setFillColor(sf::Color(100, 255, 100, 120));
 	generateVa();
 	generateCoordTexts();
 }
 
-void BoardRenderer::renderSquares(sf::RenderWindow &window) {
-	window.draw(m_vertexArray);
+void BoardRenderer::renderSquares() {
+	m_window.draw(m_vertexArray);
 }
 
-void BoardRenderer::renderCoords(sf::RenderWindow &window) {
+void BoardRenderer::renderCoords() {
 	for(sf::Text &coordText : m_coordTexts)
-		window.draw(coordText);
+		m_window.draw(coordText);
+}
+
+void BoardRenderer::highlightMoveSquares(const Move &move) {
+	for(uint8_t idx : move.indices) {
+		m_highlightSquare.setPosition(sf::Vector2f((idx % 8) * 64, (idx / 8) * 64));
+		m_window.draw(m_highlightSquare);
+	}
 }
 
 void BoardRenderer::setTheme(const BoardTheme &theme) {
