@@ -9,6 +9,7 @@
 #define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 Board::Board(const sf::Font &font, const BoardTheme &theme) : m_boardRenderer(font, theme) {
+	std::fill(m_pieces.begin(), m_pieces.end(), 0);
 	applyFen(DEFAULT_FEN);
 }
 
