@@ -30,10 +30,20 @@ void BoardRenderer::renderCoords() {
 		m_window.draw(coordText);
 }
 
-void BoardRenderer::renderSquareHighlight(uint8_t idx) {
+void BoardRenderer::renderSquareLastMove(uint8_t idx) {
 	if(!Board::isSquareIdxCorrect(idx))
 		return;
 
+	m_squareHighlight.setFillColor(m_theme.lastMoveColor);
+	m_squareHighlight.setPosition(sf::Vector2f((idx % 8) * 64, (idx / 8) * 64));
+	m_window.draw(m_squareHighlight);
+}
+
+void BoardRenderer::renderSquareLegalMove(uint8_t idx) {
+	if(!Board::isSquareIdxCorrect(idx))
+		return;
+
+	m_squareHighlight.setFillColor(m_theme.legalMoveColor);
 	m_squareHighlight.setPosition(sf::Vector2f((idx % 8) * 64, (idx / 8) * 64));
 	m_window.draw(m_squareHighlight);
 }
@@ -49,7 +59,6 @@ void BoardRenderer::renderSquareOutline(uint8_t idx) {
 void BoardRenderer::setTheme(const BoardTheme &theme) {
 	m_theme = theme;
 
-	m_squareHighlight.setFillColor(theme.highlightColor);
 	m_squareOutline.setOutlineColor(theme.outlineColor);
 
 	generateVa();

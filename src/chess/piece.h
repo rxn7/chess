@@ -1,5 +1,7 @@
 #pragma once
+#include <array>
 #include <cstdint>
+#include <vector>
 
 typedef uint8_t PieceValue;
 
@@ -23,4 +25,6 @@ namespace Piece {
 	static inline bool isNull(PieceValue val) {
 		return !(val & TYPE_MASK) || ((val & COLOR_MASK) != WHITE_MASK && (val & COLOR_MASK) != BLACK_MASK);
 	}
+
+	void getLegalMoves(uint8_t idx, std::array<PieceValue, 64> &pieces, std::vector<uint8_t> &moves);
 }
