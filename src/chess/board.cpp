@@ -34,6 +34,7 @@ void Board::render() {
 	for(uint8_t idx : m_legalMoves)
 		m_boardRenderer.renderSquareLegalMove(idx);
 
+	m_boardRenderer.renderSquareOutline(m_heldPieceIdx);
 	m_boardRenderer.renderSquareOutline(getHoveredSquareIdx());
 
 	renderPieces();
