@@ -1,6 +1,6 @@
 #include "piece_renderer.h"
 #include "piece.h"
-#include "chess/board.h"
+#include "board.h"
 #include <iostream>
 #include <unordered_map>
 

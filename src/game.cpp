@@ -1,8 +1,8 @@
 #include "game.h"
-#include "chess/board_renderer.h"
-#include "chess/board_theme.h"
-#include "chess/piece_renderer.h"
-#include "chess/piece.h"
+#include "board_renderer.h"
+#include "board_theme.h"
+#include "piece_renderer.h"
+#include "piece.h"
 #include "sound_system.h"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Event.hpp>

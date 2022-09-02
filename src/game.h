@@ -1,7 +1,7 @@
 #pragma once
 
-#include "chess/board.h"
-#include "chess/piece_renderer.h"
+#include "board.h"
+#include "piece_renderer.h"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/Window/Event.hpp>
