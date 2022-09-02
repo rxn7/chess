@@ -25,9 +25,14 @@ void Board::reset() {
 void Board::render() {
 	m_boardRenderer.renderSquares();
 
+	// Render last move
 	if(!m_lastMove.isNull())
 		for(uint8_t idx : m_lastMove.indices)
-			m_boardRenderer.renderSquareHighlight(idx);
+			m_boardRenderer.renderSquareLastMove(idx);
+
+	// Render legal moves
+	for(uint8_t idx : m_legalMoves)
+		m_boardRenderer.renderSquareLegalMove(idx);
 
 	m_boardRenderer.renderSquareOutline(getHoveredSquareIdx());
 
@@ -38,18 +43,25 @@ void Board::render() {
 		renderHeldPiece();
 }
 
-bool Board::movePiece(const Move &move) {
-	if(Piece::isNull(m_pieces[move.toIdx]))
+bool Board::moveHeldPiece(uint8_t toIdx) {
+	if(std::find(m_legalMoves.begin(), m_legalMoves.end(), toIdx) == m_legalMoves.end())
+		return false;
+
+	if(Piece::isNull(m_pieces[toIdx]))
 		SoundSystem::playSound(SoundType::Move);
-	else if((m_pieces[move.toIdx] & COLOR_MASK) != (m_pieces[move.fromIdx] & COLOR_MASK))
+	else if((m_pieces[toIdx] & COLOR_MASK) != (m_pieces[m_heldPieceIdx] & COLOR_MASK))
 		SoundSystem::playSound(SoundType::Take);
 	else
 		return false;
 
-	m_pieces[move.toIdx] = m_pieces[move.fromIdx];
-	m_pieces[move.fromIdx] = Piece::None;
+	m_pieces[toIdx] = m_pieces[m_heldPieceIdx];
+	m_pieces[m_heldPieceIdx] = Piece::None;
 	m_turnColor = m_turnColor == Piece::White ? Piece::Black : Piece::White;
-	m_lastMove = move;
+	
+	m_lastMove.fromIdx = m_heldPieceIdx;
+	m_lastMove.toIdx = toIdx;
+
+	resetHeldPiece();
 
 	return true;
 }
@@ -66,8 +78,10 @@ void Board::handlePieceDrag() {
 		return;
 
 	PieceValue piece = m_pieces[idx];
-	if(!Piece::isNull(piece) && (piece & COLOR_MASK) == m_turnColor)
+	if(!Piece::isNull(piece) && (piece & COLOR_MASK) == m_turnColor) {
 		m_heldPieceIdx = idx;
+		Piece::getLegalMoves(idx, m_pieces, m_legalMoves);
+	}
 }
 
 void Board::handlePieceDrop() {
@@ -92,7 +106,7 @@ void Board::handlePieceDrop() {
 	PieceValue piece = m_pieces[idx];
 
 
-	if(!movePiece({m_heldPieceIdx, idx}))
+	if(!moveHeldPiece(idx))
 		resetHeldPiece();
 }
 
@@ -145,7 +159,7 @@ void Board::applyFen(const std::string &fen) {
 						case 'r': type = Piece::Rook; break;
 						case 'p': type = Piece::Pawn; break;
 						default: 
-							std::cerr << "\e[1;31mUnknown char '" << c << "' in fen notation '" << fen << "'!\e[0m\n";
+							std::cerr << "\e[1;33mUnknown char '" << c << "' in fen notation '" << fen << "'!\e[0m\n";
 							return;
 					}
 

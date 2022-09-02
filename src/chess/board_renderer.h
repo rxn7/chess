@@ -16,7 +16,8 @@ public:
 	void renderCoords();
 	void renderSquares();
 	void setTheme(const BoardTheme &theme);
-	void renderSquareHighlight(uint8_t idx);
+	void renderSquareLastMove(uint8_t idx);
+	void renderSquareLegalMove(uint8_t idx);
 	void renderSquareOutline(uint8_t idx);
 	inline const BoardTheme &getTheme() const { return m_theme; }
 

@@ -18,7 +18,7 @@ public:
 	void render();
 	void handleEvent(const sf::Event &e);
 	void applyFen(const std::string &fen);
-	bool movePiece(const Move &move);
+	bool moveHeldPiece(uint8_t toIdx);
 	uint8_t getHoveredSquareIdx() const;
 	void reset();
 
@@ -42,9 +42,11 @@ private:
 
 	inline void resetHeldPiece() {
 		m_heldPieceIdx = 255; // every number above 63 and below 0 is ignored
+		m_legalMoves.clear();
 	}
 
 private:
+	std::vector<uint8_t> m_legalMoves;
 	sf::RenderWindow &m_window;
 	std::array<PieceValue, 64> m_pieces;
 	uint8_t m_heldPieceIdx;
