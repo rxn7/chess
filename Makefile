@@ -6,7 +6,7 @@ DIR_SRC := src
 INC := -Isrc
 SRC := $(wildcard $(addsuffix /*.cpp, $(DIR_SRC)))
 OBJ := $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRC))
-CFLAGS := -std=c++20
+CFLAGS := -std=c++20 -O3
 LDFLAGS := -Wl,--copy-dt-needed-entries -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
 all: create_dirs copy_res $(OBJ) $(OUT)

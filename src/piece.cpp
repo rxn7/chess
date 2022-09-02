@@ -77,16 +77,16 @@ ADD_LEGAL_PIECE_MOVES_DECL(Pawn) {
 	uint8_t color = piece & COLOR_MASK;
 
 	if(color == Piece::White) {
-		ADD_MOVE_IF_SQUARE_EMPTY(idx-8);
-		if(idx >= 48 && idx <= 55) 
-			ADD_MOVE_IF_SQUARE_EMPTY(idx-16);
+		if(ADD_MOVE_IF_SQUARE_EMPTY(idx-8))
+			if(idx >= 48 && idx <= 55) 
+				ADD_MOVE_IF_SQUARE_EMPTY(idx-16);
 
 		ADD_MOVE_IF_SQUARE_HAS_OPPONENT_PIECE(idx-9);
 		ADD_MOVE_IF_SQUARE_HAS_OPPONENT_PIECE(idx-7);
 	} else {
-		ADD_MOVE_IF_SQUARE_EMPTY(idx+8);
-		if(idx >= 8 && idx <= 15) 
-			ADD_MOVE_IF_SQUARE_EMPTY(idx+16);
+		if(ADD_MOVE_IF_SQUARE_EMPTY(idx+8))
+			if(idx >= 8 && idx <= 15) 
+				ADD_MOVE_IF_SQUARE_EMPTY(idx+16);
 
 		ADD_MOVE_IF_SQUARE_HAS_OPPONENT_PIECE(idx+9);
 		ADD_MOVE_IF_SQUARE_HAS_OPPONENT_PIECE(idx+7);
