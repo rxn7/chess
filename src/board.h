@@ -19,6 +19,7 @@ public:
 	void handleEvent(const sf::Event &e);
 	void applyFen(const std::string &fen);
 	bool moveHeldPiece(uint8_t toIdx);
+	void processPawnPromotion(uint8_t idx);
 	uint8_t getHoveredSquareIdx() const;
 	void reset();
 

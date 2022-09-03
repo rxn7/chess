@@ -10,6 +10,7 @@
 
 #define MOVE_SOUND_PATH "res/move.wav"
 #define TAKE_SOUND_PATH "res/move.wav"
+#define HELD_PIECE m_pieces[m_heldPieceIdx]
 
 Board::Board(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme) : m_window(window), m_boardRenderer(m_window, font, theme) {
 	reset();
@@ -50,21 +51,39 @@ bool Board::moveHeldPiece(uint8_t toIdx) {
 
 	if(Piece::isNull(m_pieces[toIdx]))
 		SoundSystem::playSound(SoundType::Move);
-	else if((m_pieces[toIdx] & COLOR_MASK) != (m_pieces[m_heldPieceIdx] & COLOR_MASK))
+	else if((m_pieces[toIdx] & COLOR_MASK) != (HELD_PIECE & COLOR_MASK))
 		SoundSystem::playSound(SoundType::Take);
 	else
 		return false;
 
-	m_pieces[toIdx] = m_pieces[m_heldPieceIdx];
+	m_pieces[toIdx] = HELD_PIECE;
 	m_pieces[m_heldPieceIdx] = Piece::None;
-	m_turnColor = m_turnColor == Piece::White ? Piece::Black : Piece::White;
 	
 	m_lastMove.fromIdx = m_heldPieceIdx;
 	m_lastMove.toIdx = toIdx;
 
+	processPawnPromotion(toIdx);
 	resetHeldPiece();
 
+	m_turnColor = m_turnColor == Piece::White ? Piece::Black : Piece::White;
+
 	return true;
+}
+
+void Board::processPawnPromotion(uint8_t idx) {
+	PieceValue piece = m_pieces[idx];
+
+	if((piece & TYPE_MASK) != Piece::Pawn)
+		return;
+
+	uint8_t color = piece & COLOR_MASK;
+	if(color == Piece::White) {
+		if(idx >= 0 && idx < 8)
+			m_pieces[idx] = Piece::Queen | Piece::White;
+	} else {
+		if(idx >= 8*7 && idx < 8*8)
+			m_pieces[idx] = Piece::Queen | Piece::Black;
+	}
 }
 
 void Board::handlePieceDrag() {
