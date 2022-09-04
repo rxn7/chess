@@ -75,21 +75,28 @@ void Piece::getLegalMoves(uint8_t idx, std::array<PieceValue, 64> &pieces, std::
 ADD_LEGAL_PIECE_MOVES_DECL(Pawn) {
 	PieceValue piece = pieces[idx];
 	uint8_t color = piece & COLOR_MASK;
+	uint8_t rank = idx % 8;
 
 	if(color == Piece::White) {
 		if(ADD_MOVE_IF_SQUARE_EMPTY(idx-8))
 			if(idx >= 48 && idx <= 55) 
 				ADD_MOVE_IF_SQUARE_EMPTY(idx-16);
 
-		ADD_MOVE_IF_SQUARE_HAS_OPPONENT_PIECE(idx-9);
-		ADD_MOVE_IF_SQUARE_HAS_OPPONENT_PIECE(idx-7);
+		if(rank != 0)
+			ADD_MOVE_IF_SQUARE_HAS_OPPONENT_PIECE(idx-9);
+
+		if(rank != 7)
+			ADD_MOVE_IF_SQUARE_HAS_OPPONENT_PIECE(idx-7);
 	} else {
 		if(ADD_MOVE_IF_SQUARE_EMPTY(idx+8))
 			if(idx >= 8 && idx <= 15) 
 				ADD_MOVE_IF_SQUARE_EMPTY(idx+16);
 
-		ADD_MOVE_IF_SQUARE_HAS_OPPONENT_PIECE(idx+9);
-		ADD_MOVE_IF_SQUARE_HAS_OPPONENT_PIECE(idx+7);
+		if(rank != 7)
+			ADD_MOVE_IF_SQUARE_HAS_OPPONENT_PIECE(idx+9);
+
+		if(rank != 0)
+			ADD_MOVE_IF_SQUARE_HAS_OPPONENT_PIECE(idx+7);
 	}
 }
 

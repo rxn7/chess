@@ -19,6 +19,7 @@ Board::Board(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &t
 void Board::reset() {
 	std::fill(m_pieces.begin(), m_pieces.end(), Piece::None); // Clear the board
 	resetHeldPiece();
+	m_lastMove.reset();
 	applyFen(DEFAULT_FEN);
 	m_turnColor = Piece::White;
 }
