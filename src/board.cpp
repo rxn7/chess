@@ -8,8 +8,6 @@
 #include <iostream>
 #include <memory>
 
-#define MOVE_SOUND_PATH "res/move.wav"
-#define TAKE_SOUND_PATH "res/move.wav"
 #define HELD_PIECE m_pieces[m_heldPieceIdx]
 
 Board::Board(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme) : m_window(window), m_boardRenderer(m_window, font, theme) {
@@ -25,6 +23,7 @@ void Board::reset() {
 }
 
 void Board::render() {
+	m_boardRenderer.renderSquares();
 	m_boardRenderer.renderSquares();
 
 	// Render last move
