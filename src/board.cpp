@@ -123,9 +123,6 @@ void Board::handlePieceDrop() {
 		return;
 	}
 
-	PieceValue piece = m_pieces[idx];
-
-
 	if(!moveHeldPiece(idx))
 		resetHeldPiece();
 }
@@ -140,16 +137,14 @@ void Board::renderHeldPiece() {
 	sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window));
 	pos.x -= 32;
 	pos.y -= 32;
-
 	m_pieceRenderer.renderPiece(m_window, m_pieces[m_heldPieceIdx], pos);
 }
 
 uint8_t Board::getHoveredSquareIdx() const {
 	sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
 	sf::Vector2f pos = m_window.mapPixelToCoords(mousePos);
-	if(pos.x < 0 || pos.x > 512 || pos.y < 0 || pos.y > 512) {
+	if(pos.x < 0 || pos.x > 512 || pos.y < 0 || pos.y > 512)
 		return 64;
-	}
 
 	sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
 	return gridPos.y * 8 + gridPos.x;
@@ -196,13 +191,11 @@ void Board::handleEvent(const sf::Event &e) {
 		case sf::Event::EventType::MouseButtonPressed:
 			if(e.mouseButton.button == sf::Mouse::Left)
 				handlePieceDrag();
-
 			break;
 
 		case sf::Event::EventType::MouseButtonReleased:
 			if(e.mouseButton.button == sf::Mouse::Left)
 				handlePieceDrop();
-
 			break;
 
 		default:
