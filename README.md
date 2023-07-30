@@ -9,7 +9,7 @@
 - ```cmake --build build```
 
 ## Run
-- ```pushd build ; ./chess ; popd```
+- ```./run.sh```
 
 # To do
 - Check

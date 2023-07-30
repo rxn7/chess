@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-pushd bin
+pushd build
 ./chess
 popd
