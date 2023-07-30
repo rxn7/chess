@@ -97,7 +97,7 @@ void Board::handlePieceDrag() {
 	Piece &piece = m_pieces[idx];
 	if (!piece.isNull() && piece.isColor(m_turnColor)) {
 		m_heldPieceIdx = idx;
-		m_legalHeldPieceMoves = Rules::getLegalMoves(*this, idx);
+		Rules::getLegalMoves(m_legalHeldPieceMoves, *this, idx);
 	}
 }
 
