@@ -7,7 +7,7 @@
 
 ## Compile
 - ```./build.sh``` - Debug version
-- ```./build.sh -r``` - Releaase version
+- ```./build.sh -r``` - Release version
 
 ## Run
 - ```./run.sh```- Debug version
