@@ -52,6 +52,20 @@ static bool addMoveIfHasOpponentPiece(std::vector<std::uint8_t> &legalMoves, con
 }
 #define ADD_MOVE_IF_HAS_OPPONENT_PIECE(idx) addMoveIfHasOpponentPiece(legalMoves, pieces, piece, idx)
 
+static bool addMoveIfNotBlocked(std::vector<std::uint8_t> &legalMoves, const std::array<Piece, 64> &pieces, const Piece &piece, std::uint8_t targetIdx) {
+	if (!Board::isSquareIdxCorrect(targetIdx))
+		return false;
+
+	const Piece &targetPiece = pieces[targetIdx];
+	if(!targetPiece.isNull() && piece.isColor(targetPiece.getColor())) {
+		return false;
+	}
+
+	legalMoves.push_back(targetIdx);
+	return true;
+}
+#define ADD_MOVE_IF_NOT_BLOCKED(idx) addMoveIfNotBlocked(legalMoves, pieces, piece, idx)
+
 GET_LEGAL_MOVES_FUNC(Pawn) {
 	if (piece.isColor(White)) {
 		if (ADD_MOVE_IF_EMPTY(pieceIdx - 8))
@@ -120,7 +134,27 @@ GET_LEGAL_MOVES_FUNC(Bishop) {
 			break;
 }
 
-GET_LEGAL_MOVES_FUNC(Knight) {}
+GET_LEGAL_MOVES_FUNC(Knight) {
+	if(pieceX < 6) {
+		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx + 10);
+		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx - 6);
+	}
+
+	if(pieceX != 7) {
+		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx + 17);
+		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx - 15);
+	}
+
+	if(pieceX > 1) {
+		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx + 6);
+		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx - 10);
+	}
+
+	if(pieceX != 0) {
+		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx - 17);
+		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx + 15);
+	}
+}
 
 GET_LEGAL_MOVES_FUNC(Queen) {
 	GET_LEGAL_MOVES_FUNC_NAME(Rook)(legalMoves, pieces, piece, pieceIdx, pieceX, pieceY);
