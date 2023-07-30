@@ -11,14 +11,17 @@
 
 class BoardRenderer {
   public:
-	BoardRenderer(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme = DEFAULT_BOARD_THEME);
+	BoardRenderer(const BoardTheme &theme = DEFAULT_BOARD_THEME);
 
-	void renderCoords();
-	void renderSquares();
+	void init(const sf::Font &font);
+
+	void renderCoords(sf::RenderTarget &target);
+	void renderSquares(sf::RenderTarget &target);
+	void renderSquareLastMove(sf::RenderTarget &target, std::uint8_t idx);
+	void renderSquareLegalMove(sf::RenderTarget &target, std::uint8_t idx);
+	void renderSquareOutline(sf::RenderTarget &target, std::uint8_t idx);
+
 	void setTheme(const BoardTheme &theme);
-	void renderSquareLastMove(std::uint8_t idx);
-	void renderSquareLegalMove(std::uint8_t idx);
-	void renderSquareOutline(std::uint8_t idx);
 
 	inline const BoardTheme &getTheme() const {
 		return m_theme;
@@ -26,12 +29,10 @@ class BoardRenderer {
 
   private:
 	void generateVa();
-	void generateCoordTexts();
+	void generateCoordTexts(const sf::Font &font);
 	void updateCoordTextsColors();
 
   private:
-	sf::RenderWindow &m_window;
-	const sf::Font &m_font;
 	BoardTheme m_theme;
 
 	sf::VertexArray m_vertexArray;

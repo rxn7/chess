@@ -6,8 +6,6 @@
 
 #define TYPE_MASK 0b00111
 #define COLOR_MASK 0b11000
-#define BLACK_MASK 0b10000
-#define WHITE_MASK 0b01000
 
 enum PieceType : std::uint8_t {
 	None = 0,
@@ -35,19 +33,22 @@ struct Piece {
 	inline PieceColor getColor() const {
 		return (PieceColor)(value & COLOR_MASK);
 	}
+
 	inline PieceType getType() const {
 		return (PieceType)(value & TYPE_MASK);
 	}
+
 	inline bool isColor(PieceColor color) const {
 		return getColor() == color;
 	}
+
 	inline bool isType(PieceType type) const {
 		return getType() == type;
 	}
 
 	inline bool isNull() const {
 		const std::uint8_t color = getColor();
-		return getType() == PieceType::None || (color != WHITE_MASK && color != BLACK_MASK);
+		return value == 0;
 	}
 
 	std::uint8_t value;

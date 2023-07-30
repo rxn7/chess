@@ -3,7 +3,7 @@
 #include <functional>
 #include <unordered_map>
 
-#define ADD_LEGAL_MOVES_FUNC_PARAMS std::vector<std::uint8_t> &legalMoves, const std::array<Piece, 64> &pieces, const Piece &piece, std::uint8_t pieceIdx, std::uint8_t pieceX, std::uint8_t pieceY
+#define ADD_LEGAL_MOVES_FUNC_PARAMS std::vector<std::uint8_t> &legalMoves, const Board &board, const Piece &piece, std::uint8_t pieceIdx, std::uint8_t pieceX, std::uint8_t pieceY
 using GetLegalMovesFunc = std::function<void(ADD_LEGAL_MOVES_FUNC_PARAMS)>;
 
 #define ADD_LEGAL_MOVES_FUNC_NAME(type) getLegalMoves##type
@@ -23,40 +23,36 @@ static std::unordered_map<PieceType, GetLegalMovesFunc> s_getLegalMovesFuncMap{
 	ADD_LEGAL_MOVES_MAP_ENTRY(Knight), ADD_LEGAL_MOVES_MAP_ENTRY(Queen), ADD_LEGAL_MOVES_MAP_ENTRY(King),
 };
 
-static inline bool isInRow(std::uint8_t idx, std::uint8_t row) {
-	return idx / 8 == row;
-}
-
 void Rules::addLegalMoves(std::vector<std::uint8_t> &legalMoves, const Board &board, std::uint8_t idx) {
 	const Piece &piece = board.getPieces()[idx];
 	legalMoves.clear();
-	s_getLegalMovesFuncMap[piece.getType()](legalMoves, board.getPieces(), piece, idx, idx % 8, idx / 8);
+	s_getLegalMovesFuncMap[piece.getType()](legalMoves, board, piece, idx, idx % 8, idx / 8);
 }
 
-static bool addMoveIfEmpty(std::vector<std::uint8_t> &legalMoves, const std::array<Piece, 64> &pieces, std::uint8_t targetIdx) {
-	if (!Board::isSquareIdxCorrect(targetIdx) || !pieces[targetIdx].isNull())
+static bool addMoveIfEmpty(std::vector<std::uint8_t> &legalMoves, const Board &board, std::uint8_t targetIdx) {
+	if (!Board::isSquareIdxCorrect(targetIdx) || !board.getPiece(targetIdx).isNull())
 		return false;
 
 	legalMoves.push_back(targetIdx);
 	return true;
 }
-#define ADD_MOVE_IF_EMPTY(idx) addMoveIfEmpty(legalMoves, pieces, idx)
+#define ADD_MOVE_IF_EMPTY(idx) addMoveIfEmpty(legalMoves, board, idx)
 
-static bool addMoveIfHasOpponentPiece(std::vector<std::uint8_t> &legalMoves, const std::array<Piece, 64> &pieces, const Piece &piece, std::uint8_t targetIdx) {
-	const Piece &targetPiece = pieces[targetIdx];
+static bool addMoveIfHasOpponentPiece(std::vector<std::uint8_t> &legalMoves, const Board &board, const Piece &piece, std::uint8_t targetIdx) {
+	const Piece &targetPiece = board.getPiece(targetIdx);
 	if (!Board::isSquareIdxCorrect(targetIdx) || targetPiece.isNull() || targetPiece.isColor(piece.getColor()))
 		return false;
 
 	legalMoves.push_back(targetIdx);
 	return true;
 }
-#define ADD_MOVE_IF_HAS_OPPONENT_PIECE(idx) addMoveIfHasOpponentPiece(legalMoves, pieces, piece, idx)
+#define ADD_MOVE_IF_HAS_OPPONENT_PIECE(idx) addMoveIfHasOpponentPiece(legalMoves, board, piece, idx)
 
-static bool addMoveIfNotBlocked(std::vector<std::uint8_t> &legalMoves, const std::array<Piece, 64> &pieces, const Piece &piece, std::uint8_t targetIdx) {
+static bool addMoveIfNotBlocked(std::vector<std::uint8_t> &legalMoves, const Board &board, const Piece &piece, std::uint8_t targetIdx) {
 	if (!Board::isSquareIdxCorrect(targetIdx))
 		return false;
 
-	const Piece &targetPiece = pieces[targetIdx];
+	const Piece &targetPiece = board.getPiece(targetIdx);
 	if (!targetPiece.isNull() && piece.isColor(targetPiece.getColor())) {
 		return false;
 	}
@@ -64,12 +60,12 @@ static bool addMoveIfNotBlocked(std::vector<std::uint8_t> &legalMoves, const std
 	legalMoves.push_back(targetIdx);
 	return true;
 }
-#define ADD_MOVE_IF_NOT_BLOCKED(idx) addMoveIfNotBlocked(legalMoves, pieces, piece, idx)
+#define ADD_MOVE_IF_NOT_BLOCKED(idx) addMoveIfNotBlocked(legalMoves, board, piece, idx)
 
 ADD_LEGAL_MOVES_FUNC(Pawn) {
 	if (piece.isColor(White)) {
 		if (ADD_MOVE_IF_EMPTY(pieceIdx - 8))
-			if (isInRow(pieceIdx, 6))
+			if (pieceY == 6)
 				ADD_MOVE_IF_EMPTY(pieceIdx - 16);
 
 		if (pieceX != 0)
@@ -79,7 +75,7 @@ ADD_LEGAL_MOVES_FUNC(Pawn) {
 			ADD_MOVE_IF_HAS_OPPONENT_PIECE(pieceIdx - 7);
 	} else {
 		if (ADD_MOVE_IF_EMPTY(pieceIdx + 8))
-			if (isInRow(pieceIdx, 1))
+			if (pieceY == 1)
 				ADD_MOVE_IF_EMPTY(pieceIdx + 16);
 
 		if (pieceX != 7)
@@ -157,8 +153,8 @@ ADD_LEGAL_MOVES_FUNC(Knight) {
 }
 
 ADD_LEGAL_MOVES_FUNC(Queen) {
-	ADD_LEGAL_MOVES_FUNC_NAME(Rook)(legalMoves, pieces, piece, pieceIdx, pieceX, pieceY);
-	ADD_LEGAL_MOVES_FUNC_NAME(Bishop)(legalMoves, pieces, piece, pieceIdx, pieceX, pieceY);
+	ADD_LEGAL_MOVES_FUNC_NAME(Rook)(legalMoves, board, piece, pieceIdx, pieceX, pieceY);
+	ADD_LEGAL_MOVES_FUNC_NAME(Bishop)(legalMoves, board, piece, pieceIdx, pieceX, pieceY);
 }
 
 ADD_LEGAL_MOVES_FUNC(King) {

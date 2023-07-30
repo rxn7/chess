@@ -1,5 +1,6 @@
 #pragma once
 
+#include "piece.h"
 #include <cstdint>
 
 struct Move {
@@ -7,16 +8,19 @@ struct Move {
 		reset();
 	}
 
-	Move(std::uint8_t fromIdx, std::uint8_t toIdx) : fromIdx(fromIdx), toIdx(toIdx) {}
+	Move(Piece piece, std::uint8_t fromIdx, std::uint8_t toIdx) : piece(piece), fromIdx(fromIdx), toIdx(toIdx) {}
 
 	inline void reset() {
+		piece = 0;
 		for (std::uint8_t &i : indices)
-			i = 64; // Everything above 63 or below 0 is ignored.
+			i = 64;
 	}
 
 	inline bool isNull() const {
-		return indices[0] == 64;
+		return piece.isNull();
 	}
+
+	Piece piece;
 
 	union {
 		struct {

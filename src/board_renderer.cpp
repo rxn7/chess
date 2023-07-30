@@ -14,47 +14,50 @@
 
 #define OUTLINE_THICKNESS 2
 
-BoardRenderer::BoardRenderer(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme)
-	: m_window(window), m_font(font), m_vertexArray(sf::PrimitiveType::Quads, 64 * 4), m_squareHighlight({64, 64}), m_squareOutline({64 - OUTLINE_THICKNESS * 2, 64 - OUTLINE_THICKNESS * 2}) {
+BoardRenderer::BoardRenderer(const BoardTheme &theme)
+	: m_vertexArray(sf::PrimitiveType::Quads, 64 * 4), m_squareHighlight({64, 64}), m_squareOutline({64 - OUTLINE_THICKNESS * 2, 64 - OUTLINE_THICKNESS * 2}) {
 	m_squareOutline.setFillColor(sf::Color::Transparent);
 	m_squareOutline.setOutlineThickness(OUTLINE_THICKNESS);
-	generateCoordTexts();
 	setTheme(theme);
 }
 
-void BoardRenderer::renderSquares() {
-	m_window.draw(m_vertexArray);
+void BoardRenderer::init(const sf::Font &font) {
+	generateCoordTexts(font);
 }
 
-void BoardRenderer::renderCoords() {
+void BoardRenderer::renderSquares(sf::RenderTarget &target) {
+	target.draw(m_vertexArray);
+}
+
+void BoardRenderer::renderCoords(sf::RenderTarget &target) {
 	for (sf::Text &coordText : m_coordTexts)
-		m_window.draw(coordText);
+		target.draw(coordText);
 }
 
-void BoardRenderer::renderSquareLastMove(std::uint8_t idx) {
+void BoardRenderer::renderSquareLastMove(sf::RenderTarget &target, std::uint8_t idx) {
 	if (!Board::isSquareIdxCorrect(idx))
 		return;
 
 	m_squareHighlight.setFillColor(m_theme.lastMoveColor);
 	m_squareHighlight.setPosition(sf::Vector2f(idx % 8 * 64, idx / 8 * 64));
-	m_window.draw(m_squareHighlight);
+	target.draw(m_squareHighlight);
 }
 
-void BoardRenderer::renderSquareLegalMove(std::uint8_t idx) {
+void BoardRenderer::renderSquareLegalMove(sf::RenderTarget &target, std::uint8_t idx) {
 	if (!Board::isSquareIdxCorrect(idx))
 		return;
 
 	m_squareHighlight.setFillColor(m_theme.legalMoveColor);
 	m_squareHighlight.setPosition(sf::Vector2f(idx % 8 * 64, idx / 8 * 64));
-	m_window.draw(m_squareHighlight);
+	target.draw(m_squareHighlight);
 }
 
-void BoardRenderer::renderSquareOutline(std::uint8_t idx) {
+void BoardRenderer::renderSquareOutline(sf::RenderTarget &target, std::uint8_t idx) {
 	if (!Board::isSquareIdxCorrect(idx))
 		return;
 
 	m_squareOutline.setPosition(sf::Vector2f(idx % 8 * 64 + OUTLINE_THICKNESS, idx / 8 * 64 + OUTLINE_THICKNESS));
-	m_window.draw(m_squareOutline);
+	target.draw(m_squareOutline);
 }
 
 void BoardRenderer::setTheme(const BoardTheme &theme) {
@@ -80,15 +83,15 @@ void BoardRenderer::updateCoordTextsColors() {
 	}
 }
 
-void BoardRenderer::generateCoordTexts() {
+void BoardRenderer::generateCoordTexts(const sf::Font &font) {
 	for (std::uint8_t rank = 0; rank < 8; ++rank) {
-		sf::Text text(std::to_string(rank + 1), m_font, 16);
+		sf::Text text(std::to_string(rank + 1), font, 16);
 		text.setPosition(0, rank * 64);
 		m_coordTexts[rank] = text;
 	}
 
 	for (std::uint8_t file = 0; file < 8; ++file) {
-		sf::Text text(sf::String((char)('a' + file)), m_font, 16);
+		sf::Text text(sf::String((char)('a' + file)), font, 16);
 		text.setPosition(file * 64 + 64 - 12, 512 - 20);
 		m_coordTexts[8 + file] = text;
 	}

@@ -3,6 +3,7 @@
 #include "board_theme.h"
 #include "piece.h"
 #include "piece_renderer.h"
+#include "rules.h"
 #include "sound_system.h"
 #include <iostream>
 #include <memory>
@@ -14,7 +15,7 @@
 
 Game *Game::s_instance;
 
-Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
+Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_turnColor(White) {
 	s_instance = this;
 	srand(time(0));
 	SoundSystem::init();
@@ -23,8 +24,6 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 		std::cerr << "\e[1;31mFailed to load font RobotoMono-Regular!\e[0m\n";
 		m_window.close();
 	}
-
-	mp_board = std::make_unique<Board>(m_window, m_font, DEFAULT_BOARD_THEME);
 
 	m_view.setCenter(256, 256);
 	m_view.setSize(512, 512);
@@ -61,13 +60,101 @@ void Game::update() {}
 void Game::render() {
 	m_window.setView(m_view);
 	m_window.clear(CLEAR_COLOR);
-	mp_board->render();
+
+	m_boardRenderer.renderSquares(m_window);
+
+	if (!m_board.m_lastMove.isNull())
+		for (std::uint8_t idx : m_board.m_lastMove.indices)
+			m_boardRenderer.renderSquareLastMove(m_window, idx);
+
+	for (const std::uint8_t idx : m_heldPieceLegalMoves)
+		m_boardRenderer.renderSquareLegalMove(m_window, idx);
+
+	m_boardRenderer.renderSquareOutline(m_window, m_heldPieceIdx);
+	m_boardRenderer.renderSquareOutline(m_window, getIdxFromPosition(getMousePosition()));
+
+	renderPieces();
+	m_boardRenderer.renderCoords(m_window);
+
+	if (isAnyPieceHeld())
+		renderHeldPiece();
+
 	m_window.display();
 }
 
-void Game::handleEvent(const sf::Event &e) {
-	mp_board->handleEvent(e);
+bool Game::moveHeldPiece(std::uint8_t toIdx) {
+	if (std::find(m_heldPieceLegalMoves.begin(), m_heldPieceLegalMoves.end(), toIdx) == m_heldPieceLegalMoves.end())
+		return false;
 
+	const Piece &targetPiece = m_board.getPieces()[toIdx];
+
+	if (targetPiece.isNull())
+		SoundSystem::playSound(Sound::Move);
+	else if (!targetPiece.isColor(getHeldPiece().getColor()))
+		SoundSystem::playSound(Sound::Take);
+	else
+		return false;
+
+	m_board.applyMove(Move(getHeldPiece(), m_heldPieceIdx, toIdx));
+
+	resetHeldPiece();
+
+	m_turnColor = m_turnColor == White ? Black : White;
+
+	return true;
+}
+
+void Game::handlePieceDrag() {
+	if (isAnyPieceHeld())
+		return;
+
+	const std::uint8_t idx = getIdxFromPosition(getMousePosition());
+
+	if (!Board::isSquareIdxCorrect(idx))
+		return;
+
+	const Piece &piece = m_board.getPieces()[idx];
+
+	if (!piece.isNull() && piece.isColor(m_turnColor)) {
+		m_heldPieceIdx = idx;
+		m_heldPieceLegalMoves.clear();
+		Rules::addLegalMoves(m_heldPieceLegalMoves, m_board, idx);
+	}
+}
+
+void Game::handlePieceDrop() {
+	if (!isAnyPieceHeld())
+		return;
+
+	const sf::Vector2f mousePosition = getMousePosition();
+	if (mousePosition.x < 0 || mousePosition.x > 512 || mousePosition.y < 0 || mousePosition.y > 512) {
+		resetHeldPiece();
+		return;
+	}
+
+	const std::uint8_t idx = getIdxFromPosition(mousePosition);
+
+	if (!Board::isSquareIdxCorrect(idx)) {
+		resetHeldPiece();
+		return;
+	}
+
+	if (!moveHeldPiece(idx))
+		resetHeldPiece();
+}
+
+void Game::renderPieces() {
+	for (std::uint8_t i = 0; i < 64; ++i)
+		if (i != m_heldPieceIdx)
+			m_pieceRenderer.renderPiece(m_window, m_board.getPieces()[i], i);
+}
+
+void Game::renderHeldPiece() {
+	const sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window)) - sf::Vector2f(32.0f, 32.0f);
+	m_pieceRenderer.renderPiece(m_window, m_board.getPieces()[m_heldPieceIdx], pos);
+}
+
+void Game::handleEvent(const sf::Event &e) {
 	switch (e.type) {
 	case sf::Event::Closed:
 		m_window.close();
@@ -92,23 +179,34 @@ void Game::handleEvent(const sf::Event &e) {
 		break;
 	}
 
+	case sf::Event::EventType::MouseButtonPressed:
+		if (e.mouseButton.button == sf::Mouse::Left)
+			handlePieceDrag();
+		break;
+
+	case sf::Event::EventType::MouseButtonReleased:
+		if (e.mouseButton.button == sf::Mouse::Left)
+			handlePieceDrop();
+		break;
+
 	case sf::Event::KeyPressed:
 		switch (e.key.code) {
 		case sf::Keyboard::Key::T:
-			mp_board->getBoardRenderer().setTheme(BoardTheme::generateRandomTheme());
+			m_boardRenderer.setTheme(BoardTheme::generateRandomTheme());
 			break;
 
 		case sf::Keyboard::Key::R:
-			mp_board->getBoardRenderer().setTheme(DEFAULT_BOARD_THEME);
+			m_boardRenderer.setTheme(DEFAULT_BOARD_THEME);
 			break;
 
 		case sf::Keyboard::Key::Escape:
-			mp_board->reset();
+			m_board.reset();
 			break;
 
 		default:
 			break;
 		}
+		break;
 
 	default:
 		break;

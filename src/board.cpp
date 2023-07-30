@@ -9,65 +9,18 @@
 #include <memory>
 #include <SFML/Graphics/RenderWindow.hpp>
 
-Board::Board(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme) : m_window(window), m_boardRenderer(m_window, font, theme) {
+Board::Board() {
 	reset();
 }
+
+Board::Board(const Board &board) : m_pieces(board.m_pieces) {}
 
 void Board::reset() {
 	std::fill(m_pieces.begin(), m_pieces.end(), 0); // Clear the board
 
-	resetHeldPiece();
 	m_lastMove.reset();
 
 	applyFen(DEFAULT_FEN);
-	m_turnColor = White;
-}
-
-void Board::render() {
-	m_boardRenderer.renderSquares();
-
-	if (!m_lastMove.isNull())
-		for (std::uint8_t idx : m_lastMove.indices)
-			m_boardRenderer.renderSquareLastMove(idx);
-
-	for (const std::uint8_t idx : m_heldPieceLegalMoves)
-		m_boardRenderer.renderSquareLegalMove(idx);
-
-	m_boardRenderer.renderSquareOutline(m_heldPieceIdx);
-	m_boardRenderer.renderSquareOutline(getIdxFromPosition(getMousePosition()));
-
-	renderPieces();
-	m_boardRenderer.renderCoords();
-
-	if (isAnyPieceHeld())
-		renderHeldPiece();
-}
-
-bool Board::moveHeldPiece(uint8_t toIdx) {
-	if (std::find(m_heldPieceLegalMoves.begin(), m_heldPieceLegalMoves.end(), toIdx) == m_heldPieceLegalMoves.end())
-		return false;
-
-	Piece &targetPiece = m_pieces[toIdx];
-
-	if (targetPiece.isNull())
-		SoundSystem::playSound(Sound::Move);
-	else if (!targetPiece.isColor(getHeldPiece().getColor()))
-		SoundSystem::playSound(Sound::Take);
-	else
-		return false;
-
-	targetPiece = getHeldPiece();
-	m_pieces[m_heldPieceIdx] = 0;
-
-	m_lastMove.fromIdx = m_heldPieceIdx;
-	m_lastMove.toIdx = toIdx;
-
-	processPawnPromotion(toIdx);
-	resetHeldPiece();
-
-	m_turnColor = m_turnColor == White ? Black : White;
-
-	return true;
 }
 
 void Board::processPawnPromotion(uint8_t idx) {
@@ -85,53 +38,10 @@ void Board::processPawnPromotion(uint8_t idx) {
 	}
 }
 
-void Board::handlePieceDrag() {
-	if (isAnyPieceHeld())
-		return;
-
-	const std::uint8_t idx = getIdxFromPosition(getMousePosition());
-
-	if (!isSquareIdxCorrect(idx))
-		return;
-
-	Piece &piece = m_pieces[idx];
-	if (!piece.isNull() && piece.isColor(m_turnColor)) {
-		m_heldPieceIdx = idx;
-		m_heldPieceLegalMoves.clear();
-		Rules::addLegalMoves(m_heldPieceLegalMoves, *this, idx);
-	}
-}
-
-void Board::handlePieceDrop() {
-	if (!isAnyPieceHeld())
-		return;
-
-	const sf::Vector2f mousePosition = getMousePosition();
-	if (mousePosition.x < 0 || mousePosition.x > 512 || mousePosition.y < 0 || mousePosition.y > 512) {
-		resetHeldPiece();
-		return;
-	}
-
-	const std::uint8_t idx = getIdxFromPosition(mousePosition);
-
-	if (!isSquareIdxCorrect(idx)) {
-		resetHeldPiece();
-		return;
-	}
-
-	if (!moveHeldPiece(idx))
-		resetHeldPiece();
-}
-
-void Board::renderPieces() {
-	for (std::uint8_t i = 0; i < 64; ++i)
-		if (i != m_heldPieceIdx)
-			m_pieceRenderer.renderPiece(m_window, m_pieces[i], i);
-}
-
-void Board::renderHeldPiece() {
-	const sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window)) - sf::Vector2f(32.0f, 32.0f);
-	m_pieceRenderer.renderPiece(m_window, m_pieces[m_heldPieceIdx], pos);
+void Board::applyMove(const Move &move) {
+	m_pieces[move.toIdx] = move.piece;
+	m_pieces[move.fromIdx] = 0;
+	m_lastMove = move;
 }
 
 void Board::applyFen(const std::string &fen) {
@@ -181,22 +91,5 @@ void Board::applyFen(const std::string &fen) {
 			}
 			break;
 		}
-	}
-}
-
-void Board::handleEvent(const sf::Event &e) {
-	switch (e.type) {
-	case sf::Event::EventType::MouseButtonPressed:
-		if (e.mouseButton.button == sf::Mouse::Left)
-			handlePieceDrag();
-		break;
-
-	case sf::Event::EventType::MouseButtonReleased:
-		if (e.mouseButton.button == sf::Mouse::Left)
-			handlePieceDrop();
-		break;
-
-	default:
-		break;
 	}
 }
