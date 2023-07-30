@@ -10,7 +10,7 @@ PieceRenderer::PieceRenderer(const std::string_view piecesTexturePath) {
 		return;
 	}
 
-	m_texture.setSmooth(true);
+	m_texture.setSmooth(false);
 	m_texture.generateMipmap();
 
 	generateSprites();

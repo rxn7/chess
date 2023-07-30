@@ -47,8 +47,8 @@ bool isInCheckAfterMove(const Board &board, const Move &move) {
 		return false;
 
 	Board boardTemp = board;
-	boardTemp.applyMove(move);
-	return boardTemp.isInCheck(move.piece.getColor()).first;
+	boardTemp.applyMove(move, false);
+	return boardTemp.getCheckResult(move.piece.getColor()).isCheck;
 }
 
 void addLegalMove(const AddLegalMoveContext &ctx, std::uint8_t targetIdx) {

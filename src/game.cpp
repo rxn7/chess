@@ -1,4 +1,5 @@
 #include "game.h"
+#include "board.h"
 #include "board_renderer.h"
 #include "board_theme.h"
 #include "legal_moves.h"
@@ -54,11 +55,22 @@ void Game::start() {
 	}
 }
 
+void Game::restart() {
+	m_turnColor = White;
+	m_board.reset();
+}
+
 void Game::render() {
 	m_window.setView(m_view);
 	m_window.clear(CLEAR_COLOR);
 
 	m_boardRenderer.renderSquares(m_window);
+
+	const CheckResult &checkResult = m_board.m_checkResult;
+	if (checkResult.isCheck) {
+		m_boardRenderer.renderSquareCheck(m_window, checkResult.kingIdx);
+		m_boardRenderer.renderSquareCheck(m_window, checkResult.checkingPieceIdx);
+	}
 
 	if (!m_board.m_lastMove.isNull())
 		for (std::uint8_t idx : m_board.m_lastMove.indices)
@@ -69,11 +81,6 @@ void Game::render() {
 
 	m_boardRenderer.renderSquareOutline(m_window, m_heldPieceIdx);
 	m_boardRenderer.renderSquareOutline(m_window, getIdxFromPosition(getMousePosition()));
-
-	const std::pair<bool, std::uint8_t> isInCheckResult = m_board.isInCheck(m_turnColor);
-	if (isInCheckResult.first) {
-		m_boardRenderer.renderSquareCheck(m_window, isInCheckResult.second);
-	}
 
 	renderPieces();
 	m_boardRenderer.renderCoords(m_window);
@@ -89,15 +96,17 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 		return false;
 
 	const Piece &targetPiece = m_board.getPieces()[toIdx];
+	const bool capture = !targetPiece.isNull();
 
-	if (targetPiece.isNull())
+	m_board.applyMove(Move(getHeldPiece(), m_heldPieceIdx, toIdx), true);
+
+	if (m_board.m_checkResult.isCheck) {
+		SoundSystem::playSound(Sound::Check);
+	} else if (capture) {
+		SoundSystem::playSound(Sound::Capture);
+	} else {
 		SoundSystem::playSound(Sound::Move);
-	else if (!targetPiece.isColor(getHeldPiece().getColor()))
-		SoundSystem::playSound(Sound::Take);
-	else
-		return false;
-
-	m_board.applyMove(Move(getHeldPiece(), m_heldPieceIdx, toIdx));
+	}
 
 	resetHeldPiece();
 
@@ -202,7 +211,7 @@ void Game::handleEvent(const sf::Event &e) {
 			break;
 
 		case sf::Keyboard::Key::Escape:
-			m_board.reset();
+			restart();
 			break;
 
 		default:

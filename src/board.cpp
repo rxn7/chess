@@ -13,10 +13,13 @@ Board::Board() {
 	reset();
 }
 
-Board::Board(const Board &board) : m_pieces(board.m_pieces) {}
+Board::Board(const Board &board) : m_pieces(board.m_pieces), m_checkResult(board.m_checkResult) {}
 
 void Board::reset() {
 	std::fill(m_pieces.begin(), m_pieces.end(), 0); // Clear the board
+	m_checkResult = (CheckResult){
+		.isCheck = false,
+	};
 
 	m_lastMove.reset();
 
@@ -38,10 +41,15 @@ void Board::processPawnPromotion(uint8_t idx) {
 	}
 }
 
-void Board::applyMove(const Move &move) {
+void Board::applyMove(const Move &move, bool updateCheckResult) {
 	m_pieces[move.toIdx] = move.piece;
 	m_pieces[move.fromIdx] = 0;
 	m_lastMove = move;
+
+	if (updateCheckResult) {
+		const PieceColor checkedColor = move.piece.getColor() == White ? Black : White;
+		m_checkResult = getCheckResult(checkedColor);
+	}
 }
 
 void Board::applyFen(const std::string &fen) {
@@ -94,7 +102,7 @@ void Board::applyFen(const std::string &fen) {
 	}
 }
 
-std::pair<bool, std::uint8_t> Board::isInCheck(PieceColor color) {
+CheckResult Board::getCheckResult(PieceColor color) {
 	std::vector<std::uint8_t> legalMoves;
 	for (std::uint8_t i = 0; i < 64; ++i) {
 		const Piece &piece = getPiece(i);
@@ -106,9 +114,10 @@ std::pair<bool, std::uint8_t> Board::isInCheck(PieceColor color) {
 		addLegalMoves(legalMoves, *this, i, false);
 
 		for (const std::uint8_t idx : legalMoves)
-			if (getPiece(idx).isType(King))
-				return std::make_pair(true, idx);
+			if (getPiece(idx).isType(King)) {
+				return (CheckResult){.isCheck = true, .kingIdx = idx, .checkingPieceIdx = i};
+			}
 	}
 
-	return std::make_pair(false, 255);
+	return (CheckResult){.isCheck = false};
 }

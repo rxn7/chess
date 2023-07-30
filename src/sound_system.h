@@ -7,7 +7,9 @@
 
 enum class Sound : std::uint8_t {
 	Move,
-	Take,
+	Capture,
+	Check,
+	Checkmate,
 };
 
 class SoundSystem {

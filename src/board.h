@@ -12,6 +12,12 @@
 
 #define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
+struct CheckResult {
+	bool isCheck;
+	std::uint8_t kingIdx;
+	std::uint8_t checkingPieceIdx;
+};
+
 class Board {
   public:
 	Board();
@@ -19,9 +25,10 @@ class Board {
 
 	void applyFen(const std::string &fen);
 	void processPawnPromotion(std::uint8_t idx);
-	void applyMove(const Move &move);
+	void applyMove(const Move &move, bool updateCheckResult = true);
 	void reset();
-	std::pair<bool, std::uint8_t> isInCheck(PieceColor color);
+
+	CheckResult getCheckResult(PieceColor color);
 
 	inline const std::array<Piece, 64> &getPieces() const {
 		return m_pieces;
@@ -36,6 +43,7 @@ class Board {
 	}
 
   private:
+	CheckResult m_checkResult;
 	Move m_lastMove;
 	std::array<Piece, 64> m_pieces;
 

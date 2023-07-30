@@ -35,6 +35,7 @@ class Game {
 	void handlePieceDrop();
 	bool moveHeldPiece(std::uint8_t toIdx);
 	void handleEvent(const sf::Event &e);
+	void restart();
 	void render();
 
 	inline Piece getHeldPiece() const {
