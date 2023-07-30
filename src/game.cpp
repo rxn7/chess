@@ -1,15 +1,15 @@
 #include "game.h"
 #include "board_renderer.h"
 #include "board_theme.h"
-#include "piece_renderer.h"
 #include "piece.h"
+#include "piece_renderer.h"
 #include "sound_system.h"
+#include <iostream>
+#include <memory>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
-#include <iostream>
-#include <memory>
 #include <sstream>
 
 Game *Game::s_instance;
@@ -19,7 +19,7 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 	srand(time(0));
 	SoundSystem::init();
 
-	if(!m_font.loadFromFile("res/RobotoMono-Regular.ttf")) {
+	if (!m_font.loadFromFile("assets/RobotoMono-Regular.ttf")) {
 		std::cerr << "\e[1;31mFailed to load font RobotoMono-Regular!\e[0m\n";
 		m_window.close();
 	}
@@ -40,14 +40,14 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 void Game::start() {
 	sf::Event e;
 	sf::Clock frameClock;
-	for(;;) {
+	for (;;) {
 		m_frameDuration = frameClock.restart().asSeconds();
 		m_fps = 1.0f / m_frameDuration;
 
-		while(m_window.pollEvent(e))
+		while (m_window.pollEvent(e))
 			handleEvent(e);
 
-		if(!m_window.isOpen())
+		if (!m_window.isOpen())
 			break;
 
 		update();
@@ -55,8 +55,7 @@ void Game::start() {
 	}
 }
 
-void Game::update() {
-}
+void Game::update() {}
 
 void Game::render() {
 	m_window.setView(m_view);
@@ -68,49 +67,49 @@ void Game::render() {
 void Game::handleEvent(const sf::Event &e) {
 	m_board->handleEvent(e);
 
-	switch(e.type) {
-		case sf::Event::Closed:
-			m_window.close();
-			break;
+	switch (e.type) {
+	case sf::Event::Closed:
+		m_window.close();
+		break;
 
-		case sf::Event::Resized: {
-			float winRatio = e.size.width / (float)e.size.height;
-			float viewRatio = m_view.getSize().x / (float)m_view.getSize().y;
-			float sizeX = 1, sizeY = 1;
-			float posX = 0, posY = 0;
+	case sf::Event::Resized: {
+		float winRatio = e.size.width / (float)e.size.height;
+		float viewRatio = m_view.getSize().x / (float)m_view.getSize().y;
+		float sizeX = 1, sizeY = 1;
+		float posX = 0, posY = 0;
 
-			if(winRatio > viewRatio) {
-				sizeX = viewRatio / winRatio;
-				posX = (1 - sizeX) * 0.5f;
-			} else {
-				sizeY = winRatio / viewRatio;
-				posY = (1 - sizeY) * 0.5f;
-			}
-
-			m_view.setViewport({posX, posY, sizeX, sizeY});
-
-			break;
+		if (winRatio > viewRatio) {
+			sizeX = viewRatio / winRatio;
+			posX = (1 - sizeX) * 0.5f;
+		} else {
+			sizeY = winRatio / viewRatio;
+			posY = (1 - sizeY) * 0.5f;
 		}
 
-		case sf::Event::KeyPressed:
-			switch(e.key.code) {
-				case sf::Keyboard::Key::T:
-					m_board->getBoardRenderer().setTheme(BoardTheme::generateRandomTheme());
-					break;
+		m_view.setViewport({posX, posY, sizeX, sizeY});
 
-				case sf::Keyboard::Key::R:
-					m_board->getBoardRenderer().setTheme(DEFAULT_BOARD_THEME);
-					break;
+		break;
+	}
 
-				case sf::Keyboard::Key::Escape:
-					m_board->reset();
-					break;
+	case sf::Event::KeyPressed:
+		switch (e.key.code) {
+		case sf::Keyboard::Key::T:
+			m_board->getBoardRenderer().setTheme(BoardTheme::generateRandomTheme());
+			break;
 
-				default:
-					break;
-			}
+		case sf::Keyboard::Key::R:
+			m_board->getBoardRenderer().setTheme(DEFAULT_BOARD_THEME);
+			break;
+
+		case sf::Keyboard::Key::Escape:
+			m_board->reset();
+			break;
 
 		default:
 			break;
+		}
+
+	default:
+		break;
 	}
 }
