@@ -26,7 +26,7 @@ void Board::reset() {
 	applyFen(DEFAULT_FEN);
 }
 
-void Board::checkPawnPromotion(const Move &move){ 
+void Board::checkPawnPromotion(const Move &move) {
 	if (!move.piece.isType(Pawn))
 		return;
 
