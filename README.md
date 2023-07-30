@@ -12,7 +12,6 @@
 - ```./run.sh```
 
 # To do
-- Check
 - Checkmate
 - En Passant
 - Async legal move calculation
