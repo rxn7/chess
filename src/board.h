@@ -10,7 +10,7 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
-#define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNRwKQkq-01"
+#define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 class Board {
   public:
@@ -18,8 +18,8 @@ class Board {
 	void render();
 	void handleEvent(const sf::Event &e);
 	void applyFen(const std::string &fen);
-	bool moveHeldPiece(uint8_t toIdx);
-	void processPawnPromotion(uint8_t idx);
+	bool moveHeldPiece(std::uint8_t toIdx);
+	void processPawnPromotion(std::uint8_t idx);
 	void reset();
 
 	inline const std::array<Piece, 64> &getPieces() const {
@@ -62,7 +62,7 @@ class Board {
 
 	inline void resetHeldPiece() {
 		m_heldPieceIdx = 255; // every number above 63 and below 0 is ignored
-		m_legalHeldPieceMoves.clear();
+		m_heldPieceLegalMoves.clear();
 	}
 
   private:
@@ -73,7 +73,7 @@ class Board {
 	PieceColor m_turnColor;
 	Move m_lastMove;
 
-	std::vector<std::uint8_t> m_legalHeldPieceMoves;
+	std::vector<std::uint8_t> m_heldPieceLegalMoves;
 	std::array<Piece, 64> m_pieces;
 	std::uint8_t m_heldPieceIdx;
 };

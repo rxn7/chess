@@ -3,31 +3,31 @@
 #include <functional>
 #include <unordered_map>
 
-#define GET_LEGAL_MOVES_FUNC_PARAMS std::vector<std::uint8_t> &legalMoves, const std::array<Piece, 64> &pieces, const Piece &piece, std::uint8_t pieceIdx, std::uint8_t pieceX, std::uint8_t pieceY
-using GetLegalMovesFunc = std::function<void(GET_LEGAL_MOVES_FUNC_PARAMS)>;
+#define ADD_LEGAL_MOVES_FUNC_PARAMS std::vector<std::uint8_t> &legalMoves, const std::array<Piece, 64> &pieces, const Piece &piece, std::uint8_t pieceIdx, std::uint8_t pieceX, std::uint8_t pieceY
+using GetLegalMovesFunc = std::function<void(ADD_LEGAL_MOVES_FUNC_PARAMS)>;
 
-#define GET_LEGAL_MOVES_FUNC_NAME(type) getLegalMoves##type
-#define GET_LEGAL_MOVES_FUNC(type) static void GET_LEGAL_MOVES_FUNC_NAME(type)(GET_LEGAL_MOVES_FUNC_PARAMS)
-#define GET_LEGAL_MOVES_MAP_ENTRY(type)                                                                                                                                                                \
-	{ type, GET_LEGAL_MOVES_FUNC_NAME(type) }
+#define ADD_LEGAL_MOVES_FUNC_NAME(type) getLegalMoves##type
+#define ADD_LEGAL_MOVES_FUNC(type) static void ADD_LEGAL_MOVES_FUNC_NAME(type)(ADD_LEGAL_MOVES_FUNC_PARAMS)
+#define ADD_LEGAL_MOVES_MAP_ENTRY(type)                                                                                                                                                                \
+	{ type, ADD_LEGAL_MOVES_FUNC_NAME(type) }
 
-GET_LEGAL_MOVES_FUNC(Pawn);
-GET_LEGAL_MOVES_FUNC(Rook);
-GET_LEGAL_MOVES_FUNC(Bishop);
-GET_LEGAL_MOVES_FUNC(Knight);
-GET_LEGAL_MOVES_FUNC(Queen);
-GET_LEGAL_MOVES_FUNC(King);
+ADD_LEGAL_MOVES_FUNC(Pawn);
+ADD_LEGAL_MOVES_FUNC(Rook);
+ADD_LEGAL_MOVES_FUNC(Bishop);
+ADD_LEGAL_MOVES_FUNC(Knight);
+ADD_LEGAL_MOVES_FUNC(Queen);
+ADD_LEGAL_MOVES_FUNC(King);
 
 static std::unordered_map<PieceType, GetLegalMovesFunc> s_getLegalMovesFuncMap{
-	GET_LEGAL_MOVES_MAP_ENTRY(Pawn),   GET_LEGAL_MOVES_MAP_ENTRY(Rook),	 GET_LEGAL_MOVES_MAP_ENTRY(Bishop),
-	GET_LEGAL_MOVES_MAP_ENTRY(Knight), GET_LEGAL_MOVES_MAP_ENTRY(Queen), GET_LEGAL_MOVES_MAP_ENTRY(King),
+	ADD_LEGAL_MOVES_MAP_ENTRY(Pawn),   ADD_LEGAL_MOVES_MAP_ENTRY(Rook),	 ADD_LEGAL_MOVES_MAP_ENTRY(Bishop),
+	ADD_LEGAL_MOVES_MAP_ENTRY(Knight), ADD_LEGAL_MOVES_MAP_ENTRY(Queen), ADD_LEGAL_MOVES_MAP_ENTRY(King),
 };
 
 static inline bool isInRow(std::uint8_t idx, std::uint8_t row) {
 	return idx / 8 == row;
 }
 
-void Rules::getLegalMoves(std::vector<std::uint8_t> &legalMoves, const Board &board, std::uint8_t idx) {
+void Rules::addLegalMoves(std::vector<std::uint8_t> &legalMoves, const Board &board, std::uint8_t idx) {
 	const Piece &piece = board.getPieces()[idx];
 	legalMoves.clear();
 	s_getLegalMovesFuncMap[piece.getType()](legalMoves, board.getPieces(), piece, idx, idx % 8, idx / 8);
@@ -66,7 +66,7 @@ static bool addMoveIfNotBlocked(std::vector<std::uint8_t> &legalMoves, const std
 }
 #define ADD_MOVE_IF_NOT_BLOCKED(idx) addMoveIfNotBlocked(legalMoves, pieces, piece, idx)
 
-GET_LEGAL_MOVES_FUNC(Pawn) {
+ADD_LEGAL_MOVES_FUNC(Pawn) {
 	if (piece.isColor(White)) {
 		if (ADD_MOVE_IF_EMPTY(pieceIdx - 8))
 			if (isInRow(pieceIdx, 6))
@@ -90,7 +90,7 @@ GET_LEGAL_MOVES_FUNC(Pawn) {
 	}
 }
 
-GET_LEGAL_MOVES_FUNC(Rook) {
+ADD_LEGAL_MOVES_FUNC(Rook) {
 	// Right
 	for (std::uint8_t i = pieceIdx + 1; i < pieceY * 8 + 8; ++i)
 		if (ADD_MOVE_IF_HAS_OPPONENT_PIECE(i) || !ADD_MOVE_IF_EMPTY(i))
@@ -112,7 +112,7 @@ GET_LEGAL_MOVES_FUNC(Rook) {
 			break;
 }
 
-GET_LEGAL_MOVES_FUNC(Bishop) {
+ADD_LEGAL_MOVES_FUNC(Bishop) {
 	// Top Right
 	for (std::uint8_t i = pieceIdx - 7; i >= pieceIdx - (7 - pieceX) * 7; i -= 7)
 		if (ADD_MOVE_IF_HAS_OPPONENT_PIECE(i) || !ADD_MOVE_IF_EMPTY(i))
@@ -134,7 +134,7 @@ GET_LEGAL_MOVES_FUNC(Bishop) {
 			break;
 }
 
-GET_LEGAL_MOVES_FUNC(Knight) {
+ADD_LEGAL_MOVES_FUNC(Knight) {
 	if (pieceX < 6) {
 		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx + 10);
 		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx - 6);
@@ -156,12 +156,12 @@ GET_LEGAL_MOVES_FUNC(Knight) {
 	}
 }
 
-GET_LEGAL_MOVES_FUNC(Queen) {
-	GET_LEGAL_MOVES_FUNC_NAME(Rook)(legalMoves, pieces, piece, pieceIdx, pieceX, pieceY);
-	GET_LEGAL_MOVES_FUNC_NAME(Bishop)(legalMoves, pieces, piece, pieceIdx, pieceX, pieceY);
+ADD_LEGAL_MOVES_FUNC(Queen) {
+	ADD_LEGAL_MOVES_FUNC_NAME(Rook)(legalMoves, pieces, piece, pieceIdx, pieceX, pieceY);
+	ADD_LEGAL_MOVES_FUNC_NAME(Bishop)(legalMoves, pieces, piece, pieceIdx, pieceX, pieceY);
 }
 
-GET_LEGAL_MOVES_FUNC(King) {
+ADD_LEGAL_MOVES_FUNC(King) {
 	constexpr std::uint8_t offsets[] = {1, 8, 7, 9};
 	for (const std::uint8_t of : offsets) {
 		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx + of);

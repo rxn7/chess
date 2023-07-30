@@ -6,5 +6,5 @@
 class Board;
 
 namespace Rules {
-	void getLegalMoves(std::vector<std::uint8_t> &legalMoves, const Board &board, std::uint8_t idx);
+	void addLegalMoves(std::vector<std::uint8_t> &legalMoves, const Board &board, std::uint8_t idx);
 }

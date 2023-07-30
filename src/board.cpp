@@ -30,7 +30,7 @@ void Board::render() {
 		for (std::uint8_t idx : m_lastMove.indices)
 			m_boardRenderer.renderSquareLastMove(idx);
 
-	for (const std::uint8_t idx : m_legalHeldPieceMoves)
+	for (const std::uint8_t idx : m_heldPieceLegalMoves)
 		m_boardRenderer.renderSquareLegalMove(idx);
 
 	m_boardRenderer.renderSquareOutline(m_heldPieceIdx);
@@ -44,7 +44,7 @@ void Board::render() {
 }
 
 bool Board::moveHeldPiece(uint8_t toIdx) {
-	if (std::find(m_legalHeldPieceMoves.begin(), m_legalHeldPieceMoves.end(), toIdx) == m_legalHeldPieceMoves.end())
+	if (std::find(m_heldPieceLegalMoves.begin(), m_heldPieceLegalMoves.end(), toIdx) == m_heldPieceLegalMoves.end())
 		return false;
 
 	Piece &targetPiece = m_pieces[toIdx];
@@ -97,7 +97,8 @@ void Board::handlePieceDrag() {
 	Piece &piece = m_pieces[idx];
 	if (!piece.isNull() && piece.isColor(m_turnColor)) {
 		m_heldPieceIdx = idx;
-		Rules::getLegalMoves(m_legalHeldPieceMoves, *this, idx);
+		m_heldPieceLegalMoves.clear();
+		Rules::addLegalMoves(m_heldPieceLegalMoves, *this, idx);
 	}
 }
 
@@ -134,7 +135,7 @@ void Board::renderHeldPiece() {
 }
 
 void Board::applyFen(const std::string &fen) {
-	uint8_t file = 0, rank = 0;
+	std::uint8_t file = 0, rank = 0;
 
 	for (char c : fen) {
 		switch (c) {

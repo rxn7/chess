@@ -38,10 +38,10 @@ struct Piece {
 	inline PieceType getType() const {
 		return (PieceType)(value & TYPE_MASK);
 	}
-	inline bool isColor(uint8_t color) const {
+	inline bool isColor(PieceColor color) const {
 		return getColor() == color;
 	}
-	inline bool isType(uint8_t type) const {
+	inline bool isType(PieceType type) const {
 		return getType() == type;
 	}
 
