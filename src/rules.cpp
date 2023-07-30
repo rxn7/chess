@@ -57,7 +57,7 @@ static bool addMoveIfNotBlocked(std::vector<std::uint8_t> &legalMoves, const std
 		return false;
 
 	const Piece &targetPiece = pieces[targetIdx];
-	if(!targetPiece.isNull() && piece.isColor(targetPiece.getColor())) {
+	if (!targetPiece.isNull() && piece.isColor(targetPiece.getColor())) {
 		return false;
 	}
 
@@ -135,22 +135,22 @@ GET_LEGAL_MOVES_FUNC(Bishop) {
 }
 
 GET_LEGAL_MOVES_FUNC(Knight) {
-	if(pieceX < 6) {
+	if (pieceX < 6) {
 		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx + 10);
 		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx - 6);
 	}
 
-	if(pieceX != 7) {
+	if (pieceX != 7) {
 		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx + 17);
 		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx - 15);
 	}
 
-	if(pieceX > 1) {
+	if (pieceX > 1) {
 		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx + 6);
 		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx - 10);
 	}
 
-	if(pieceX != 0) {
+	if (pieceX != 0) {
 		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx - 17);
 		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx + 15);
 	}
@@ -161,4 +161,10 @@ GET_LEGAL_MOVES_FUNC(Queen) {
 	GET_LEGAL_MOVES_FUNC_NAME(Bishop)(legalMoves, pieces, piece, pieceIdx, pieceX, pieceY);
 }
 
-GET_LEGAL_MOVES_FUNC(King) {}
+GET_LEGAL_MOVES_FUNC(King) {
+	constexpr std::uint8_t offsets[] = {1, 8, 7, 9};
+	for (const std::uint8_t of : offsets) {
+		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx + of);
+		ADD_MOVE_IF_NOT_BLOCKED(pieceIdx - of);
+	}
+}

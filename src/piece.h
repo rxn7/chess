@@ -36,7 +36,7 @@ struct Piece {
 		return (PieceColor)(value & COLOR_MASK);
 	}
 	inline PieceType getType() const {
-		return (PieceType)(value & TYPE_MASK); 
+		return (PieceType)(value & TYPE_MASK);
 	}
 	inline bool isColor(uint8_t color) const {
 		return getColor() == color;
