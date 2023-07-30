@@ -1,8 +1,8 @@
 #include "board.h"
 #include "board_renderer.h"
 #include "board_theme.h"
+#include "legal_moves.h"
 #include "piece.h"
-#include "rules.h"
 #include "sound_system.h"
 #include <cstddef>
 #include <iostream>
@@ -92,4 +92,23 @@ void Board::applyFen(const std::string &fen) {
 			break;
 		}
 	}
+}
+
+std::pair<bool, std::uint8_t> Board::isInCheck(PieceColor color) {
+	std::vector<std::uint8_t> legalMoves;
+	for (std::uint8_t i = 0; i < 64; ++i) {
+		const Piece &piece = getPiece(i);
+
+		if (piece.isNull() || piece.isColor(color))
+			continue;
+
+		legalMoves.clear();
+		addLegalMoves(legalMoves, *this, i, false);
+
+		for (const std::uint8_t idx : legalMoves)
+			if (getPiece(idx).isType(King))
+				return std::make_pair(true, idx);
+	}
+
+	return std::make_pair(false, 255);
 }

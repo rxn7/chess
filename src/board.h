@@ -21,6 +21,7 @@ class Board {
 	void processPawnPromotion(std::uint8_t idx);
 	void applyMove(const Move &move);
 	void reset();
+	std::pair<bool, std::uint8_t> isInCheck(PieceColor color);
 
 	inline const std::array<Piece, 64> &getPieces() const {
 		return m_pieces;

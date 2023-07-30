@@ -34,6 +34,15 @@ void BoardRenderer::renderCoords(sf::RenderTarget &target) {
 		target.draw(coordText);
 }
 
+void BoardRenderer::renderSquareCheck(sf::RenderTarget &target, std::uint8_t idx) {
+	if (!Board::isSquareIdxCorrect(idx))
+		return;
+
+	m_squareHighlight.setFillColor(sf::Color::Red);
+	m_squareHighlight.setPosition(sf::Vector2f(idx % 8 * 64, idx / 8 * 64));
+	target.draw(m_squareHighlight);
+}
+
 void BoardRenderer::renderSquareLastMove(sf::RenderTarget &target, std::uint8_t idx) {
 	if (!Board::isSquareIdxCorrect(idx))
 		return;

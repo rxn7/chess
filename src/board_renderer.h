@@ -20,6 +20,7 @@ class BoardRenderer {
 	void renderSquareLastMove(sf::RenderTarget &target, std::uint8_t idx);
 	void renderSquareLegalMove(sf::RenderTarget &target, std::uint8_t idx);
 	void renderSquareOutline(sf::RenderTarget &target, std::uint8_t idx);
+	void renderSquareCheck(sf::RenderTarget &target, std::uint8_t idx);
 
 	void setTheme(const BoardTheme &theme);
 

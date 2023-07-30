@@ -1,9 +1,9 @@
 #include "game.h"
 #include "board_renderer.h"
 #include "board_theme.h"
+#include "legal_moves.h"
 #include "piece.h"
 #include "piece_renderer.h"
-#include "rules.h"
 #include "sound_system.h"
 #include <iostream>
 #include <memory>
@@ -50,12 +50,9 @@ void Game::start() {
 		if (!m_window.isOpen())
 			break;
 
-		update();
 		render();
 	}
 }
-
-void Game::update() {}
 
 void Game::render() {
 	m_window.setView(m_view);
@@ -72,6 +69,11 @@ void Game::render() {
 
 	m_boardRenderer.renderSquareOutline(m_window, m_heldPieceIdx);
 	m_boardRenderer.renderSquareOutline(m_window, getIdxFromPosition(getMousePosition()));
+
+	const std::pair<bool, std::uint8_t> isInCheckResult = m_board.isInCheck(m_turnColor);
+	if (isInCheckResult.first) {
+		m_boardRenderer.renderSquareCheck(m_window, isInCheckResult.second);
+	}
 
 	renderPieces();
 	m_boardRenderer.renderCoords(m_window);
@@ -118,7 +120,7 @@ void Game::handlePieceDrag() {
 	if (!piece.isNull() && piece.isColor(m_turnColor)) {
 		m_heldPieceIdx = idx;
 		m_heldPieceLegalMoves.clear();
-		Rules::addLegalMoves(m_heldPieceLegalMoves, m_board, idx);
+		addLegalMoves(m_heldPieceLegalMoves, m_board, idx);
 	}
 }
 
