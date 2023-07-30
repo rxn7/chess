@@ -77,7 +77,25 @@ GET_LEGAL_MOVES_FUNC(Pawn) {
 }
 
 GET_LEGAL_MOVES_FUNC(Rook) {
-	legalMoves.push_back(1);
+	// Right
+	for (std::uint8_t i = pieceIdx + 1; i < pieceY * 8 + 8; ++i)
+		if (ADD_MOVE_IF_HAS_OPPONENT_PIECE(i) || !ADD_MOVE_IF_EMPTY(i))
+			break;
+
+	// Left
+	for (std::uint8_t i = pieceIdx - 1; i >= pieceY * 8; --i)
+		if (ADD_MOVE_IF_HAS_OPPONENT_PIECE(i) || !ADD_MOVE_IF_EMPTY(i))
+			break;
+
+	// Top
+	for (std::uint8_t i = pieceIdx - 8; i >= pieceX; i -= 8)
+		if (ADD_MOVE_IF_HAS_OPPONENT_PIECE(i) || !ADD_MOVE_IF_EMPTY(i))
+			break;
+
+	// Bottom
+	for (std::uint8_t i = pieceIdx + 8; i <= 56 + pieceX; i += 8)
+		if (ADD_MOVE_IF_HAS_OPPONENT_PIECE(i) || !ADD_MOVE_IF_EMPTY(i))
+			break;
 }
 
 GET_LEGAL_MOVES_FUNC(Bishop) {}
