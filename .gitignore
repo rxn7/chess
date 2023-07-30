@@ -1,3 +1,3 @@
-build
+bin
 .cache
 compile_commands.json

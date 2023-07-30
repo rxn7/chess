@@ -6,10 +6,12 @@
 - ```./configure.sh```
 
 ## Compile
-- ```./build.sh```
+- ```./build.sh``` - Debug version
+- ```./build.sh -r``` - Releaase version
 
 ## Run
-- ```./run.sh```
+- ```./run.sh```- Debug version
+- ```./run.sh -r```- Release version
 
 # To do
 - Checkmate

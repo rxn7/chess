@@ -8,7 +8,7 @@ set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 file(GLOB_RECURSE SOURCES ${SRC_DIR}/*.cpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-add_compile_options(-O0 -g -Wall)
+add_compile_options(-Wall)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-audio)
 
