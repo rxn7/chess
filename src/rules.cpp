@@ -98,10 +98,33 @@ GET_LEGAL_MOVES_FUNC(Rook) {
 			break;
 }
 
-GET_LEGAL_MOVES_FUNC(Bishop) {}
+GET_LEGAL_MOVES_FUNC(Bishop) {
+	// Top Right
+	for (std::uint8_t i = pieceIdx - 7; i >= pieceIdx - (7 - pieceX) * 7; i -= 7)
+		if (ADD_MOVE_IF_HAS_OPPONENT_PIECE(i) || !ADD_MOVE_IF_EMPTY(i))
+			break;
+
+	// Bottom Right
+	for (std::uint8_t i = pieceIdx + 9; i <= pieceIdx + (7 - pieceX) * 9; i += 9)
+		if (ADD_MOVE_IF_HAS_OPPONENT_PIECE(i) || !ADD_MOVE_IF_EMPTY(i))
+			break;
+
+	// Top Left
+	for (std::uint8_t i = pieceIdx - 9; i >= pieceIdx - pieceX * 9; i -= 9)
+		if (ADD_MOVE_IF_HAS_OPPONENT_PIECE(i) || !ADD_MOVE_IF_EMPTY(i))
+			break;
+
+	// Bottom Left
+	for (std::uint8_t i = pieceIdx + 7; i <= pieceIdx + pieceX * 7; i += 7)
+		if (ADD_MOVE_IF_HAS_OPPONENT_PIECE(i) || !ADD_MOVE_IF_EMPTY(i))
+			break;
+}
 
 GET_LEGAL_MOVES_FUNC(Knight) {}
 
-GET_LEGAL_MOVES_FUNC(Queen) {}
+GET_LEGAL_MOVES_FUNC(Queen) {
+	GET_LEGAL_MOVES_FUNC_NAME(Rook)(legalMoves, pieces, piece, pieceIdx, pieceX, pieceY);
+	GET_LEGAL_MOVES_FUNC_NAME(Bishop)(legalMoves, pieces, piece, pieceIdx, pieceX, pieceY);
+}
 
 GET_LEGAL_MOVES_FUNC(King) {}
