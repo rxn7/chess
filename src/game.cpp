@@ -24,7 +24,7 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 		m_window.close();
 	}
 
-	m_board = std::make_unique<Board>(m_window, m_font, DEFAULT_BOARD_THEME);
+	mp_board = std::make_unique<Board>(m_window, m_font, DEFAULT_BOARD_THEME);
 
 	m_view.setCenter(256, 256);
 	m_view.setSize(512, 512);
@@ -40,9 +40,10 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 void Game::start() {
 	sf::Event e;
 	sf::Clock frameClock;
-	for (;;) {
-		m_frameDuration = frameClock.restart().asSeconds();
-		m_fps = 1.0f / m_frameDuration;
+
+	while (true) {
+		m_frameDelta = frameClock.restart().asSeconds();
+		m_fps = 1.0f / m_frameDelta;
 
 		while (m_window.pollEvent(e))
 			handleEvent(e);
@@ -60,12 +61,12 @@ void Game::update() {}
 void Game::render() {
 	m_window.setView(m_view);
 	m_window.clear(CLEAR_COLOR);
-	m_board->render();
+	mp_board->render();
 	m_window.display();
 }
 
 void Game::handleEvent(const sf::Event &e) {
-	m_board->handleEvent(e);
+	mp_board->handleEvent(e);
 
 	switch (e.type) {
 	case sf::Event::Closed:
@@ -73,8 +74,8 @@ void Game::handleEvent(const sf::Event &e) {
 		break;
 
 	case sf::Event::Resized: {
-		float winRatio = e.size.width / (float)e.size.height;
-		float viewRatio = m_view.getSize().x / (float)m_view.getSize().y;
+		const float winRatio = e.size.width / (float)e.size.height;
+		const float viewRatio = m_view.getSize().x / (float)m_view.getSize().y;
 		float sizeX = 1, sizeY = 1;
 		float posX = 0, posY = 0;
 
@@ -94,15 +95,15 @@ void Game::handleEvent(const sf::Event &e) {
 	case sf::Event::KeyPressed:
 		switch (e.key.code) {
 		case sf::Keyboard::Key::T:
-			m_board->getBoardRenderer().setTheme(BoardTheme::generateRandomTheme());
+			mp_board->getBoardRenderer().setTheme(BoardTheme::generateRandomTheme());
 			break;
 
 		case sf::Keyboard::Key::R:
-			m_board->getBoardRenderer().setTheme(DEFAULT_BOARD_THEME);
+			mp_board->getBoardRenderer().setTheme(DEFAULT_BOARD_THEME);
 			break;
 
 		case sf::Keyboard::Key::Escape:
-			m_board->reset();
+			mp_board->reset();
 			break;
 
 		default:

@@ -2,203 +2,200 @@
 #include "board_renderer.h"
 #include "board_theme.h"
 #include "piece.h"
+#include "rules.h"
 #include "sound_system.h"
-#include <SFML/Graphics/RenderWindow.hpp>
 #include <cstddef>
 #include <iostream>
 #include <memory>
-
-#define HELD_PIECE m_pieces[m_heldPieceIdx]
+#include <SFML/Graphics/RenderWindow.hpp>
 
 Board::Board(sf::RenderWindow &window, const sf::Font &font, const BoardTheme &theme) : m_window(window), m_boardRenderer(m_window, font, theme) {
 	reset();
 }
 
 void Board::reset() {
-	std::fill(m_pieces.begin(), m_pieces.end(), Piece::None); // Clear the board
+	std::fill(m_pieces.begin(), m_pieces.end(), 0); // Clear the board
+
 	resetHeldPiece();
 	m_lastMove.reset();
+
 	applyFen(DEFAULT_FEN);
-	m_turnColor = Piece::White;
+	m_turnColor = White;
 }
 
 void Board::render() {
 	m_boardRenderer.renderSquares();
-	m_boardRenderer.renderSquares();
 
-	// Render last move
-	if(!m_lastMove.isNull())
-		for(uint8_t idx : m_lastMove.indices)
+	if (!m_lastMove.isNull())
+		for (std::uint8_t idx : m_lastMove.indices)
 			m_boardRenderer.renderSquareLastMove(idx);
 
-	// Render legal moves
-	for(uint8_t idx : m_legalMoves)
+	for (const std::uint8_t idx : m_legalHeldPieceMoves)
 		m_boardRenderer.renderSquareLegalMove(idx);
 
 	m_boardRenderer.renderSquareOutline(m_heldPieceIdx);
-	m_boardRenderer.renderSquareOutline(getHoveredSquareIdx());
+	m_boardRenderer.renderSquareOutline(getIdxFromPosition(getMousePosition()));
 
 	renderPieces();
 	m_boardRenderer.renderCoords();
 
-	if(isAnyPieceHeld())
+	if (isAnyPieceHeld())
 		renderHeldPiece();
 }
 
 bool Board::moveHeldPiece(uint8_t toIdx) {
-	if(std::find(m_legalMoves.begin(), m_legalMoves.end(), toIdx) == m_legalMoves.end())
+	if (std::find(m_legalHeldPieceMoves.begin(), m_legalHeldPieceMoves.end(), toIdx) == m_legalHeldPieceMoves.end())
 		return false;
 
-	if(Piece::isNull(m_pieces[toIdx]))
-		SoundSystem::playSound(SoundType::Move);
-	else if((m_pieces[toIdx] & COLOR_MASK) != (HELD_PIECE & COLOR_MASK))
-		SoundSystem::playSound(SoundType::Take);
+	Piece &targetPiece = m_pieces[toIdx];
+
+	if (targetPiece.isNull())
+		SoundSystem::playSound(Sound::Move);
+	else if (!targetPiece.isColor(getHeldPiece().getColor()))
+		SoundSystem::playSound(Sound::Take);
 	else
 		return false;
 
-	m_pieces[toIdx] = HELD_PIECE;
-	m_pieces[m_heldPieceIdx] = Piece::None;
-	
+	targetPiece = getHeldPiece();
+	m_pieces[m_heldPieceIdx] = 0;
+
 	m_lastMove.fromIdx = m_heldPieceIdx;
 	m_lastMove.toIdx = toIdx;
 
 	processPawnPromotion(toIdx);
 	resetHeldPiece();
 
-	m_turnColor = m_turnColor == Piece::White ? Piece::Black : Piece::White;
+	m_turnColor = m_turnColor == White ? Black : White;
 
 	return true;
 }
 
 void Board::processPawnPromotion(uint8_t idx) {
-	PieceValue piece = m_pieces[idx];
+	Piece &piece = m_pieces[idx];
 
-	if((piece & TYPE_MASK) != Piece::Pawn)
+	if (!piece.isType(Pawn))
 		return;
 
-	uint8_t color = piece & COLOR_MASK;
-	if(color == Piece::White) {
-		if(idx >= 0 && idx < 8)
-			m_pieces[idx] = Piece::Queen | Piece::White;
+	if (piece.isColor(White)) {
+		if (idx >= 0 && idx < 8)
+			piece = Piece(White, Queen);
 	} else {
-		if(idx >= 8*7 && idx < 8*8)
-			m_pieces[idx] = Piece::Queen | Piece::Black;
+		if (idx >= 56 && idx < 64)
+			piece = Piece(Black, Queen);
 	}
 }
 
 void Board::handlePieceDrag() {
-	if(isAnyPieceHeld())
+	if (isAnyPieceHeld())
 		return;
 
-	sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window));
-	sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
-	uint8_t idx = gridPos.y * 8 + gridPos.x;
+	const std::uint8_t idx = getIdxFromPosition(getMousePosition());
 
-	if(!isSquareIdxCorrect(idx))
+	if (!isSquareIdxCorrect(idx))
 		return;
 
-	PieceValue piece = m_pieces[idx];
-	if(!Piece::isNull(piece) && (piece & COLOR_MASK) == m_turnColor) {
+	Piece &piece = m_pieces[idx];
+	if (!piece.isNull() && piece.isColor(m_turnColor)) {
 		m_heldPieceIdx = idx;
-		Piece::getLegalMoves(idx, m_pieces, m_legalMoves);
+		Rules::getLegalMoves(m_legalHeldPieceMoves, *this, idx);
 	}
 }
 
 void Board::handlePieceDrop() {
-	if(!isAnyPieceHeld())
+	if (!isAnyPieceHeld())
 		return;
 
-	sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
-	sf::Vector2f pos = m_window.mapPixelToCoords(mousePos);
-	if(pos.x < 0 || pos.x > 512 || pos.y < 0 || pos.y > 512) {
+	const sf::Vector2f mousePosition = getMousePosition();
+	if (mousePosition.x < 0 || mousePosition.x > 512 || mousePosition.y < 0 || mousePosition.y > 512) {
 		resetHeldPiece();
 		return;
 	}
 
-	sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
-	uint8_t idx = gridPos.y * 8 + gridPos.x;
+	const std::uint8_t idx = getIdxFromPosition(mousePosition);
 
-	if(!isSquareIdxCorrect(idx)) {
+	if (!isSquareIdxCorrect(idx)) {
 		resetHeldPiece();
 		return;
 	}
 
-	if(!moveHeldPiece(idx))
+	if (!moveHeldPiece(idx))
 		resetHeldPiece();
 }
 
 void Board::renderPieces() {
-	for(auto i=0; i<m_pieces.size(); ++i)
-		if(i != m_heldPieceIdx) 
+	for (std::uint8_t i = 0; i < 64; ++i)
+		if (i != m_heldPieceIdx)
 			m_pieceRenderer.renderPiece(m_window, m_pieces[i], i);
 }
 
 void Board::renderHeldPiece() {
-	sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window));
-	pos.x -= 32;
-	pos.y -= 32;
+	const sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window)) - sf::Vector2f(32.0f, 32.0f);
 	m_pieceRenderer.renderPiece(m_window, m_pieces[m_heldPieceIdx], pos);
-}
-
-uint8_t Board::getHoveredSquareIdx() const {
-	sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
-	sf::Vector2f pos = m_window.mapPixelToCoords(mousePos);
-	if(pos.x < 0 || pos.x > 512 || pos.y < 0 || pos.y > 512)
-		return 64;
-
-	sf::Vector2i gridPos(pos.x / 64, pos.y / 64);
-	return gridPos.y * 8 + gridPos.x;
 }
 
 void Board::applyFen(const std::string &fen) {
 	uint8_t file = 0, rank = 0;
 
-	for(char c : fen) {
-		switch(c) {
-			case '/':
-				file = 0;
-				rank++;
-				break;
-			default:
-				if(isdigit(c)) {
-					file += c - '0';
-				} else {
-					uint8_t color = isupper(c) ? Piece::White : Piece::Black;
+	for (char c : fen) {
+		switch (c) {
+		case '/':
+			file = 0;
+			rank++;
+			break;
+		default:
+			if (isdigit(c)) {
+				file += c - '0';
+			} else {
+				const PieceColor color = isupper(c) ? White : Black;
 
-					uint8_t type;
-					switch(tolower(c)) {
-						case 'q': type = Piece::Queen; break;
-						case 'k': type = Piece::King; break;
-						case 'n': type = Piece::Knight; break;
-						case 'b': type = Piece::Bishop; break;
-						case 'r': type = Piece::Rook; break;
-						case 'p': type = Piece::Pawn; break;
-						default: 
-							std::cerr << "\e[1;33mUnknown char '" << c << "' in fen notation '" << fen << "'!\e[0m\n";
-							return;
-					}
-
-					m_pieces[rank * 8 + file] = type | color;
-					file++;
+				PieceType type;
+				switch (tolower(c)) {
+				case 'q':
+					type = Queen;
+					break;
+				case 'k':
+					type = King;
+					break;
+				case 'n':
+					type = Knight;
+					break;
+				case 'b':
+					type = Bishop;
+					break;
+				case 'r':
+					type = Rook;
+					break;
+				case 'p':
+					type = Pawn;
+					break;
+				case ' ':
+					break;
+				default:
+					std::cerr << "\e[1;33mUnknown char '" << c << "' in fen notation '" << fen << "'!\e[0m\n";
+					return;
 				}
-				break;
+
+				m_pieces[rank * 8 + file] = Piece(color, type);
+				file++;
+			}
+			break;
 		}
 	}
 }
 
 void Board::handleEvent(const sf::Event &e) {
-	switch(e.type) {
-		case sf::Event::EventType::MouseButtonPressed:
-			if(e.mouseButton.button == sf::Mouse::Left)
-				handlePieceDrag();
-			break;
+	switch (e.type) {
+	case sf::Event::EventType::MouseButtonPressed:
+		if (e.mouseButton.button == sf::Mouse::Left)
+			handlePieceDrag();
+		break;
 
-		case sf::Event::EventType::MouseButtonReleased:
-			if(e.mouseButton.button == sf::Mouse::Left)
-				handlePieceDrop();
-			break;
+	case sf::Event::EventType::MouseButtonReleased:
+		if (e.mouseButton.button == sf::Mouse::Left)
+			handlePieceDrop();
+		break;
 
-		default:
-			break;
+	default:
+		break;
 	}
 }

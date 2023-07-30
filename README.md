@@ -15,3 +15,4 @@
 - Check
 - Checkmate
 - En Passant
+- Async legal move calculation

@@ -1,23 +1,24 @@
 #pragma once
 
+#include <cstdint>
 #include <SFML/Audio/Sound.hpp>
 #include <string>
 #include <unordered_map>
 
-enum class SoundType {
+enum class Sound : std::uint8_t {
 	Move,
 	Take,
 };
 
 class SoundSystem {
-public:
+  public:
 	static void init();
-	static void playSound(SoundType type);
+	static void playSound(Sound type);
 
-private:
-	static void addSoundBuffer(SoundType type, const std::string &path);
+  private:
+	static void addSoundBuffer(Sound type, const std::string_view path);
 
-private:
-	static std::unordered_map<SoundType, sf::SoundBuffer> s_soundBuffers;
+  private:
+	static std::unordered_map<Sound, sf::SoundBuffer> s_soundBuffers;
 	static sf::Sound s_sound;
 };

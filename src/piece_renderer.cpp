@@ -1,11 +1,11 @@
 #include "piece_renderer.h"
-#include "piece.h"
 #include "board.h"
+#include "piece.h"
 #include <iostream>
 #include <unordered_map>
 
-PieceRenderer::PieceRenderer(const std::string &piecesTexturePath) {
-	if(!m_texture.loadFromFile(piecesTexturePath)) {
+PieceRenderer::PieceRenderer(const std::string_view piecesTexturePath) {
+	if (!m_texture.loadFromFile(std::string(piecesTexturePath))) {
 		std::cerr << "\e[1;31mFailed to load pieces texture!\e[0m\n";
 		return;
 	}
@@ -16,50 +16,54 @@ PieceRenderer::PieceRenderer(const std::string &piecesTexturePath) {
 	generateSprites();
 }
 
-void PieceRenderer::renderPiece(sf::RenderWindow &window, PieceValue piece, const sf::Vector2f &pos) {
-	if(Piece::isNull(piece))
+void PieceRenderer::renderPiece(sf::RenderTarget &target, Piece piece, const sf::Vector2f &pos) {
+	if (piece.isNull())
 		return;
 
-	std::unordered_map<PieceValue, sf::Sprite>::iterator it = m_sprites.find(piece);
+	const std::unordered_map<std::uint8_t, sf::Sprite>::iterator it = m_sprites.find(piece.value);
 
-	if(it == m_sprites.end()) {
-		std::cerr << "\e[1;31mSprite for PieceValue " << (int)piece << " (type: " << (piece & TYPE_MASK) << ", color: " << (piece & COLOR_MASK)  << ") not found!\e[0m\n";
+	if (it == m_sprites.end()) {
+		std::cerr << "\e[1;31mSprite for PieceValue " << (int)piece.value << " (type: " << piece.getType() << ", color: " << piece.getColor() << ") not found!\e[0m\n";
 		return;
 	}
 
 	sf::Sprite &sprite = it->second;
 	sprite.setPosition(pos);
-	window.draw(sprite);
+	target.draw(sprite);
 }
 
-void PieceRenderer::renderPiece(sf::RenderWindow &window, PieceValue piece, uint8_t idx) {
-	if(!Board::isSquareIdxCorrect(idx))
+void PieceRenderer::renderPiece(sf::RenderTarget &target, Piece piece, std::uint8_t idx) {
+	if (!Board::isSquareIdxCorrect(idx))
 		return;
 
-	renderPiece(window, piece, sf::Vector2f((idx % 8) * 64, (idx / 8) * 64));
+	renderPiece(target, piece, sf::Vector2f((idx % 8) * 64, idx / 8 * 64));
 }
 
 void PieceRenderer::generateSprites() {
-	sf::Vector2i singleTextureSize(m_texture.getSize());
-	singleTextureSize.x /= 6;
-	singleTextureSize.y /= 2;
+	constexpr std::uint8_t TEXTURE_ATLAS_COLUMNS = 6;
+	constexpr std::uint8_t TEXTURE_ATLAS_ROWS = 2;
 
-	float scale = 64.0f / singleTextureSize.x;
+	sf::Vector2i singleTextureSize(m_texture.getSize());
+	singleTextureSize.x /= TEXTURE_ATLAS_COLUMNS;
+	singleTextureSize.y /= TEXTURE_ATLAS_ROWS;
+
+	const float scale = 64.0f / singleTextureSize.x;
 
 	// Six types of pieces
-	for(uint8_t c=0; c<6; ++c) {
-		PieceValue piece = (c+1) | Piece::White;
-		int x = c*singleTextureSize.x;
+	for (std::uint8_t c = 0; c < 6; ++c) {
+		Piece piece = (c + 1) | PieceColor::White;
+		const int x = c * singleTextureSize.x;
 
-		for(uint8_t r=0; r<2; ++r) {
-			int y = r*singleTextureSize.y;
+		for (std::uint8_t r = 0; r < 2; ++r) {
+			const int y = r * singleTextureSize.y;
+
 			sf::Sprite sprite;
 			sprite.setTexture(m_texture);
 			sprite.setTextureRect({x, y, singleTextureSize.x, singleTextureSize.y});
 			sprite.setScale(scale, scale);
-			m_sprites.insert({piece, sprite});
+			m_sprites.insert({piece.value, sprite});
 
-			piece = (c+1) | Piece::Black;
+			piece = (c + 1) | PieceColor::Black;
 		}
 	}
 }
