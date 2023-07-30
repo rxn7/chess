@@ -1,16 +1,16 @@
 #pragma once
 
-#include <SFML/Graphics/Color.hpp>
 #include <cstdlib>
+#include <SFML/Graphics/Color.hpp>
 
 struct BoardTheme {
+	static BoardTheme generateRandomTheme();
+
 	sf::Color lightColor;
 	sf::Color darkColor;
 	sf::Color lastMoveColor;
 	sf::Color legalMoveColor;
 	sf::Color outlineColor;
-
-	static BoardTheme generateRandomTheme();
 };
 
 const BoardTheme DEFAULT_BOARD_THEME = {
