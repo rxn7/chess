@@ -3,10 +3,10 @@
 - ```git clone https://github.com/rxn7/chess --recurse-submodules```
 
 ## Setup
-- ```cmake -Bbuild -GNinja``` I like using ninja, you can use any other generator
+- ```./configure.sh```
 
 ## Compile
-- ```cmake --build build```
+- ```./build.sh```
 
 ## Run
 - ```./run.sh```
