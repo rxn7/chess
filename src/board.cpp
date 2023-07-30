@@ -26,25 +26,23 @@ void Board::reset() {
 	applyFen(DEFAULT_FEN);
 }
 
-void Board::processPawnPromotion(uint8_t idx) {
-	Piece &piece = m_pieces[idx];
-
-	if (!piece.isType(Pawn))
+void Board::checkPawnPromotion(const Move &move){ 
+	if (!move.piece.isType(Pawn))
 		return;
 
-	if (piece.isColor(White)) {
-		if (idx >= 0 && idx < 8)
-			piece = Piece(White, Queen);
-	} else {
-		if (idx >= 56 && idx < 64)
-			piece = Piece(Black, Queen);
-	}
+	if (move.piece.isColor(White)) {
+		if (move.toIdx / 8 == 0)
+			m_pieces[move.toIdx] = Piece(White, Queen);
+	} else if (move.toIdx / 8 == 7)
+		m_pieces[move.toIdx] = Piece(Black, Queen);
 }
 
 void Board::applyMove(const Move &move, bool updateCheckResult) {
 	m_pieces[move.toIdx] = move.piece;
 	m_pieces[move.fromIdx] = 0;
 	m_lastMove = move;
+
+	checkPawnPromotion(move);
 
 	if (updateCheckResult) {
 		const PieceColor checkedColor = move.piece.getColor() == White ? Black : White;

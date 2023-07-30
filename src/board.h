@@ -24,7 +24,7 @@ class Board {
 	Board(const Board &board);
 
 	void applyFen(const std::string &fen);
-	void processPawnPromotion(std::uint8_t idx);
+	void checkPawnPromotion(const Move &move);
 	void applyMove(const Move &move, bool updateCheckResult = true);
 	void reset();
 
