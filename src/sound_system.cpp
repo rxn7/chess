@@ -9,8 +9,9 @@ std::unordered_map<Sound, sf::SoundBuffer> SoundSystem::s_soundBuffers;
 void SoundSystem::init() {
 	addSoundBuffer(Sound::Move, "assets/sounds/move.ogg");
 	addSoundBuffer(Sound::Capture, "assets/sounds/take.wav");
-	addSoundBuffer(Sound::Check, "assets/sounds/check.wav");
+	addSoundBuffer(Sound::Check, "assets/sounds/check.ogg");
 	addSoundBuffer(Sound::Checkmate, "assets/sounds/checkmate.ogg");
+	addSoundBuffer(Sound::Stalemate, "assets/sounds/take.wav");
 }
 
 void SoundSystem::playSound(Sound type) {

@@ -10,6 +10,7 @@ enum class Sound : std::uint8_t {
 	Capture,
 	Check,
 	Checkmate,
+	Stalemate
 };
 
 class SoundSystem {

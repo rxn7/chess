@@ -115,7 +115,13 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 		} else {
 			SoundSystem::playSound(Sound::Check);
 		}
-	} 
+	} else {
+		if(m_board.getLegalMoves().empty()) {
+			std::cout << "\e[1;32mStalemate!\e[0m" << std::endl;
+			SoundSystem::playSound(Sound::Stalemate);
+			m_board.reset();
+		}
+	}
 
 	resetHeldPiece();
 	return true;
