@@ -50,8 +50,7 @@ class Game {
 		if (position.x < 0 || position.x > 512 || position.y < 0 || position.y > 512)
 			return 64;
 
-		const sf::Vector2i gridPosition(position.x / 64, position.y / 64);
-		return gridPosition.y * 8 + gridPosition.x;
+		return (int)position.y / 64 * 8 + (int)position.x / 64;
 	}
 
 	inline bool isAnyPieceHeld() const {
@@ -60,7 +59,6 @@ class Game {
 
 	inline void resetHeldPiece() {
 		m_heldPieceIdx = 255;
-		m_heldPieceLegalMoves.clear();
 	}
 
   private:
@@ -71,9 +69,7 @@ class Game {
 	BoardRenderer m_boardRenderer;
 	PieceRenderer m_pieceRenderer;
 
-	PieceColor m_turnColor;
-
-	std::vector<std::uint8_t> m_heldPieceLegalMoves;
+	// std::vector<std::uint8_t> m_heldPieceLegalMoves;
 	std::uint8_t m_heldPieceIdx;
 	sf::Font m_font;
 	sf::View m_view;

@@ -6,22 +6,21 @@
 #include "piece.h"
 #include "piece_renderer.h"
 #include "sound_system.h"
+
 #include <iostream>
-#include <memory>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
-#include <sstream>
 
 Game *Game::s_instance;
 
-Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_turnColor(White) {
+Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 	s_instance = this;
 	srand(time(0));
 	SoundSystem::init();
 
-	if (!m_font.loadFromFile("assets/RobotoMono-Regular.ttf")) {
+	if(!m_font.loadFromFile("assets/RobotoMono-Regular.ttf")) {
 		std::cerr << "\e[1;31mFailed to load font RobotoMono-Regular!\e[0m\n";
 		m_window.close();
 	}
@@ -35,20 +34,22 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_turnColor(Wh
 	std::cout << "\e[1;32mPress 'T' to generate random board theme!\e[0m" << std::endl;
 	std::cout << "\e[1;32mPress 'R' to bring back the default board theme!\e[0m" << std::endl;
 	std::cout << "\e[1;32mPress 'Escape' to reset the board!\e[0m" << std::endl;
+
+	restart();
 }
 
 void Game::start() {
 	sf::Event e;
 	sf::Clock frameClock;
 
-	while (true) {
+	while(true) {
 		m_frameDelta = frameClock.restart().asSeconds();
 		m_fps = 1.0f / m_frameDelta;
 
-		while (m_window.pollEvent(e))
+		while(m_window.pollEvent(e))
 			handleEvent(e);
 
-		if (!m_window.isOpen())
+		if(!m_window.isOpen())
 			break;
 
 		render();
@@ -56,7 +57,6 @@ void Game::start() {
 }
 
 void Game::restart() {
-	m_turnColor = White;
 	m_board.reset();
 }
 
@@ -66,18 +66,19 @@ void Game::render() {
 
 	m_boardRenderer.renderSquares(m_window);
 
-	const CheckResult &checkResult = m_board.m_checkResult;
-	if (checkResult.isCheck) {
+	const CheckResult &checkResult = m_board.getCheckResult();
+	if(checkResult.isCheck) {
 		m_boardRenderer.renderSquareCheck(m_window, checkResult.kingIdx);
 		m_boardRenderer.renderSquareCheck(m_window, checkResult.checkingPieceIdx);
 	}
 
-	if (!m_board.m_lastMove.isNull())
-		for (std::uint8_t idx : m_board.m_lastMove.indices)
+	if(!m_board.getLastMove().isNull())
+		for(std::uint8_t idx : m_board.getLastMove().indices)
 			m_boardRenderer.renderSquareLastMove(m_window, idx);
 
-	for (const std::uint8_t idx : m_heldPieceLegalMoves)
-		m_boardRenderer.renderSquareLegalMove(m_window, idx);
+	for(const Move &move : m_board.getLegalMoves())
+		if(move.fromIdx == m_heldPieceIdx)
+			m_boardRenderer.renderSquareLegalMove(m_window, move.toIdx);
 
 	m_boardRenderer.renderSquareOutline(m_window, m_heldPieceIdx);
 	m_boardRenderer.renderSquareOutline(m_window, getIdxFromPosition(getMousePosition()));
@@ -85,78 +86,79 @@ void Game::render() {
 	renderPieces();
 	m_boardRenderer.renderCoords(m_window);
 
-	if (isAnyPieceHeld())
+	if(isAnyPieceHeld())
 		renderHeldPiece();
 
 	m_window.display();
 }
 
 bool Game::moveHeldPiece(std::uint8_t toIdx) {
-	if (std::find(m_heldPieceLegalMoves.begin(), m_heldPieceLegalMoves.end(), toIdx) == m_heldPieceLegalMoves.end())
+	if(!isMoveLegal(m_board.getLegalMoves(), Move(getHeldPiece(), m_heldPieceIdx, toIdx)))
 		return false;
 
 	const Piece &targetPiece = m_board.getPieces()[toIdx];
 	const bool capture = !targetPiece.isNull();
 
-	m_board.applyMove(Move(getHeldPiece(), m_heldPieceIdx, toIdx), true);
+	m_board.applyMove(Move(getHeldPiece(), m_heldPieceIdx, toIdx), true, true);
 
-	if (m_board.m_checkResult.isCheck) {
-		SoundSystem::playSound(Sound::Check);
-	} else if (capture) {
+	if(capture) {
 		SoundSystem::playSound(Sound::Capture);
 	} else {
 		SoundSystem::playSound(Sound::Move);
 	}
 
+	if(m_board.getCheckResult().isCheck) {
+		if(m_board.getLegalMoves().empty()) {
+			std::cout << "\e[1;32mCheckmate!\e[0m" << std::endl;
+			SoundSystem::playSound(Sound::Checkmate);
+			m_board.reset();
+		} else {
+			SoundSystem::playSound(Sound::Check);
+		}
+	} 
+
 	resetHeldPiece();
-
-	m_turnColor = m_turnColor == White ? Black : White;
-
 	return true;
 }
 
 void Game::handlePieceDrag() {
-	if (isAnyPieceHeld())
-		return;
-
 	const std::uint8_t idx = getIdxFromPosition(getMousePosition());
-
-	if (!Board::isSquareIdxCorrect(idx))
+	if(!Board::isSquareIdxCorrect(idx))
 		return;
 
 	const Piece &piece = m_board.getPieces()[idx];
 
-	if (!piece.isNull() && piece.isColor(m_turnColor)) {
-		m_heldPieceIdx = idx;
-		m_heldPieceLegalMoves.clear();
-		addLegalMoves(m_heldPieceLegalMoves, m_board, idx);
+	if(piece.isNull() || piece.isNotColor(m_board.getTurnColor())) {
+		return;
 	}
+
+	m_heldPieceIdx = idx;
 }
 
 void Game::handlePieceDrop() {
-	if (!isAnyPieceHeld())
+	if(!isAnyPieceHeld())
 		return;
 
 	const sf::Vector2f mousePosition = getMousePosition();
-	if (mousePosition.x < 0 || mousePosition.x > 512 || mousePosition.y < 0 || mousePosition.y > 512) {
+	if(mousePosition.x < 0 || mousePosition.x > 512 || mousePosition.y < 0 || mousePosition.y > 512) {
 		resetHeldPiece();
 		return;
 	}
 
 	const std::uint8_t idx = getIdxFromPosition(mousePosition);
 
-	if (!Board::isSquareIdxCorrect(idx)) {
+	if(!Board::isSquareIdxCorrect(idx)) {
 		resetHeldPiece();
 		return;
 	}
 
-	if (!moveHeldPiece(idx))
+	if(!moveHeldPiece(idx))
 		resetHeldPiece();
 }
 
 void Game::renderPieces() {
-	for (std::uint8_t i = 0; i < 64; ++i)
-		if (i != m_heldPieceIdx)
+	for(std::uint8_t i = 0; i < 64; ++i)
+		if(i != m_heldPieceIdx)
 			m_pieceRenderer.renderPiece(m_window, m_board.getPieces()[i], i);
 }
 
@@ -166,23 +168,23 @@ void Game::renderHeldPiece() {
 }
 
 void Game::handleEvent(const sf::Event &e) {
-	switch (e.type) {
+	switch(e.type) {
 	case sf::Event::Closed:
 		m_window.close();
 		break;
 
 	case sf::Event::Resized: {
-		const float winRatio = e.size.width / (float)e.size.height;
-		const float viewRatio = m_view.getSize().x / (float)m_view.getSize().y;
+		const float winRatio = e.size.width /(float)e.size.height;
+		const float viewRatio = m_view.getSize().x /(float)m_view.getSize().y;
 		float sizeX = 1, sizeY = 1;
 		float posX = 0, posY = 0;
 
-		if (winRatio > viewRatio) {
+		if(winRatio > viewRatio) {
 			sizeX = viewRatio / winRatio;
-			posX = (1 - sizeX) * 0.5f;
+			posX =(1 - sizeX) * 0.5f;
 		} else {
 			sizeY = winRatio / viewRatio;
-			posY = (1 - sizeY) * 0.5f;
+			posY =(1 - sizeY) * 0.5f;
 		}
 
 		m_view.setViewport({posX, posY, sizeX, sizeY});
@@ -191,17 +193,17 @@ void Game::handleEvent(const sf::Event &e) {
 	}
 
 	case sf::Event::EventType::MouseButtonPressed:
-		if (e.mouseButton.button == sf::Mouse::Left)
+		if(e.mouseButton.button == sf::Mouse::Left)
 			handlePieceDrag();
 		break;
 
 	case sf::Event::EventType::MouseButtonReleased:
-		if (e.mouseButton.button == sf::Mouse::Left)
+		if(e.mouseButton.button == sf::Mouse::Left)
 			handlePieceDrop();
 		break;
 
 	case sf::Event::KeyPressed:
-		switch (e.key.code) {
+		switch(e.key.code) {
 		case sf::Keyboard::Key::T:
 			m_boardRenderer.setTheme(BoardTheme::generateRandomTheme());
 			break;

@@ -5,4 +5,5 @@
 
 class Board;
 
-void addLegalMoves(std::vector<std::uint8_t> &legalMoves, const Board &board, std::uint8_t idx, bool check = true);
+bool isMoveLegal(const std::vector<Move> &legalMoves, const Move &move);
+void addLegalMoves(std::vector<Move> &legalMoves, const Board &board, const uint8_t idx, const bool ignoreCheck = false);

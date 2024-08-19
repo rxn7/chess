@@ -10,6 +10,10 @@ struct Move {
 
 	Move(Piece piece, std::uint8_t fromIdx, std::uint8_t toIdx) : piece(piece), fromIdx(fromIdx), toIdx(toIdx) {}
 
+	inline bool operator==(const Move &other) const {
+		return piece == other.piece && fromIdx == other.fromIdx && toIdx == other.toIdx;
+	}
+
 	inline void reset() {
 		piece = 0;
 		for (std::uint8_t &i : indices)

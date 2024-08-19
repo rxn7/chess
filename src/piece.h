@@ -42,12 +42,15 @@ struct Piece {
 		return getColor() == color;
 	}
 
+	inline bool isNotColor(PieceColor color) const {
+		return getColor() != color;
+	}
+
 	inline bool isType(PieceType type) const {
 		return getType() == type;
 	}
 
 	inline bool isNull() const {
-		const std::uint8_t color = getColor();
 		return value == 0;
 	}
 
