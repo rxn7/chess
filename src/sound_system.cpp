@@ -11,7 +11,7 @@ void SoundSystem::init() {
 	addSoundBuffer(Sound::Capture, "assets/sounds/take.wav");
 	addSoundBuffer(Sound::Check, "assets/sounds/check.ogg");
 	addSoundBuffer(Sound::Checkmate, "assets/sounds/checkmate.ogg");
-	addSoundBuffer(Sound::Stalemate, "assets/sounds/take.wav");
+	addSoundBuffer(Sound::Stalemate, "assets/sounds/stalemate.wav");
 }
 
 void SoundSystem::playSound(Sound type) {
