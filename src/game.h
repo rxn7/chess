@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SFML/System/Clock.hpp"
 #include "board.h"
 #include "piece_renderer.h"
 #include <memory>
@@ -10,6 +11,18 @@
 const sf::Color LIGHT_COLOR(0xf0d9b5ff);
 const sf::Color DARK_COLOR(0xb58863ff);
 const sf::Color CLEAR_COLOR(0x282828ff);
+constexpr float END_GAME_SCREEN_DURATION = 5.0f;
+
+enum GameState {
+	Playing,
+	EndScreen
+};
+
+enum GameResult {
+	WhiteWin,
+	BlackWin,
+	Draw
+};
 
 class Game {
   public:
@@ -35,6 +48,7 @@ class Game {
 	void handlePieceDrop();
 	bool moveHeldPiece(std::uint8_t toIdx);
 	void handleEvent(const sf::Event &e);
+	void end(const GameResult result);
 	void restart();
 	void render();
 
@@ -64,13 +78,15 @@ class Game {
   private:
 	static Game *s_instance;
 
+	GameState m_state;
+
 	sf::RenderWindow m_window;
 	Board m_board;
 	BoardRenderer m_boardRenderer;
 	PieceRenderer m_pieceRenderer;
 
-	// std::vector<std::uint8_t> m_heldPieceLegalMoves;
 	std::uint8_t m_heldPieceIdx;
+	sf::Text m_endGameText;
 	sf::Font m_font;
 	sf::View m_view;
 	float m_fps, m_frameDelta;

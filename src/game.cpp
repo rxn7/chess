@@ -12,17 +12,18 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
+#include <sstream>
 
 Game *Game::s_instance;
 
-Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
+Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx(255) {
 	s_instance = this;
 	srand(time(0));
 	SoundSystem::init();
 
 	if(!m_font.loadFromFile("assets/RobotoMono-Regular.ttf")) {
-		std::cerr << "\e[1;31mFailed to load font RobotoMono-Regular!\e[0m\n";
-		m_window.close();
+		std::cout << "\e[1;31mFailed to load font!\e[0m" << std::endl;
+		return;
 	}
 
 	m_view.setCenter(256, 256);
@@ -30,6 +31,13 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn") {
 
 	m_window.setVerticalSyncEnabled(true);
 	m_window.setKeyRepeatEnabled(false);
+
+	m_endGameText.setFillColor(sf::Color::Black);
+	m_endGameText.setOutlineColor(sf::Color::White);
+	m_endGameText.setOutlineThickness(2);
+	m_endGameText.setPosition(256, 256);
+	m_endGameText.setCharacterSize(32);
+	m_endGameText.setFont(m_font);
 
 	std::cout << "\e[1;32mPress 'T' to generate random board theme!\e[0m" << std::endl;
 	std::cout << "\e[1;32mPress 'R' to bring back the default board theme!\e[0m" << std::endl;
@@ -56,7 +64,31 @@ void Game::start() {
 	}
 }
 
+void Game::end(const GameResult result) {
+	m_state = GameState::EndScreen;
+
+	std::ostringstream ss;
+
+	switch(result) {
+		case GameResult::WhiteWin:
+			ss << "White wins";
+			break;
+		case GameResult::BlackWin:
+			ss << "Black wins";
+			break;
+		case GameResult::Draw:
+			ss << "Draw";
+			break;
+	}
+
+	ss << "\nPress any key to restart";
+	m_endGameText.setString(ss.str());
+	
+	m_endGameText.setOrigin(m_endGameText.getLocalBounds().width * 0.5f, m_endGameText.getLocalBounds().height * 0.5f);
+}
+
 void Game::restart() {
+	m_state = GameState::Playing;
 	m_board.reset();
 }
 
@@ -89,6 +121,9 @@ void Game::render() {
 	if(isAnyPieceHeld())
 		renderHeldPiece();
 
+	if(m_state == GameState::EndScreen)
+		m_window.draw(m_endGameText);
+
 	m_window.display();
 }
 
@@ -111,7 +146,7 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 		if(m_board.getLegalMoves().empty()) {
 			std::cout << "\e[1;32mCheckmate!\e[0m" << std::endl;
 			SoundSystem::playSound(Sound::Checkmate);
-			m_board.reset();
+			end(m_board.getTurnColor() == White ? GameResult::BlackWin : GameResult::WhiteWin);
 		} else {
 			SoundSystem::playSound(Sound::Check);
 		}
@@ -119,7 +154,7 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 		if(m_board.getLegalMoves().empty()) {
 			std::cout << "\e[1;32mStalemate!\e[0m" << std::endl;
 			SoundSystem::playSound(Sound::Stalemate);
-			m_board.reset();
+			end(GameResult::Draw);
 		}
 	}
 
@@ -175,59 +210,67 @@ void Game::renderHeldPiece() {
 
 void Game::handleEvent(const sf::Event &e) {
 	switch(e.type) {
-	case sf::Event::Closed:
-		m_window.close();
-		break;
+		default: break;
 
-	case sf::Event::Resized: {
-		const float winRatio = e.size.width /(float)e.size.height;
-		const float viewRatio = m_view.getSize().x /(float)m_view.getSize().y;
-		float sizeX = 1, sizeY = 1;
-		float posX = 0, posY = 0;
+		case sf::Event::Closed:
+			m_window.close();
+			break;
 
-		if(winRatio > viewRatio) {
-			sizeX = viewRatio / winRatio;
-			posX =(1 - sizeX) * 0.5f;
-		} else {
-			sizeY = winRatio / viewRatio;
-			posY =(1 - sizeY) * 0.5f;
+		case sf::Event::Resized: {
+			const float winRatio = e.size.width /(float)e.size.height;
+			const float viewRatio = m_view.getSize().x /(float)m_view.getSize().y;
+			float sizeX = 1, sizeY = 1;
+			float posX = 0, posY = 0;
+
+			if(winRatio > viewRatio) {
+				sizeX = viewRatio / winRatio;
+				posX =(1 - sizeX) * 0.5f;
+			} else {
+				sizeY = winRatio / viewRatio;
+				posY =(1 - sizeY) * 0.5f;
+			}
+
+			m_view.setViewport({posX, posY, sizeX, sizeY});
+
+			break;
 		}
-
-		m_view.setViewport({posX, posY, sizeX, sizeY});
-
-		break;
 	}
 
-	case sf::Event::EventType::MouseButtonPressed:
-		if(e.mouseButton.button == sf::Mouse::Left)
-			handlePieceDrag();
-		break;
+		switch(e.type) {
+			case sf::Event::EventType::MouseButtonPressed:
+				if(e.mouseButton.button == sf::Mouse::Left)
+					handlePieceDrag();
+				break;
 
-	case sf::Event::EventType::MouseButtonReleased:
-		if(e.mouseButton.button == sf::Mouse::Left)
-			handlePieceDrop();
-		break;
+			case sf::Event::EventType::MouseButtonReleased:
+				if(e.mouseButton.button == sf::Mouse::Left)
+					handlePieceDrop();
+				break;
 
-	case sf::Event::KeyPressed:
-		switch(e.key.code) {
-		case sf::Keyboard::Key::T:
-			m_boardRenderer.setTheme(BoardTheme::generateRandomTheme());
-			break;
+			case sf::Event::KeyPressed:
+				if(m_state == GameState::EndScreen) {
+					restart();
+					break;
+				}
+				
+				switch(e.key.code) {
+					case sf::Keyboard::Key::T:
+						m_boardRenderer.setTheme(BoardTheme::generateRandomTheme());
+						break;
 
-		case sf::Keyboard::Key::R:
-			m_boardRenderer.setTheme(DEFAULT_BOARD_THEME);
-			break;
+					case sf::Keyboard::Key::R:
+						m_boardRenderer.setTheme(DEFAULT_BOARD_THEME);
+						break;
 
-		case sf::Keyboard::Key::Escape:
-			restart();
-			break;
+					case sf::Keyboard::Key::Escape:
+						restart();
+						break;
 
-		default:
-			break;
-		}
-		break;
+					default:
+						break;
+					}
+				break;
 
-	default:
-		break;
+			default: break;
 	}
 }
