@@ -1,8 +1,6 @@
 #include "board_renderer.h"
-#include "board.h"
-#include <atomic>
+#include "../board.h"
 #include <cstdint>
-#include <iostream>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -34,34 +32,28 @@ void BoardRenderer::renderCoords(sf::RenderTarget &target) {
 		target.draw(coordText);
 }
 
-void BoardRenderer::renderSquareCheck(sf::RenderTarget &target, std::uint8_t idx) {
+void BoardRenderer::renderSquareHighlight(sf::RenderTarget &target, const std::uint8_t idx, const sf::Color &color) {
 	if (!Board::isSquareIdxCorrect(idx))
 		return;
 
-	m_squareHighlight.setFillColor(sf::Color::Red);
-	m_squareHighlight.setPosition(sf::Vector2f(idx % 8 * 64, idx / 8 * 64));
+	m_squareHighlight.setFillColor(color);
+	m_squareHighlight.setPosition(idx % 8 * 64, idx / 8 * 64);
 	target.draw(m_squareHighlight);
 }
 
-void BoardRenderer::renderSquareLastMove(sf::RenderTarget &target, std::uint8_t idx) {
-	if (!Board::isSquareIdxCorrect(idx))
-		return;
-
-	m_squareHighlight.setFillColor(m_theme.lastMoveColor);
-	m_squareHighlight.setPosition(sf::Vector2f(idx % 8 * 64, idx / 8 * 64));
-	target.draw(m_squareHighlight);
+void BoardRenderer::renderSquareCheck(sf::RenderTarget &target, const std::uint8_t idx) {
+	renderSquareHighlight(target, idx, sf::Color::Red);
 }
 
-void BoardRenderer::renderSquareLegalMove(sf::RenderTarget &target, std::uint8_t idx) {
-	if (!Board::isSquareIdxCorrect(idx))
-		return;
-
-	m_squareHighlight.setFillColor(m_theme.legalMoveColor);
-	m_squareHighlight.setPosition(sf::Vector2f(idx % 8 * 64, idx / 8 * 64));
-	target.draw(m_squareHighlight);
+void BoardRenderer::renderSquareLastMove(sf::RenderTarget &target, const std::uint8_t idx) {
+	renderSquareHighlight(target, idx, m_theme.lastMoveColor);
 }
 
-void BoardRenderer::renderSquareOutline(sf::RenderTarget &target, std::uint8_t idx) {
+void BoardRenderer::renderSquareLegalMove(sf::RenderTarget &target, const std::uint8_t idx) {
+	renderSquareHighlight(target, idx, m_theme.legalMoveColor);
+}
+
+void BoardRenderer::renderSquareOutline(sf::RenderTarget &target, const std::uint8_t idx) {
 	if (!Board::isSquareIdxCorrect(idx))
 		return;
 

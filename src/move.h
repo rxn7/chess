@@ -15,9 +15,7 @@ struct Move {
 	}
 
 	inline void reset() {
-		piece = 0;
-		for (std::uint8_t &i : indices)
-			i = 64;
+		piece = fromIdx = toIdx = 0;
 	}
 
 	inline bool isNull() const {

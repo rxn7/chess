@@ -1,6 +1,6 @@
 #pragma once
 
-#include "piece.h"
+#include "../piece.h"
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -9,8 +9,8 @@
 class PieceRenderer {
   public:
 	PieceRenderer(const std::string_view piecesTexurePath = "assets/pieces.png");
-	void renderPiece(sf::RenderTarget &target, Piece piece, std::uint8_t idx);
-	void renderPiece(sf::RenderTarget &target, Piece piece, const sf::Vector2f &pos);
+	void renderPiece(sf::RenderTarget &target, const Piece piece, const std::uint8_t idx);
+	void renderPiece(sf::RenderTarget &target, const Piece piece, const sf::Vector2f &pos);
 
   private:
 	void generateSprites();

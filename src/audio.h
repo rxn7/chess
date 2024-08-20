@@ -13,7 +13,7 @@ enum class Sound : std::uint8_t {
 	Stalemate
 };
 
-class SoundSystem {
+class Audio {
   public:
 	static void init();
 	static void playSound(Sound type);

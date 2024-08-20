@@ -1,8 +1,7 @@
 #pragma once
 
-#include "SFML/System/Clock.hpp"
 #include "board.h"
-#include "piece_renderer.h"
+#include "renderers/piece_renderer.h"
 #include <memory>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>

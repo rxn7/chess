@@ -1,10 +1,10 @@
 #pragma once
 
-#include "board_renderer.h"
+#include "renderers/board_renderer.h"
+#include "renderers/piece_renderer.h"
 #include "board_theme.h"
 #include "move.h"
 #include "piece.h"
-#include "piece_renderer.h"
 #include <array>
 #include <memory>
 #include <SFML/Audio.hpp>

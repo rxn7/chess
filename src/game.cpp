@@ -1,11 +1,11 @@
 #include "game.h"
 #include "board.h"
-#include "board_renderer.h"
+#include "renderers/board_renderer.h"
+#include "renderers/piece_renderer.h"
 #include "board_theme.h"
 #include "rules.h"
 #include "piece.h"
-#include "piece_renderer.h"
-#include "sound_system.h"
+#include "audio.h"
 
 #include <iostream>
 #include <SFML/Graphics/Color.hpp>
@@ -19,7 +19,7 @@ Game *Game::s_instance;
 Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx(255) {
 	s_instance = this;
 	srand(time(0));
-	SoundSystem::init();
+	Audio::init();
 
 	if(!m_font.loadFromFile("assets/RobotoMono-Regular.ttf")) {
 		std::cout << "\e[1;31mFailed to load font!\e[0m" << std::endl;
@@ -137,23 +137,23 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 	m_board.applyMove(Move(getHeldPiece(), m_heldPieceIdx, toIdx), true, true);
 
 	if(capture) {
-		SoundSystem::playSound(Sound::Capture);
+		Audio::playSound(Sound::Capture);
 	} else {
-		SoundSystem::playSound(Sound::Move);
+		Audio::playSound(Sound::Move);
 	}
 
 	if(m_board.getCheckResult().isCheck) {
 		if(m_board.getLegalMoves().empty()) {
 			std::cout << "\e[1;32mCheckmate!\e[0m" << std::endl;
-			SoundSystem::playSound(Sound::Checkmate);
+			Audio::playSound(Sound::Checkmate);
 			end(m_board.getTurnColor() == White ? GameResult::BlackWin : GameResult::WhiteWin);
 		} else {
-			SoundSystem::playSound(Sound::Check);
+			Audio::playSound(Sound::Check);
 		}
 	} else {
 		if(m_board.getLegalMoves().empty()) {
 			std::cout << "\e[1;32mStalemate!\e[0m" << std::endl;
-			SoundSystem::playSound(Sound::Stalemate);
+			Audio::playSound(Sound::Stalemate);
 			end(GameResult::Draw);
 		}
 	}

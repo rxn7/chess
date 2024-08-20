@@ -1,6 +1,5 @@
-#include "piece_renderer.h"
-#include "board.h"
-#include "piece.h"
+#include "../board.h"
+#include "../piece.h"
 #include <iostream>
 #include <unordered_map>
 
@@ -32,7 +31,7 @@ void PieceRenderer::renderPiece(sf::RenderTarget &target, Piece piece, const sf:
 	target.draw(sprite);
 }
 
-void PieceRenderer::renderPiece(sf::RenderTarget &target, Piece piece, std::uint8_t idx) {
+void PieceRenderer::renderPiece(sf::RenderTarget &target, Piece piece, const std::uint8_t idx) {
 	if (!Board::isSquareIdxCorrect(idx))
 		return;
 

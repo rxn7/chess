@@ -1,7 +1,7 @@
 #pragma once
 
-#include "board_theme.h"
-#include "move.h"
+#include "../board_theme.h"
+#include <cstdint>
 #include <array>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -17,10 +17,10 @@ class BoardRenderer {
 
 	void renderCoords(sf::RenderTarget &target);
 	void renderSquares(sf::RenderTarget &target);
-	void renderSquareLastMove(sf::RenderTarget &target, std::uint8_t idx);
-	void renderSquareLegalMove(sf::RenderTarget &target, std::uint8_t idx);
-	void renderSquareOutline(sf::RenderTarget &target, std::uint8_t idx);
-	void renderSquareCheck(sf::RenderTarget &target, std::uint8_t idx);
+	void renderSquareLastMove(sf::RenderTarget &target, const std::uint8_t idx);
+	void renderSquareLegalMove(sf::RenderTarget &target, const std::uint8_t idx);
+	void renderSquareOutline(sf::RenderTarget &target, const std::uint8_t idx);
+	void renderSquareCheck(sf::RenderTarget &target, const std::uint8_t idx);
 
 	void setTheme(const BoardTheme &theme);
 
@@ -29,6 +29,7 @@ class BoardRenderer {
 	}
 
   private:
+	void renderSquareHighlight(sf::RenderTarget &target, const std::uint8_t idx, const sf::Color &color);
 	void generateVa();
 	void generateCoordTexts(const sf::Font &font);
 	void updateCoordTextsColors();
