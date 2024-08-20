@@ -66,7 +66,6 @@ void Game::start() {
 
 void Game::end(const GameResult result) {
 	m_state = GameState::EndScreen;
-
 	std::ostringstream ss;
 
 	switch(result) {
@@ -210,8 +209,6 @@ void Game::renderHeldPiece() {
 
 void Game::handleEvent(const sf::Event &e) {
 	switch(e.type) {
-		default: break;
-
 		case sf::Event::Closed:
 			m_window.close();
 			break;
@@ -234,43 +231,45 @@ void Game::handleEvent(const sf::Event &e) {
 
 			break;
 		}
-	}
 
-		switch(e.type) {
-			case sf::Event::EventType::MouseButtonPressed:
+		case sf::Event::EventType::MouseButtonPressed:
+			if(m_state == GameState::Playing) {
 				if(e.mouseButton.button == sf::Mouse::Left)
 					handlePieceDrag();
-				break;
+			}
+			break;
 
-			case sf::Event::EventType::MouseButtonReleased:
+		case sf::Event::EventType::MouseButtonReleased:
+			if(m_state == GameState::Playing) {
 				if(e.mouseButton.button == sf::Mouse::Left)
 					handlePieceDrop();
-				break;
+			}
+			break;
 
-			case sf::Event::KeyPressed:
-				if(m_state == GameState::EndScreen) {
+		case sf::Event::KeyPressed:
+			if(m_state == GameState::EndScreen) {
+				restart();
+				break;
+			}
+			
+			switch(e.key.code) {
+				case sf::Keyboard::Key::T:
+					m_boardRenderer.setTheme(BoardTheme::generateRandomTheme());
+					break;
+
+				case sf::Keyboard::Key::R:
+					m_boardRenderer.setTheme(DEFAULT_BOARD_THEME);
+					break;
+
+				case sf::Keyboard::Key::Escape:
 					restart();
 					break;
+
+				default:
+					break;
 				}
-				
-				switch(e.key.code) {
-					case sf::Keyboard::Key::T:
-						m_boardRenderer.setTheme(BoardTheme::generateRandomTheme());
-						break;
+			break;
 
-					case sf::Keyboard::Key::R:
-						m_boardRenderer.setTheme(DEFAULT_BOARD_THEME);
-						break;
-
-					case sf::Keyboard::Key::Escape:
-						restart();
-						break;
-
-					default:
-						break;
-					}
-				break;
-
-			default: break;
+		default: break;
 	}
 }
