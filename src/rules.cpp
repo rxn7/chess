@@ -27,7 +27,7 @@ namespace Rules {
 
 	bool isInCheckAfterMove(const Board &board, const Move &move) {
 		Board boardTemp = board;
-		boardTemp.applyMove(move, false, true);
+		boardTemp.applyMove(move, true, true);
 		return boardTemp.getCheckResult().isCheck;
 	}
 

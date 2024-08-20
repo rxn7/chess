@@ -1,4 +1,5 @@
 #include "board.h"
+#include "game.h"
 #include "rules.h"
 #include "piece.h"
 
@@ -15,11 +16,11 @@ enum FenRecord {
 	FullMoveNumber = 5
 };
 
-Board::Board() {
+Board::Board(Game &game) : m_game(game) {
 	reset();
 }
 
-Board::Board(const Board &board) : m_pieces(board.m_pieces), m_checkResult(board.m_checkResult), m_lastMove(board.m_lastMove), m_turnColor(board.m_turnColor) {}
+Board::Board(const Board &board) : m_game(board.m_game), m_pieces(board.m_pieces), m_checkResult(board.m_checkResult), m_lastMove(board.m_lastMove), m_turnColor(board.m_turnColor), m_fullMoves(board.m_fullMoves), m_halfMoveClock(board.m_halfMoveClock) {}
 
 void Board::reset() {
 	std::fill(m_pieces.begin(), m_pieces.end(), 0); // Clear the board
@@ -50,21 +51,41 @@ void Board::checkPawnPromotion(const Move &move) {
 		return;
 
 	if(move.piece.isColor(White)) {
-		if(move.toIdx / 8 == 0)
+		if(move.toIdx / 8 == 0) {
 			m_pieces[move.toIdx] = Piece(White, Queen);
-	} else if(move.toIdx / 8 == 7)
+		}
+	} else if(move.toIdx / 8 == 7) {
 		m_pieces[move.toIdx] = Piece(Black, Queen);
+	}
 }
 
-void Board::applyMove(const Move &move, const bool updateMoves, const bool updateCheckResult) {
+void Board::applyMove(const Move &move, const bool isFake, const bool updateCheckResult) {
+	if(!isFake) {
+		if(move.piece.isColor(Black)) {
+			++m_fullMoves;
+		}
+
+		if(move.piece.isType(Pawn) || !getPiece(move.toIdx).isNull()) {
+			m_halfMoveClock = 0;
+		} else {
+			++m_halfMoveClock;
+			if(m_halfMoveClock == 50) {
+				std::cout << "50 half moves without capture or pawn move. Draw!" << std::endl;
+				m_game.end(GameResult::Draw);
+			}
+		}
+
+		std::cout << "Half move clock: " << m_halfMoveClock << std::endl;
+		std::cout << "Full moves: " << m_fullMoves << std::endl;
+	}
+
 	m_pieces[move.toIdx] = move.piece;
 	m_pieces[move.fromIdx] = 0;
 	m_lastMove = move;
 
-	checkPawnPromotion(move);
-
-	if(updateMoves) {
+	if(!isFake) {
 		m_turnColor = m_turnColor == White ? Black : White;
+		checkPawnPromotion(move);
 		updateLegalMoves();
 	}
 
@@ -73,6 +94,7 @@ void Board::applyMove(const Move &move, const bool updateMoves, const bool updat
 	}
 }
 
+// based on: https://www.chess.com/terms/fen-chess
 void Board::applyFen(const std::string &fen) {
 	std::uint8_t file = 0, rank = 0;
 
@@ -130,6 +152,47 @@ void Board::applyFen(const std::string &fen) {
 				break;
 
 			case FenRecord::CastlingAvailability:
+				if(record.empty() || record[0] == '-') {
+					for(auto &i : m_players) {
+						i.second.canCastleKingSide = false;
+						i.second.canCastleQueenSide = false;
+					}
+					break;
+				}
+
+				for(const char c : record) {
+					switch(c) {
+						case 'K':
+							m_players[White].canCastleKingSide = true;
+							break;
+						case 'Q':
+							m_players[White].canCastleQueenSide = true;
+							break;
+						case 'k':
+							m_players[Black].canCastleKingSide = true;
+							break;
+						case 'q':
+							m_players[Black].canCastleQueenSide = true;
+							break;
+					}
+				}
+				break;
+
+			case FenRecord::EnPassantTargetSquare:
+				if(record.empty() || record[0] == '-') {
+					m_enPassantTarget = std::nullopt;
+					break;
+				}
+
+				m_enPassantTarget = getSquareIdx(record[0], record[1]);
+				break;
+
+			case FenRecord::HalfMoveClock:
+				m_halfMoveClock = std::stoi(record);
+				break;
+
+			case FenRecord::FullMoveNumber:
+				m_fullMoves = std::stoi(record);
 				break;
 		}
 	}

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "player.h"
 #include "renderers/board_renderer.h"
 #include "renderers/piece_renderer.h"
 #include "board_theme.h"
@@ -9,8 +10,11 @@
 #include <memory>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <optional>
 
 #define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
+class Game;
 
 struct CheckResult {
 	bool isCheck;
@@ -20,13 +24,17 @@ struct CheckResult {
 
 class Board {
   public:
-	Board();
+	Board(Game &game);
 	Board(const Board &board);
 
 	void applyFen(const std::string &fen);
-	void applyMove(const Move &move, const bool updateMoves = true, const bool updateCheckResult = true);
+	void applyMove(const Move &move, const bool isFake = false, const bool updateCheckResult = true);
 	void reset();
 	CheckResult calculateCheck(const PieceColor color);
+
+	inline Player &getPlayer(const PieceColor color) {
+		return m_players[color];
+	}
 
 	inline const std::array<Piece, 64> &getPieces() const {
 		return m_pieces;
@@ -38,6 +46,10 @@ class Board {
 
 	static inline bool isSquareIdxCorrect(const std::uint8_t idx) {
 		return idx >= 0 && idx < 64;
+	}
+
+	static std::uint8_t getSquareIdx(const char file, const char rank) {
+		return (rank - '1') * 8 + (file - 'a');
 	}
 
 	inline PieceColor getTurnColor() const {
@@ -61,9 +73,14 @@ class Board {
 	void updateLegalMoves();
 
   private:
+	Game &m_game;
 	std::vector<Move> m_legalMoves;
 	PieceColor m_turnColor;
 	CheckResult m_checkResult;
 	Move m_lastMove;
+	std::uint16_t m_fullMoves;
+	std::uint16_t m_halfMoveClock;
+	std::optional<uint8_t> m_enPassantTarget;
 	std::array<Piece, 64> m_pieces;
+	std::unordered_map<PieceColor, Player> m_players;
 };

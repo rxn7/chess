@@ -16,7 +16,7 @@
 
 Game *Game::s_instance;
 
-Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx(255) {
+Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx(255), m_board(*this) {
 	s_instance = this;
 	srand(time(0));
 	Audio::init();
@@ -134,7 +134,7 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 	const Piece &targetPiece = m_board.getPieces()[toIdx];
 	const bool capture = !targetPiece.isNull();
 
-	m_board.applyMove(Move(getHeldPiece(), m_heldPieceIdx, toIdx), true, true);
+	m_board.applyMove(Move(getHeldPiece(), m_heldPieceIdx, toIdx));
 
 	if(capture) {
 		Audio::playSound(Sound::Capture);

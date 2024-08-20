@@ -27,6 +27,7 @@ class Game {
   public:
 	Game();
 	void start();
+	void end(const GameResult result);
 
 	static inline Game *getInstance() {
 		return s_instance;
@@ -47,7 +48,6 @@ class Game {
 	void handlePieceDrop();
 	bool moveHeldPiece(std::uint8_t toIdx);
 	void handleEvent(const sf::Event &e);
-	void end(const GameResult result);
 	void restart();
 	void render();
 
