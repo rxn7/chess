@@ -3,7 +3,17 @@
 #include "piece.h"
 
 #include <iostream>
+#include <sstream>
 #include <SFML/Graphics/RenderWindow.hpp>
+
+enum FenRecord {
+	PiecePlacement = 0,
+	ActiveColor = 1,
+	CastlingAvailability = 2,
+	EnPassantTargetSquare = 3,
+	HalfMoveClock = 4,
+	FullMoveNumber = 5
+};
 
 Board::Board() {
 	reset();
@@ -20,8 +30,6 @@ void Board::reset() {
 	m_lastMove.reset();
 
 	applyFen(DEFAULT_FEN);
-
-	m_turnColor = White;
 	updateLegalMoves();
 }
 
@@ -68,49 +76,61 @@ void Board::applyMove(const Move &move, const bool updateMoves, const bool updat
 void Board::applyFen(const std::string &fen) {
 	std::uint8_t file = 0, rank = 0;
 
-	for(char c : fen) {
-		switch(c) {
-		case '/':
-			file = 0;
-			rank++;
-			break;
-		default:
-			if(isdigit(c)) {
-				file += c - '0';
-			} else {
-				const PieceColor color = isupper(c) ? White : Black;
+	std::istringstream stream(fen);
+	std::string record;
 
-				PieceType type;
-				switch(tolower(c)) {
-				case 'q':
-					type = Queen;
-					break;
-				case 'k':
-					type = King;
-					break;
-				case 'n':
-					type = Knight;
-					break;
-				case 'b':
-					type = Bishop;
-					break;
-				case 'r':
-					type = Rook;
-					break;
-				case 'p':
-					type = Pawn;
-					break;
-				case ' ':
-					break;
-				default:
-					std::cerr << "\e[1;33mUnknown char '" << c << "' in fen notation '" << fen << "'!\e[0m\n";
-					return;
+	int recordIdx = 0;
+
+	while(stream >> record) {
+		switch(recordIdx++) {
+			case FenRecord::PiecePlacement:
+				for(const char c : record) {
+					if(c == '/') {
+						file = 0;
+						rank++;
+					} else {
+						if(isdigit(c)) {
+							file += c - '0';
+						} else {
+							const PieceColor color = isupper(c) ? White : Black;
+
+							PieceType type;
+							switch(tolower(c)) {
+							case 'q':
+								type = Queen;
+								break;
+							case 'k':
+								type = King;
+								break;
+							case 'n':
+								type = Knight;
+								break;
+							case 'b':
+								type = Bishop;
+								break;
+							case 'r':
+								type = Rook;
+								break;
+							case 'p':
+								type = Pawn;
+								break;
+							default:
+								std::cerr << "\e[1;31mInvalid piece type: " << c << "!\e[0m\n";
+							}
+
+							m_pieces[rank * 8 + file] = Piece(color, type);
+							file++;
+						}
+					}
 				}
+				break;
 
-				m_pieces[rank * 8 + file] = Piece(color, type);
-				file++;
-			}
-			break;
+			case FenRecord::ActiveColor:
+				m_turnColor = record[0] == 'w' ? White : Black;
+				break;
+
+			case FenRecord::CastlingAvailability:
+				break;
 		}
 	}
 }

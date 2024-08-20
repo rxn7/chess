@@ -12,11 +12,11 @@
 
 #define OUTLINE_THICKNESS 2
 
-BoardRenderer::BoardRenderer(const BoardTheme &theme)
+BoardRenderer::BoardRenderer()
 	: m_vertexArray(sf::PrimitiveType::Quads, 64 * 4), m_squareHighlight({64, 64}), m_squareOutline({64 - OUTLINE_THICKNESS * 2, 64 - OUTLINE_THICKNESS * 2}) {
 	m_squareOutline.setFillColor(sf::Color::Transparent);
 	m_squareOutline.setOutlineThickness(OUTLINE_THICKNESS);
-	setTheme(theme);
+	setTheme(DEFAULT_BOARD_THEME);
 }
 
 void BoardRenderer::init(const sf::Font &font) {
@@ -63,7 +63,6 @@ void BoardRenderer::renderSquareOutline(sf::RenderTarget &target, const std::uin
 
 void BoardRenderer::setTheme(const BoardTheme &theme) {
 	m_theme = theme;
-
 	m_squareOutline.setOutlineColor(theme.outlineColor);
 
 	generateVa();

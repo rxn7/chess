@@ -11,7 +11,7 @@
 
 class BoardRenderer {
   public:
-	BoardRenderer(const BoardTheme &theme = DEFAULT_BOARD_THEME);
+	BoardRenderer();
 
 	void init(const sf::Font &font);
 
