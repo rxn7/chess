@@ -12,6 +12,3 @@
 ## Run
 - ```./run.sh```- Debug version
 - ```./run.sh -r```- Release version
-
-# To do
-- En Passant
