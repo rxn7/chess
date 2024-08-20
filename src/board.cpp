@@ -1,5 +1,5 @@
 #include "board.h"
-#include "legal_moves.h"
+#include "rules.h"
 #include "piece.h"
 
 #include <iostream>
@@ -33,7 +33,7 @@ void Board::updateLegalMoves() {
 		if(piece.isNull() || piece.getColor() != m_turnColor)
 			continue;
 
-		addLegalMoves(m_legalMoves, *this, i);
+		Rules::addLegalMoves(m_legalMoves, *this, i);
 	}
 }
 
@@ -125,7 +125,7 @@ CheckResult Board::calculateCheck(const PieceColor color) {
 		if(piece.isNull() || piece.isColor(color))
 			continue;
 
-		addLegalMoves(legalMoves, *this, i, true);
+		Rules::addLegalMoves(legalMoves, *this, i, true);
 	}
 	
 	// Check if any of the opponent's moves puts the king in check

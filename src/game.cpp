@@ -2,7 +2,7 @@
 #include "board.h"
 #include "board_renderer.h"
 #include "board_theme.h"
-#include "legal_moves.h"
+#include "rules.h"
 #include "piece.h"
 #include "piece_renderer.h"
 #include "sound_system.h"
@@ -128,7 +128,7 @@ void Game::render() {
 }
 
 bool Game::moveHeldPiece(std::uint8_t toIdx) {
-	if(!isMoveLegal(m_board.getLegalMoves(), Move(getHeldPiece(), m_heldPieceIdx, toIdx)))
+	if(!Rules::isMoveLegal(m_board.getLegalMoves(), Move(getHeldPiece(), m_heldPieceIdx, toIdx)))
 		return false;
 
 	const Piece &targetPiece = m_board.getPieces()[toIdx];
