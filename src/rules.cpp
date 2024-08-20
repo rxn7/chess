@@ -15,7 +15,7 @@ namespace Rules {
 		return false;
 	}
 
-	void addLegalMoves(std::vector<Move> &legalMoves, const Board &board, const uint8_t idx, const bool ignoreCheck) {
+	void addLegalMoves(std::vector<Move> &legalMoves, Board &board, const uint8_t idx, const bool ignoreCheck) {
 		const Piece &piece = board.getPiece(idx);
 
 		const std::uint8_t pieceX = idx % 8;
@@ -32,7 +32,7 @@ namespace Rules {
 	}
 
 	void addLegalMove(const AddLegalMoveContext &ctx, const std::uint8_t targetIdx) {
-		const Move move = Move(ctx.piece, ctx.pieceIdx, targetIdx);
+		const Move move = Move(ctx.board, ctx.pieceIdx, targetIdx);
 
 		if(!ctx.ignoreCheck && isInCheckAfterMove(ctx.board, move))
 			return;

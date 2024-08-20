@@ -3,7 +3,6 @@
 #include "piece.h"
 
 struct Player {
-	PieceColor color;
-	bool canCastleKingSide;
-	bool canCastleQueenSide;
+	bool canCastleKingSide = true;
+	bool canCastleQueenSide = true;
 };

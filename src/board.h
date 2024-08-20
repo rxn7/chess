@@ -30,10 +30,13 @@ class Board {
 	void applyFen(const std::string &fen);
 	void applyMove(const Move &move, const bool isFake = false, const bool updateCheckResult = true);
 	void reset();
+	void applyMoveRules(const Move &move);
+	void handleCastling(const Move &move);
+	void handlePawnPromotion(const Move &move);
 	CheckResult calculateCheck(const PieceColor color);
 
-	inline Player &getPlayer(const PieceColor color) {
-		return m_players[color];
+	inline const Player &getPlayer(const PieceColor color) const {
+		return m_players.at(color);
 	}
 
 	inline const std::array<Piece, 64> &getPieces() const {
@@ -60,7 +63,7 @@ class Board {
 		return m_checkResult;
 	}
 
-	inline const Move &getLastMove() const {
+	inline const std::optional<Move> &getLastMove() const {
 		return m_lastMove;
 	}
 
@@ -69,7 +72,6 @@ class Board {
 	}
 
   private:
-	void checkPawnPromotion(const Move &move);
 	void updateLegalMoves();
 
   private:
@@ -77,10 +79,10 @@ class Board {
 	std::vector<Move> m_legalMoves;
 	PieceColor m_turnColor;
 	CheckResult m_checkResult;
-	Move m_lastMove;
+	std::optional<Move> m_lastMove = std::nullopt;
 	std::uint16_t m_fullMoves;
 	std::uint16_t m_halfMoveClock;
-	std::optional<uint8_t> m_enPassantTarget;
+	std::optional<uint8_t> m_enPassantTarget = std::nullopt;
 	std::array<Piece, 64> m_pieces;
 	std::unordered_map<PieceColor, Player> m_players;
 };

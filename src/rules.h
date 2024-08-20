@@ -14,7 +14,7 @@ namespace Rules {
 
 	struct AddLegalMoveContext {
 		std::vector<Move> &legalMoves;
-		const Board &board;
+		Board &board;
 		const Piece &piece;
 		std::uint8_t pieceIdx;
 		std::uint8_t pieceX;
@@ -30,7 +30,7 @@ namespace Rules {
 	bool addMoveIfEmpty(const AddLegalMoveContext &ctx, const std::uint8_t targetIdx);
 	bool addMoveIfHasOpponentPiece(const AddLegalMoveContext &ctx, const std::uint8_t targetIdx);
 	bool addMoveIfNotBlocked(const AddLegalMoveContext &ctx, const std::uint8_t targetIdx);
-	void addLegalMoves(std::vector<Move> &legalMoves, const Board &board, const uint8_t idx, const bool ignoreCheck = false);
+	void addLegalMoves(std::vector<Move> &legalMoves, Board &board, const uint8_t idx, const bool ignoreCheck = false);
 
 	ADD_LEGAL_MOVES_FUNC(Pawn);
 	ADD_LEGAL_MOVES_FUNC(Rook);

@@ -103,8 +103,8 @@ void Game::render() {
 		m_boardRenderer.renderSquareCheck(m_window, checkResult.checkingPieceIdx);
 	}
 
-	if(!m_board.getLastMove().isNull())
-		for(std::uint8_t idx : m_board.getLastMove().indices)
+	if(m_board.getLastMove())
+		for(std::uint8_t idx : m_board.getLastMove()->indices)
 			m_boardRenderer.renderSquareLastMove(m_window, idx);
 
 	for(const Move &move : m_board.getLegalMoves())
@@ -127,13 +127,15 @@ void Game::render() {
 }
 
 bool Game::moveHeldPiece(std::uint8_t toIdx) {
-	if(!Rules::isMoveLegal(m_board.getLegalMoves(), Move(getHeldPiece(), m_heldPieceIdx, toIdx)))
+	const Move move = Move(m_board, m_heldPieceIdx, toIdx);
+
+	if(!Rules::isMoveLegal(m_board.getLegalMoves(), move))
 		return false;
 
 	const Piece &targetPiece = m_board.getPieces()[toIdx];
 	const bool capture = !targetPiece.isNull();
 
-	m_board.applyMove(Move(getHeldPiece(), m_heldPieceIdx, toIdx));
+	m_board.applyMove(move);
 
 	if(capture) {
 		Audio::playSound(Sound::Capture);

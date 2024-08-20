@@ -20,7 +20,10 @@ Board::Board(Game &game) : m_game(game) {
 	reset();
 }
 
-Board::Board(const Board &board) : m_game(board.m_game), m_pieces(board.m_pieces), m_checkResult(board.m_checkResult), m_lastMove(board.m_lastMove), m_turnColor(board.m_turnColor), m_fullMoves(board.m_fullMoves), m_halfMoveClock(board.m_halfMoveClock) {}
+Board::Board(const Board &board) : m_game(board.m_game), m_pieces(board.m_pieces), m_checkResult(board.m_checkResult), m_lastMove(board.m_lastMove), m_turnColor(board.m_turnColor), m_fullMoves(board.m_fullMoves), m_halfMoveClock(board.m_halfMoveClock) {
+	m_players.insert({White, {}});
+	m_players.insert({Black, {}});
+}
 
 void Board::reset() {
 	std::fill(m_pieces.begin(), m_pieces.end(), 0); // Clear the board
@@ -28,7 +31,7 @@ void Board::reset() {
 		.isCheck = false,
 	};
 
-	m_lastMove.reset();
+	m_lastMove = std::nullopt;
 
 	applyFen(DEFAULT_FEN);
 	updateLegalMoves();
@@ -46,52 +49,80 @@ void Board::updateLegalMoves() {
 	}
 }
 
-void Board::checkPawnPromotion(const Move &move) {
-	if(!move.piece.isType(Pawn))
-		return;
-
-	if(move.piece.isColor(White)) {
-		if(move.toIdx / 8 == 0) {
-			m_pieces[move.toIdx] = Piece(White, Queen);
-		}
-	} else if(move.toIdx / 8 == 7) {
-		m_pieces[move.toIdx] = Piece(Black, Queen);
-	}
-}
-
 void Board::applyMove(const Move &move, const bool isFake, const bool updateCheckResult) {
-	if(!isFake) {
-		if(move.piece.isColor(Black)) {
-			++m_fullMoves;
-		}
-
-		if(move.piece.isType(Pawn) || !getPiece(move.toIdx).isNull()) {
-			m_halfMoveClock = 0;
-		} else {
-			++m_halfMoveClock;
-			if(m_halfMoveClock == 50) {
-				std::cout << "50 half moves without capture or pawn move. Draw!" << std::endl;
-				m_game.end(GameResult::Draw);
-			}
-		}
-
-		std::cout << "Half move clock: " << m_halfMoveClock << std::endl;
-		std::cout << "Full moves: " << m_fullMoves << std::endl;
-	}
-
 	m_pieces[move.toIdx] = move.piece;
 	m_pieces[move.fromIdx] = 0;
 	m_lastMove = move;
 
+	handleCastling(move);
+	handlePawnPromotion(move);
+
 	if(!isFake) {
+		applyMoveRules(move);
+
 		m_turnColor = m_turnColor == White ? Black : White;
-		checkPawnPromotion(move);
 		updateLegalMoves();
 	}
 
 	if(updateCheckResult) {
 		m_checkResult = calculateCheck(m_turnColor);
 	}
+}
+
+void Board::applyMoveRules(const Move &move) {
+	if(move.piece.isColor(Black)) {
+		++m_fullMoves;
+	}
+
+	if(move.piece.isType(Pawn) || !getPiece(move.toIdx).isNull()) {
+		m_halfMoveClock = 0;
+	} else {
+		++m_halfMoveClock;
+		if(m_halfMoveClock == 50) {
+			std::cout << "50 half moves without capture or pawn move. Draw!" << std::endl;
+			m_game.end(GameResult::Draw);
+		}
+	}
+
+	Player &player = m_players[move.piece.getColor()];
+
+	if(move.piece.isType(King)) {
+		player.canCastleQueenSide = false;
+		player.canCastleKingSide = false;
+		std::cout << "Player " << (move.piece.getColor() == White ? "white" : "black") << " can no longer castle" << std::endl;
+	} else if(move.piece.isType(Rook)) {
+		if(move.fromIdx == 0 || move.fromIdx == 56) {
+			player.canCastleQueenSide = false;
+			std::cout << "Player " << (move.piece.getColor() == White ? "white" : "black") << " can no longer castle queen side" << std::endl;
+		} else {
+			player.canCastleKingSide = false;
+			std::cout << "Player " << (move.piece.getColor() == White ? "white" : "black") << " can no longer castle king side" << std::endl;
+		}
+	}
+
+	std::cout << "Half move clock: " << m_halfMoveClock << std::endl;
+	std::cout << "Full moves: " << m_fullMoves << std::endl;
+}
+
+void Board::handleCastling(const Move &move) {
+	if(move.isQueenSideCastling) {
+		if(move.piece.getColor() == Black) {
+			applyMove(Move(*this, 0, 3), true, false);
+		} else {
+			applyMove(Move(*this, 56, 59), true, false);
+		}
+	} else if(move.isKingSideCastling) {
+		if(move.piece.getColor() == Black) {
+			applyMove(Move(*this, 7, 5), true, false);
+		} else {
+			applyMove(Move(*this, 63, 61), true, false);
+		}
+	}
+}
+
+void Board::handlePawnPromotion(const Move &move) {
+	if(move.isPawnPromotion)
+		m_pieces[move.toIdx] = Piece(move.piece.getColor(), Queen);
 }
 
 // based on: https://www.chess.com/terms/fen-chess

@@ -1,28 +1,26 @@
 #pragma once
 
 #include "piece.h"
-#include <cstdint>
+
+class Board;
 
 struct Move {
 	Move() {
-		reset();
 	}
 
-	Move(Piece piece, std::uint8_t fromIdx, std::uint8_t toIdx) : piece(piece), fromIdx(fromIdx), toIdx(toIdx) {}
+	Move(const Board &board, const std::uint8_t fromIdx, const std::uint8_t toIdx);
 
 	inline bool operator==(const Move &other) const {
-		return piece == other.piece && fromIdx == other.fromIdx && toIdx == other.toIdx;
-	}
-
-	inline void reset() {
-		piece = fromIdx = toIdx = 0;
-	}
-
-	inline bool isNull() const {
-		return piece.isNull();
+		return fromIdx == other.fromIdx && toIdx == other.toIdx;
 	}
 
 	Piece piece;
+	Piece targetPiece;
+
+	bool isCapture;
+	bool isPawnPromotion;
+	bool isKingSideCastling;
+	bool isQueenSideCastling;
 
 	union {
 		struct {
