@@ -56,6 +56,7 @@ void Board::applyMove(const Move &move, const bool isFake, const bool updateChec
 
 	handleCastling(move);
 	handlePawnPromotion(move);
+	handleEnPassant(move);
 
 	if(!isFake) {
 		applyMoveRules(move);
@@ -123,6 +124,28 @@ void Board::handleCastling(const Move &move) {
 void Board::handlePawnPromotion(const Move &move) {
 	if(move.isPawnPromotion)
 		m_pieces[move.toIdx] = Piece(move.piece.getColor(), Queen);
+}
+
+void Board::handleEnPassant(const Move &move) {
+	if(move.piece.getType() == Pawn) {
+		// If moved 2 files
+		if(move.toIdx == m_enPassantTarget) {
+			if(move.piece.getColor() == White)
+				m_pieces[move.toIdx + 8] = 0;
+			else
+				m_pieces[move.toIdx - 8] = 0;
+		}
+
+		if(std::abs(move.fromIdx - move.toIdx) == 16) {
+			if(move.piece.getColor() == White)
+				m_enPassantTarget = move.toIdx + 8;
+			else
+				m_enPassantTarget = move.toIdx - 8;
+
+			return;
+		}
+	} 
+	m_enPassantTarget = std::nullopt;
 }
 
 // based on: https://www.chess.com/terms/fen-chess

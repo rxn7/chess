@@ -33,6 +33,7 @@ class Board {
 	void applyMoveRules(const Move &move);
 	void handleCastling(const Move &move);
 	void handlePawnPromotion(const Move &move);
+	void handleEnPassant(const Move &move);
 	CheckResult calculateCheck(const PieceColor color);
 
 	inline const Player &getPlayer(const PieceColor color) const {
@@ -65,6 +66,10 @@ class Board {
 
 	inline const std::optional<Move> &getLastMove() const {
 		return m_lastMove;
+	}
+
+	inline const std::optional<uint8_t> &getEnPassantTarget() const {
+		return m_enPassantTarget;
 	}
 
 	inline std::vector<Move> &getLegalMoves() {

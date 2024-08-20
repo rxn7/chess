@@ -14,6 +14,4 @@
 - ```./run.sh -r```- Release version
 
 # To do
-- Stalemate
 - En Passant
-- Async legal move calculation

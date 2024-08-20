@@ -132,12 +132,9 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 	if(!Rules::isMoveLegal(m_board.getLegalMoves(), move))
 		return false;
 
-	const Piece &targetPiece = m_board.getPieces()[toIdx];
-	const bool capture = !targetPiece.isNull();
-
 	m_board.applyMove(move);
 
-	if(capture) {
+	if(move.isCapture) {
 		Audio::playSound(Sound::Capture);
 	} else {
 		Audio::playSound(Sound::Move);

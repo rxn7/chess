@@ -1,6 +1,17 @@
 #include "../rules.h"
-
+#include "../board.h"
+ 
 namespace Rules {
+	static void addMoveIfIsEnPassantTargetOrHasOpponentPiece(const AddLegalMoveContext &ctx, const std::uint8_t targetIdx) {
+		if(addMoveIfHasOpponentPiece(ctx, targetIdx)) {
+			return;
+		}
+
+		if(ctx.board.getEnPassantTarget() == targetIdx) {
+			addLegalMove(ctx, targetIdx);
+		}
+	}
+
 	ADD_LEGAL_MOVES_FUNC(Pawn) {
 		if(ctx.piece.isColor(White)) {
 			if(addMoveIfEmpty(ctx, ctx.pieceIdx - 8))
@@ -8,20 +19,20 @@ namespace Rules {
 					addMoveIfEmpty(ctx, ctx.pieceIdx - 16);
 
 			if(ctx.pieceX != 0)
-				addMoveIfHasOpponentPiece(ctx, ctx.pieceIdx - 9);
+				addMoveIfIsEnPassantTargetOrHasOpponentPiece(ctx, ctx.pieceIdx - 9);
 
 			if(ctx.pieceX != 7)
-				addMoveIfHasOpponentPiece(ctx, ctx.pieceIdx - 7);
+				addMoveIfIsEnPassantTargetOrHasOpponentPiece(ctx, ctx.pieceIdx - 7);
 		} else {
 			if(addMoveIfEmpty(ctx, ctx.pieceIdx + 8))
 				if(ctx.pieceY == 1)
 					addMoveIfEmpty(ctx, ctx.pieceIdx + 16);
 
 			if(ctx.pieceX != 7)
-				addMoveIfHasOpponentPiece(ctx, ctx.pieceIdx + 9);
+				addMoveIfIsEnPassantTargetOrHasOpponentPiece(ctx, ctx.pieceIdx + 9);
 
 			if(ctx.pieceX != 0)
-				addMoveIfHasOpponentPiece(ctx, ctx.pieceIdx + 7);
+				addMoveIfIsEnPassantTargetOrHasOpponentPiece(ctx, ctx.pieceIdx + 7);
 		}
 	}
 }
