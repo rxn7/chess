@@ -68,8 +68,6 @@ void Board::applyMove(const Move &move, const bool isFake, const bool updateChec
 		m_turnColor = m_turnColor == White ? Black : White;
 	}
 
-	std::cout << (m_checkResult.isCheck ? "check" : "no check") << std::endl;
-
 	if(updateCheckResult) {
 		m_checkResult = calculateCheck(m_turnColor);
 	}
