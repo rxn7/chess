@@ -138,6 +138,8 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 
 	m_board.applyMove(move);
 
+	std::cout << m_board.positionToString(m_heldPieceIdx.value()) << " -> " << m_board.positionToString(toIdx) << std::endl;
+
 	if(move.isCapture) {
 		Audio::playSound(Sound::Capture);
 	} else {

@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-cmake -Bbin/debug -GNinja -DCMAKE_BUILD_TYPE=Debug
-cmake -Bbin/release -GNinja -DCMAKE_BUILD_TYPE=Release
+cmake -Bbuild/debug -GNinja -DCMAKE_BUILD_TYPE=Debug
+cmake -Bbuild/release -GNinja -DCMAKE_BUILD_TYPE=Release

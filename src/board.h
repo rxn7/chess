@@ -6,6 +6,7 @@
 #include "board_theme.h"
 #include "move.h"
 #include "piece.h"
+#include <format>
 #include <array>
 #include <memory>
 #include <SFML/Audio.hpp>
@@ -52,7 +53,7 @@ class Board {
 		return idx >= 0 && idx < 64;
 	}
 
-	static std::uint8_t getSquareIdx(const char file, const char rank) {
+	static inline std::uint8_t getSquareIdx(const char file, const char rank) {
 		return (rank - '1') * 8 + (file - 'a');
 	}
 
@@ -74,6 +75,16 @@ class Board {
 
 	inline std::vector<Move> &getLegalMoves() {
 		return m_legalMoves;
+	}
+
+	static inline std::string positionToString(const std::uint8_t idx) {
+		return positionToString(idx % 8, idx / 8);
+	}
+
+	static inline std::string positionToString(const std::uint8_t x, const std::uint8_t y) {
+		const char file = 'a' + x;
+		const char rank = '8' - y;
+		return std::format("{}{}", file, rank);
 	}
 
   private:

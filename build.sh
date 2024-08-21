@@ -12,8 +12,8 @@ done
 
 if [ "$RELEASE" = 1 ] ; then
 	printf "\033[32;1;4mBuilding the release version\n\n\033[0m"
-	cmake --build bin/release
+	cmake --build build/release
 else
 	printf "\033[32;1;4mBuilding the debug version\n\n\033[0m"
-	cmake --build bin/debug
+	cmake --build build/debug
 fi

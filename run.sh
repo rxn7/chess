@@ -12,11 +12,11 @@ done
 
 if [ "$RELEASE" = 1 ] ; then
 	printf "\033[32;1;4mRunning the release version\n\n\033[0m"
-	pushd bin/release
+	pushd build/release/bin >/dev/null
 else
 	printf "\033[32;1;4mRunning the debug version\n\n\033[0m"
-	pushd bin/debug
+	pushd build/debug/bin >/dev/null
 fi
 
 ./chess
-popd
+popd >/dev/null
