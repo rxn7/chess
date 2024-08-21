@@ -3,10 +3,30 @@
 
 namespace Rules {
 	ADD_LEGAL_MOVES_FUNC(King) {
-		constexpr std::uint8_t offsets[] = {1, 8, 7, 9};
-		for(const std::uint8_t of : offsets) {
-			addMoveIfNotBlocked(ctx, ctx.pieceIdx + of);
-			addMoveIfNotBlocked(ctx, ctx.pieceIdx - of);
+		if(ctx.pieceX < 7) {
+			addMoveIfNotBlocked(ctx, ctx.pieceIdx + 1); // Right
+			if(ctx.pieceY < 7) {
+				addMoveIfNotBlocked(ctx, ctx.pieceIdx + 9); // Bottom Right
+			}
+			if(ctx.pieceY > 0) {
+				addMoveIfNotBlocked(ctx, ctx.pieceIdx - 7); // Top Right
+			}
+		}
+		if(ctx.pieceX > 0) {
+			addMoveIfNotBlocked(ctx, ctx.pieceIdx - 1); // Left
+			if(ctx.pieceY < 7) {
+				addMoveIfNotBlocked(ctx, ctx.pieceIdx + 7); // Bottom Left
+			}
+			if(ctx.pieceY > 0) {
+				addMoveIfNotBlocked(ctx, ctx.pieceIdx - 9); // Top Left
+			}
+		}
+
+		if(ctx.pieceY < 7) {
+			addMoveIfNotBlocked(ctx, ctx.pieceIdx + 8); // Bottom
+		}
+		if(ctx.pieceY > 0) {
+			addMoveIfNotBlocked(ctx, ctx.pieceIdx - 8); // Top
 		}
 
 		const Player &player = ctx.board.getPlayer(ctx.piece.getColor());
