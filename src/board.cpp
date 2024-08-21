@@ -64,9 +64,13 @@ void Board::applyMove(const Move &move, const bool isFake, const bool updateChec
 	handleEnPassant(move);
 
 	if(!isFake) {
-		applyMoveRules(move);
-
+		handleMove(move);
 		m_turnColor = m_turnColor == White ? Black : White;
+	}
+
+	m_checkResult = calculateCheck(m_turnColor);
+
+	if(!isFake) {
 		updateLegalMoves();
 	}
 
@@ -75,7 +79,7 @@ void Board::applyMove(const Move &move, const bool isFake, const bool updateChec
 	}
 }
 
-void Board::applyMoveRules(const Move &move) {
+void Board::handleMove(const Move &move) {
 	if(move.piece.isColor(Black)) {
 		++m_fullMoves;
 	}

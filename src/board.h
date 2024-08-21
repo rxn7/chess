@@ -31,7 +31,7 @@ class Board {
 	void applyFen(const std::string &fen);
 	void applyMove(const Move &move, const bool isFake = false, const bool updateCheckResult = true);
 	void reset();
-	void applyMoveRules(const Move &move);
+	void handleMove(const Move &move);
 	void handleCastling(const Move &move);
 	void handlePawnPromotion(const Move &move);
 	void handleEnPassant(const Move &move);
