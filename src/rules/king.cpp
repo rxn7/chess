@@ -1,6 +1,5 @@
 #include "../rules.h"
 #include "../board.h"
-#include <iostream>
 
 namespace Rules {
 	ADD_LEGAL_MOVES_FUNC(King) {
@@ -33,7 +32,6 @@ namespace Rules {
 		const Player &player = ctx.board.getPlayer(ctx.piece.getColor());
 
 		if(ctx.board.getCheckResult().isCheck) {
-			std::cout << "king is checked, can't castle rn" << std::endl;
 			return;
 		}
 

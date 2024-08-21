@@ -9,7 +9,8 @@ void Audio::init() {
 	addSoundBuffer(Sound::Move, "assets/sounds/move2.ogg");
 	addSoundBuffer(Sound::Move, "assets/sounds/move3.ogg");
 	addSoundBuffer(Sound::Move, "assets/sounds/move4.ogg");
-	addSoundBuffer(Sound::Capture, "assets/sounds/take.wav");
+	addSoundBuffer(Sound::Capture, "assets/sounds/capture1.ogg");
+	addSoundBuffer(Sound::Capture, "assets/sounds/capture2.ogg");
 	addSoundBuffer(Sound::Check, "assets/sounds/check.ogg");
 	addSoundBuffer(Sound::Checkmate, "assets/sounds/checkmate.ogg");
 	addSoundBuffer(Sound::Stalemate, "assets/sounds/stalemate.wav");
