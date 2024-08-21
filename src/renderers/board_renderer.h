@@ -14,14 +14,12 @@ class BoardRenderer {
 	BoardRenderer();
 
 	void init(const sf::Font &font);
-
 	void renderCoords(sf::RenderTarget &target);
 	void renderSquares(sf::RenderTarget &target);
 	void renderSquareLastMove(sf::RenderTarget &target, const std::uint8_t idx);
 	void renderSquareLegalMove(sf::RenderTarget &target, const std::uint8_t idx);
 	void renderSquareOutline(sf::RenderTarget &target, const std::uint8_t idx);
 	void renderSquareCheck(sf::RenderTarget &target, const std::uint8_t idx);
-
 	void setTheme(const BoardTheme &theme);
 
 	inline const BoardTheme &getTheme() const {

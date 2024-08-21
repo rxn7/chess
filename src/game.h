@@ -2,6 +2,7 @@
 
 #include "board.h"
 #include "renderers/piece_renderer.h"
+#include <SFML/System/Vector2.hpp>
 #include <memory>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>

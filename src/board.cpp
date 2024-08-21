@@ -75,7 +75,7 @@ void Board::applyMoveRules(const Move &move) {
 		++m_fullMoves;
 	}
 
-	if(move.piece.isType(Pawn) || !getPiece(move.toIdx).isNull()) {
+	if(move.piece.isType(Pawn) || move.isCapture) {
 		m_halfMoveClock = 0;
 	} else {
 		++m_halfMoveClock;
