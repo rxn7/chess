@@ -68,14 +68,14 @@ void Board::applyMove(const Move &move, const bool isFake, const bool updateChec
 		m_turnColor = m_turnColor == White ? Black : White;
 	}
 
-	m_checkResult = calculateCheck(m_turnColor);
-
-	if(!isFake) {
-		updateLegalMoves();
-	}
+	std::cout << (m_checkResult.isCheck ? "check" : "no check") << std::endl;
 
 	if(updateCheckResult) {
 		m_checkResult = calculateCheck(m_turnColor);
+	}
+
+	if(!isFake) {
+		updateLegalMoves();
 	}
 }
 
@@ -99,14 +99,11 @@ void Board::handleMove(const Move &move) {
 	if(move.piece.isType(King)) {
 		player.canCastleQueenSide = false;
 		player.canCastleKingSide = false;
-		std::cout << "Player " << (move.piece.getColor() == White ? "white" : "black") << " can no longer castle" << std::endl;
 	} else if(move.piece.isType(Rook)) {
 		if(move.fromIdx == 0 || move.fromIdx == 56) {
 			player.canCastleQueenSide = false;
-			std::cout << "Player " << (move.piece.getColor() == White ? "white" : "black") << " can no longer castle queen side" << std::endl;
 		} else {
 			player.canCastleKingSide = false;
-			std::cout << "Player " << (move.piece.getColor() == White ? "white" : "black") << " can no longer castle king side" << std::endl;
 		}
 	}
 
@@ -117,15 +114,15 @@ void Board::handleMove(const Move &move) {
 void Board::handleCastling(const Move &move) {
 	if(move.isQueenSideCastling) {
 		if(move.piece.getColor() == Black) {
-			applyMove(Move(*this, 0, 3), true, false);
+			applyMove(Move(*this, 0, 3), true, true);
 		} else {
-			applyMove(Move(*this, 56, 59), true, false);
+			applyMove(Move(*this, 56, 59), true, true);
 		}
 	} else if(move.isKingSideCastling) {
 		if(move.piece.getColor() == Black) {
-			applyMove(Move(*this, 7, 5), true, false);
+			applyMove(Move(*this, 7, 5), true, true);
 		} else {
-			applyMove(Move(*this, 63, 61), true, false);
+			applyMove(Move(*this, 63, 61), true, true);
 		}
 	}
 }

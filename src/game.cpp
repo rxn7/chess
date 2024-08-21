@@ -136,7 +136,7 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 	if(!Rules::isMoveLegal(m_board.getLegalMoves(), move))
 		return false;
 
-	m_board.applyMove(move);
+	m_board.applyMove(move, false, true);
 
 	std::cout << m_board.positionToString(m_heldPieceIdx.value()) << " -> " << m_board.positionToString(toIdx) << std::endl;
 
