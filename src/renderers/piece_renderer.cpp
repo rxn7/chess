@@ -9,7 +9,7 @@ PieceRenderer::PieceRenderer(const std::string_view piecesTexturePath) {
 		return;
 	}
 
-	m_texture.setSmooth(false);
+	m_texture.setSmooth(true);
 	m_texture.generateMipmap();
 
 	generateSprites();
@@ -60,6 +60,7 @@ void PieceRenderer::generateSprites() {
 			sprite.setTexture(m_texture);
 			sprite.setTextureRect({x, y, singleTextureSize.x, singleTextureSize.y});
 			sprite.setScale(scale, scale);
+
 			m_sprites.insert({piece.value, sprite});
 
 			piece = (c + 1) | PieceColor::Black;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "board.h"
+#include "debug_data.h"
 #include "renderers/piece_renderer.h"
 #include <SFML/System/Vector2.hpp>
 #include <memory>
@@ -53,7 +54,7 @@ class Game {
 	void render();
 
 	inline Piece getHeldPiece() const {
-		return m_board.getPieces()[m_heldPieceIdx];
+		return m_board.getPieces()[m_heldPieceIdx.value()];
 	}
 
 	inline sf::Vector2f getMousePosition() const {
@@ -68,26 +69,25 @@ class Game {
 	}
 
 	inline bool isAnyPieceHeld() const {
-		return m_heldPieceIdx < 64 && !m_board.getPieces()[m_heldPieceIdx].isNull();
+		return m_heldPieceIdx && !getHeldPiece().isNull();
 	}
 
-	inline void resetHeldPiece() {
-		m_heldPieceIdx = 255;
-	}
+  public:
+	DebugData debugData;
 
   private:
 	static Game *s_instance;
 
 	GameState m_state;
-
-	sf::RenderWindow m_window;
 	Board m_board;
 	BoardRenderer m_boardRenderer;
 	PieceRenderer m_pieceRenderer;
 
-	std::uint8_t m_heldPieceIdx;
+	std::optional<std::uint8_t> m_heldPieceIdx;
+	float m_fps, m_frameDelta;
+
+	sf::RenderWindow m_window;
 	sf::Text m_endGameText;
 	sf::Font m_font;
 	sf::View m_view;
-	float m_fps, m_frameDelta;
 };

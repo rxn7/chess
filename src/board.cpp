@@ -3,6 +3,7 @@
 #include "rules.h"
 #include "piece.h"
 
+#include <SFML/System/Clock.hpp>
 #include <iostream>
 #include <sstream>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -38,6 +39,8 @@ void Board::reset() {
 }
 
 void Board::updateLegalMoves() {
+	sf::Clock clock;
+
 	m_legalMoves.clear();
 
 	for(std::uint8_t i = 0; i < 64; ++i) {
@@ -47,6 +50,8 @@ void Board::updateLegalMoves() {
 
 		Rules::addLegalMoves(m_legalMoves, *this, i);
 	}
+
+	m_game.debugData.legal_moves_calculation_duration = clock.getElapsedTime();
 }
 
 void Board::applyMove(const Move &move, const bool isFake, const bool updateCheckResult) {

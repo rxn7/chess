@@ -7,8 +7,8 @@
 #include "piece.h"
 #include "audio.h"
 
-#include <iostream>
 #include <SFML/Graphics/Color.hpp>
+#include <iostream>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
@@ -16,7 +16,7 @@
 
 Game *Game::s_instance;
 
-Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx(255), m_board(*this) {
+Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx(std::nullopt), m_board(*this) {
 	s_instance = this;
 	srand(time(0));
 	Audio::init();
@@ -111,7 +111,9 @@ void Game::render() {
 		if(move.fromIdx == m_heldPieceIdx)
 			m_boardRenderer.renderSquareLegalMove(m_window, move.toIdx);
 
-	m_boardRenderer.renderSquareOutline(m_window, m_heldPieceIdx);
+	if(isAnyPieceHeld())
+		m_boardRenderer.renderSquareOutline(m_window, m_heldPieceIdx.value());
+
 	m_boardRenderer.renderSquareOutline(m_window, getIdxFromPosition(getMousePosition()));
 
 	renderPieces();
@@ -127,8 +129,10 @@ void Game::render() {
 }
 
 bool Game::moveHeldPiece(std::uint8_t toIdx) {
-	const Move move = Move(m_board, m_heldPieceIdx, toIdx);
+	if(!isAnyPieceHeld())
+		return false;
 
+	const Move move = Move(m_board, m_heldPieceIdx.value(), toIdx);
 	if(!Rules::isMoveLegal(m_board.getLegalMoves(), move))
 		return false;
 
@@ -156,7 +160,10 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 		}
 	}
 
-	resetHeldPiece();
+	m_heldPieceIdx = std::nullopt;
+
+	std::cout << m_board.getLegalMoves().size() <<  " legal moves calculation took " << debugData.legal_moves_calculation_duration.asSeconds() * 1000.f << " milliseconds\n" << std::endl;
+
 	return true;
 }
 
@@ -180,19 +187,19 @@ void Game::handlePieceDrop() {
 
 	const sf::Vector2f mousePosition = getMousePosition();
 	if(mousePosition.x < 0 || mousePosition.x > 512 || mousePosition.y < 0 || mousePosition.y > 512) {
-		resetHeldPiece();
+		m_heldPieceIdx = std::nullopt;
 		return;
 	}
 
 	const std::uint8_t idx = getIdxFromPosition(mousePosition);
 
 	if(!Board::isSquareIdxCorrect(idx)) {
-		resetHeldPiece();
+		m_heldPieceIdx = std::nullopt;
 		return;
 	}
 
 	if(!moveHeldPiece(idx))
-		resetHeldPiece();
+		m_heldPieceIdx = std::nullopt;
 }
 
 void Game::renderPieces() {
@@ -202,8 +209,11 @@ void Game::renderPieces() {
 }
 
 void Game::renderHeldPiece() {
+	if(!isAnyPieceHeld())
+		return;
+
 	const sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window)) - sf::Vector2f(32.0f, 32.0f);
-	m_pieceRenderer.renderPiece(m_window, m_board.getPieces()[m_heldPieceIdx], pos);
+	m_pieceRenderer.renderPiece(m_window, m_board.getPieces()[m_heldPieceIdx.value()], pos);
 }
 
 void Game::handleEvent(const sf::Event &e) {
