@@ -1,8 +1,6 @@
 #pragma once
 
-#include <array>
 #include <cstdint>
-#include <vector>
 
 #define TYPE_MASK 0b00111
 #define COLOR_MASK 0b11000

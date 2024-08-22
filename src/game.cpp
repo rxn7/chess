@@ -1,11 +1,11 @@
-#include "game.h"
-#include "board.h"
-#include "renderers/board_renderer.h"
-#include "renderers/piece_renderer.h"
-#include "board_theme.h"
-#include "rules.h"
-#include "piece.h"
-#include "audio.h"
+#include "game.hpp"
+#include "board.hpp"
+#include "renderers/board_renderer.hpp"
+#include "renderers/piece_renderer.hpp"
+#include "board_theme.hpp"
+#include "rules.hpp"
+#include "piece.hpp"
+#include "audio.hpp"
 
 #include <SFML/Graphics/Color.hpp>
 #include <iostream>

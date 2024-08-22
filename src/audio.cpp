@@ -1,4 +1,4 @@
-#include "audio.h"
+#include "audio.hpp"
 #include <iostream>
 
 sf::Sound Audio::s_sound;

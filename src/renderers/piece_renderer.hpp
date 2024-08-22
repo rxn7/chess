@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../piece.h"
+#include "../piece.hpp"
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>

@@ -1,4 +1,4 @@
-#include "../rules.h"
+#include "../rules.hpp"
 
 namespace Rules {
 	ADD_LEGAL_MOVES_FUNC(Knight) {

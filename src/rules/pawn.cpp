@@ -1,5 +1,5 @@
-#include "../rules.h"
-#include "../board.h"
+#include "../rules.hpp"
+#include "../board.hpp"
  
 namespace Rules {
 	static void addMoveIfIsEnPassantTargetOrHasOpponentPiece(const AddLegalMoveContext &ctx, const std::uint8_t targetIdx) {

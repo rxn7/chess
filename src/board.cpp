@@ -1,12 +1,12 @@
-#include "board.h"
-#include "game.h"
-#include "rules.h"
-#include "piece.h"
+#include "board.hpp"
+#include "game.hpp"
+#include "rules.hpp"
+#include "piece.hpp"
 
 #include <SFML/System/Clock.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <iostream>
 #include <sstream>
-#include <SFML/Graphics/RenderWindow.hpp>
 
 enum FenRecord {
 	PiecePlacement = 0,

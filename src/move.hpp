@@ -1,6 +1,6 @@
 #pragma once
 
-#include "piece.h"
+#include "piece.hpp"
 
 class Board;
 

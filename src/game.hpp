@@ -1,10 +1,12 @@
 #pragma once
 
-#include "board.h"
-#include "debug_data.h"
-#include "renderers/piece_renderer.h"
+#include "board.hpp"
+#include "debug_data.hpp"
+#include "renderers/board_renderer.hpp"
+#include "renderers/piece_renderer.hpp"
+
+#include <SFML/Graphics/Font.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <memory>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/Window/Event.hpp>

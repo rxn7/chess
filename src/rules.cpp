@@ -1,5 +1,5 @@
-#include "rules.h"
-#include "board.h"
+#include "rules.hpp"
+#include "board.hpp"
 
 namespace Rules {
 	static std::unordered_map<PieceType, AddLegalMovesFunc> s_getLegalMovesFuncMap {

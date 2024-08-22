@@ -1,4 +1,4 @@
-#include "board_theme.h"
+#include "board_theme.hpp"
 
 BoardTheme BoardTheme::generateRandomTheme() {
 	return (BoardTheme){

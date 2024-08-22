@@ -1,4 +1,4 @@
-#include "board.h"
+#include "board.hpp"
 
 Move::Move(const Board &board, const std::uint8_t fromIdx, const std::uint8_t toIdx) :
 	fromIdx(fromIdx),

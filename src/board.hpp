@@ -1,17 +1,15 @@
 #pragma once
 
-#include "player.h"
-#include "renderers/board_renderer.h"
-#include "renderers/piece_renderer.h"
-#include "board_theme.h"
-#include "move.h"
-#include "piece.h"
-#include <format>
-#include <array>
-#include <memory>
+#include "player.hpp"
+#include "move.hpp"
+#include "piece.hpp"
+
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <array>
+#include <format>
 #include <optional>
+#include <unordered_map>
 
 #define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 

@@ -1,5 +1,6 @@
-#include "../board.h"
-#include "../piece.h"
+#include "piece_renderer.hpp"
+#include "../board.hpp"
+#include "../piece.hpp"
 #include <iostream>
 #include <unordered_map>
 
