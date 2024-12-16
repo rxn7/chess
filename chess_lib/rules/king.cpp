@@ -1,5 +1,5 @@
-#include "../rules.hpp"
-#include "../board.hpp"
+#include "rules.hpp"
+#include "board.hpp"
 
 namespace Rules {
 	ADD_LEGAL_MOVES_FUNC(King) {

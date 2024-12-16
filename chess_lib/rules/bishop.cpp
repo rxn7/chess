@@ -1,4 +1,4 @@
-#include "../rules.hpp"
+#include "rules.hpp"
 
 namespace Rules {
 	ADD_LEGAL_MOVES_FUNC(Bishop) {

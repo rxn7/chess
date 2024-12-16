@@ -16,7 +16,7 @@
 
 Game *Game::s_instance;
 
-Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx(std::nullopt), m_board(*this) {
+Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx(std::nullopt) {
 	s_instance = this;
 	srand(time(0));
 	Audio::init();
@@ -62,18 +62,22 @@ void Game::start() {
 	}
 }
 
-void Game::end(const GameResult result) {
+void Game::end(const BoardStatus status) {
 	m_state = GameState::EndScreen;
 	std::ostringstream ss;
 
-	switch(result) {
-		case GameResult::WhiteWin:
+        if(status == BoardStatus::BlackWin || status == BoardStatus::WhiteWin) {
+                Audio::playSound(Sound::Checkmate);
+        }
+
+	switch(status) {
+		case BoardStatus::WhiteWin:
 			ss << "White wins";
 			break;
-		case GameResult::BlackWin:
+		case BoardStatus::BlackWin:
 			ss << "Black wins";
 			break;
-		case GameResult::Draw:
+		case BoardStatus::Draw:
 			ss << "Draw";
 			break;
 	}
@@ -94,7 +98,6 @@ void Game::render() {
 	m_window.clear(CLEAR_COLOR);
 
 	m_boardRenderer.renderSquares(m_window);
-
 	const CheckResult &checkResult = m_board.getCheckResult();
 	if(checkResult.isCheck) {
 		m_boardRenderer.renderSquareCheck(m_window, checkResult.kingIdx);
@@ -134,35 +137,24 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 	if(!Rules::isMoveLegal(m_board.getLegalMoves(), move))
 		return false;
 
+        std::cout << m_board.positionToString(m_heldPieceIdx.value()) << " -> " << m_board.positionToString(toIdx) << std::endl;
+        if(move.isCapture) {
+                Audio::playSound(Sound::Capture);
+        } else {
+                Audio::playSound(Sound::Move);
+        }
+
 	m_board.applyMove(move, false, true);
-
-	std::cout << m_board.positionToString(m_heldPieceIdx.value()) << " -> " << m_board.positionToString(toIdx) << std::endl;
-
-	if(move.isCapture) {
-		Audio::playSound(Sound::Capture);
-	} else {
-		Audio::playSound(Sound::Move);
-	}
-
-	if(m_board.getCheckResult().isCheck) {
-		if(m_board.getLegalMoves().empty()) {
-			std::cout << "\e[1;32mCheckmate!\e[0m" << std::endl;
-			Audio::playSound(Sound::Checkmate);
-			end(m_board.getState().turnColor == White ? GameResult::BlackWin : GameResult::WhiteWin);
-		} else {
-			Audio::playSound(Sound::Check);
-		}
-	} else {
-		if(m_board.getLegalMoves().empty()) {
-			std::cout << "\e[1;32mStalemate!\e[0m" << std::endl;
-			Audio::playSound(Sound::Stalemate);
-			end(GameResult::Draw);
-		}
-	}
+        if(m_board.getStatus() != BoardStatus::Playing) {
+                end(m_board.getStatus());
+        } else {
+                if(m_board.getCheckResult().isCheck) {
+                        std::cout << "CHECK!";
+                        Audio::playSound(Sound::Check);
+                }
+        }
 
 	m_heldPieceIdx = std::nullopt;
-
-	std::cout << m_board.getLegalMoves().size() <<  " legal moves calculation took " << debugData.legal_moves_calculation_duration.asSeconds() * 1000.f << " milliseconds\n" << std::endl;
 
 	return true;
 }

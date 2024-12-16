@@ -28,7 +28,7 @@ void Audio::playSound(Sound type) {
 	const sf::SoundBuffer &buf = it->second[idx];
 
 	s_sound.setBuffer(buf);
-	s_sound.setPitch((9 +(rand() % 3)) / 10.0f);
+	s_sound.setPitch((9 + (rand() % 3)) / 10.0f);
 	s_sound.play();
 }
 

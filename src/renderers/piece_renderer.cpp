@@ -1,8 +1,8 @@
 #include "piece_renderer.hpp"
-#include "../board.hpp"
-#include "../piece.hpp"
+
+#include "board.hpp"
+
 #include <iostream>
-#include <unordered_map>
 
 PieceRenderer::PieceRenderer(const std::string_view piecesTexturePath) {
 	if (!m_texture.loadFromFile(std::string(piecesTexturePath))) {

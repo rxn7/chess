@@ -1,5 +1,7 @@
 #include "board_renderer.hpp"
-#include "../board.hpp"
+
+#include "board.hpp"
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>

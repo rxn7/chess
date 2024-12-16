@@ -16,22 +16,16 @@ const sf::Color DARK_COLOR(0xb58863ff);
 const sf::Color CLEAR_COLOR(0x282828ff);
 constexpr float END_GAME_SCREEN_DURATION = 5.0f;
 
-enum GameState {
+enum class GameState {
 	Playing,
 	EndScreen
-};
-
-enum GameResult {
-	WhiteWin,
-	BlackWin,
-	Draw
 };
 
 class Game {
   public:
 	Game();
 	void start();
-	void end(const GameResult result);
+	void end(const BoardStatus status);
 
 	static inline Game *getInstance() {
 		return s_instance;

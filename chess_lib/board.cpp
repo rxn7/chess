@@ -1,10 +1,7 @@
 #include "board.hpp"
-#include "game.hpp"
 #include "rules.hpp"
 #include "piece.hpp"
 
-#include <SFML/System/Clock.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
 #include <iostream>
 #include <sstream>
 
@@ -17,7 +14,7 @@ enum FenRecord {
 	FullMoveNumber = 5
 };
 
-Board::Board(Game &game) : m_game(game) {
+Board::Board() {
 	reset();
 }
 
@@ -28,6 +25,7 @@ void Board::reset() {
 		.isCheck = false,
 	};
 
+        m_status = BoardStatus::Playing;
 	m_lastMove = std::nullopt;
 	applyFen(DEFAULT_FEN);
 	updateLegalMoves();
@@ -62,10 +60,7 @@ void Board::applyMove(const Move &move, const bool isFake, const bool updateChec
 
 	if(!isFake) {
 		updateLegalMoves();
-
-		std::string fen;
-		convertToFen(fen);
-		std::cout << fen << std::endl;
+                updateStatus();
 	}
 }
 
@@ -120,7 +115,7 @@ void Board::handleMove(const Move &move) {
 		++m_state.halfMoveClock;
 		if(m_state.halfMoveClock == 50) {
 			std::cout << "50 half moves without capture or pawn move. Draw!" << std::endl;
-			m_game.end(GameResult::Draw);
+			m_status = BoardStatus::Draw;
 		}
 	}
 
@@ -192,7 +187,7 @@ void Board::applyFen(const std::string &fen) {
 						} else {
 							const PieceColor color = isupper(c) ? White : Black;
 
-							PieceType type;
+							PieceType type = None;
 							switch(tolower(c)) {
 							case 'q':
 								type = Queen;
@@ -358,7 +353,7 @@ CheckResult Board::calculateCheck(const PieceColor color) {
 
 		Rules::addLegalMoves(legalMoves, *this, i, true);
 	}
-	
+
 	// Check if any of the opponent's moves puts the king in check
 	for(const Move &move : legalMoves) {
 		const Piece &targetPiece = getPiece(move.toIdx);
@@ -371,8 +366,6 @@ CheckResult Board::calculateCheck(const PieceColor color) {
 }
 
 void Board::updateLegalMoves() {
-	sf::Clock clock;
-
 	m_legalMoves.clear();
 
 	for(std::uint8_t i = 0; i < 64; ++i) {
@@ -382,6 +375,16 @@ void Board::updateLegalMoves() {
 
 		Rules::addLegalMoves(m_legalMoves, *this, i);
 	}
+}
 
-	m_game.debugData.legal_moves_calculation_duration = clock.getElapsedTime();
+void Board::updateStatus() {
+	if(m_checkResult.isCheck) {
+		if(m_legalMoves.empty()) {
+                        m_status = m_state.turnColor == White ? BoardStatus::BlackWin : BoardStatus::WhiteWin; // Checkmate
+		}
+	} else {
+		if(m_legalMoves.empty()) {
+                        m_status = BoardStatus::Draw; // Stalemate
+		}
+	}
 }
