@@ -36,7 +36,7 @@ class Game {
 		return m_fps;
 	}
 
-	inline float getFrameDelta() const {
+	inline sf::Time getFrameDelta() const {
 		return m_frameDelta;
 	}
 
@@ -75,18 +75,19 @@ class Game {
   private:
 	static Game *s_instance;
 
-        ImGuiLayer m_imgui;
-
 	GameState m_state = GameState::Playing;
 	Board m_board;
 	BoardRenderer m_boardRenderer;
 	PieceRenderer m_pieceRenderer;
 
 	std::optional<std::uint8_t> m_heldPieceIdx;
-	float m_fps, m_frameDelta;
+        sf::Time m_frameDelta;
+	float m_fps;
 
 	sf::RenderWindow m_window;
 	sf::Text m_endGameText;
 	sf::Font m_font;
 	sf::View m_view;
+
+        ImGuiLayer m_imgui;
 };

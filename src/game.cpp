@@ -16,12 +16,10 @@
 
 Game *Game::s_instance;
 
-Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx(std::nullopt) {
+Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx(std::nullopt), m_imgui(m_window) {
 	s_instance = this;
 	srand(time(0));
 	Audio::init();
-
-        m_board.applyFen("6q1/8/q7/7K/8/q7/8/6q1 b - - 0 1");
 
 	if(!m_font.loadFromFile("assets/RobotoMono-Regular.ttf")) {
 		std::cout << "\e[1;31mFailed to load font!\e[0m" << std::endl;
@@ -51,8 +49,8 @@ void Game::start() {
 	sf::Clock frameClock;
 
 	while(true) {
-		m_frameDelta = frameClock.restart().asSeconds();
-		m_fps = 1.0f / m_frameDelta;
+		m_frameDelta = frameClock.restart();
+		m_fps = 1.0f / m_frameDelta.asSeconds();
 
 		while(m_window.pollEvent(e))
 			handleEvent(e);
@@ -60,6 +58,7 @@ void Game::start() {
 		if(!m_window.isOpen())
 			break;
 
+                m_imgui.update(m_window, m_frameDelta);
 		render();
 	}
 }
@@ -127,6 +126,8 @@ void Game::render() {
 
 	if(m_state == GameState::EndScreen)
 		m_window.draw(m_endGameText);
+
+        m_imgui.render(m_window, m_board);
 
 	m_window.display();
 }
@@ -212,6 +213,8 @@ void Game::renderHeldPiece() {
 }
 
 void Game::handleEvent(const sf::Event &e) {
+        m_imgui.handleEvent(m_window, e);
+
 	switch(e.type) {
 		case sf::Event::Closed:
 			m_window.close();

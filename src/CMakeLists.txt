@@ -11,11 +11,13 @@ add_executable(chess ${SOURCES})
 
 target_link_libraries(chess PRIVATE chess-lib)
 
-add_subdirectory(${LIB_DIR}/sfml sfml)
-target_link_libraries(chess PRIVATE sfml-graphics sfml-audio)
+set(IMGUI_SFML_FIND_SFML OFF)
+set(IMGUI_DIR ${LIB_DIR}/imgui)
 
 add_subdirectory(${LIB_DIR}/imgui-sfml imgui-sfml)
-target_link_libraries(chess PRIVATE ImGui-SFML::ImGui-SFML)
+
+add_subdirectory(${LIB_DIR}/sfml sfml)
+target_link_libraries(chess PUBLIC sfml-graphics sfml-audio ImGui-SFML)
 
 add_custom_target(copy_assets
 	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_EXECUTABLE_OUTPUT_DIRECTORY}/assets
