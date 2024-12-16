@@ -14,7 +14,7 @@ namespace Rules {
 	struct AddLegalMoveContext {
 		std::vector<Move> &legalMoves;
 		Board &board;
-		const Piece &piece;
+		Piece piece;
 		std::uint8_t pieceIdx;
 		std::uint8_t pieceX;
 		std::uint8_t pieceY;

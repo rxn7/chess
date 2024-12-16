@@ -19,33 +19,32 @@ Board::Board() {
 	reset();
 }
 
+Board::Board(const Board &board) : m_pieces(board.m_pieces), m_state(board.m_state) {}
+
 void Board::reset() {
 	m_pieces.fill(0);
 													
-	m_checkResult =(CheckResult){
-		.isCheck = false,
+	m_checkResult = (CheckResult){
+                .isCheck = false,
 	};
 
-		m_status = BoardStatus::Playing;
+        m_status = BoardStatus::Playing;
 	m_lastMove = std::nullopt;
 	applyFen(DEFAULT_FEN);
 }
 
 bool Board::applyMove(const Move &move, const bool isFake, const bool updateCheckResult) {
-		if(!isFake) {
-				if(std::find(m_legalMoves.begin(), m_legalMoves.end(), move) == m_legalMoves.end()) {
-						std::cerr << "This move (" << move << ") is not legal" << std::endl;
-						std::cerr << "Legal moves are: ";
-						for(const Move &move : m_legalMoves) {
-								std::cerr << move << std::endl;
-						}
+        if(!isFake) {
+                if(std::find(m_legalMoves.begin(), m_legalMoves.end(), move) == m_legalMoves.end()) {
+                        std::cerr << "This move (" << move << ") is not legal" << std::endl;
+                        std::cerr << "Legal moves are: ";
+                        for(const Move &move : m_legalMoves) {
+                                std::cerr << move << std::endl;
+                        }
 
-						return false;
-				}
-		}
-
-	m_previousState = m_state;
-	m_previousPieces = m_pieces;
+                        return false;
+                }
+        }
 
 	if(move.isKingSideCastling) {
 		performCastling(move.piece.getColor(), false);
@@ -72,10 +71,10 @@ bool Board::applyMove(const Move &move, const bool isFake, const bool updateChec
 
 	if(!isFake) {
 		updateLegalMoves();
-				updateStatus();
+                updateStatus();
 	}
 
-		return true;
+        return true;
 }
 
 void Board::performCastling(PieceColor color, bool isQueenSide) {
@@ -111,11 +110,6 @@ void Board::performCastling(PieceColor color, bool isQueenSide) {
 
 	m_pieces[kingEndIdx] = Piece(color, King);
 	m_pieces[rookEndIdx] = Piece(color, Rook);
-}
-
-void Board::revertLastMove() {
-	m_pieces = m_previousPieces;
-	m_state = m_previousState;
 }
 
 void Board::handleMove(const Move &move) {
@@ -293,7 +287,7 @@ bool Board::applyFen(const std::string &fen) {
 	}
 
 	updateLegalMoves();
-		return true;
+        return true;
 }
 
 void Board::convertToFen(std::string &fen) const {
@@ -379,8 +373,7 @@ CheckResult Board::calculateCheck(const PieceColor color) {
 
 	// Check if any of the opponent's moves puts the king in check
 	for(const Move &move : legalMoves) {
-		const Piece &targetPiece = getPiece(move.toIdx);
-		if(targetPiece.isType(King)) {
+		if(move.targetPiece.isType(King)) {
 			return(CheckResult){.isCheck = true, .kingIdx = move.toIdx, .checkingPieceIdx = move.fromIdx};
 		}
 	}

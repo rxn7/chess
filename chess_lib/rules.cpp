@@ -26,10 +26,9 @@ namespace Rules {
 	}
 
 	bool isInCheckAfterMove(Board &board, const Move &move) {
-		board.applyMove(move, true, true);
-		bool isCheck = board.getCheckResult().isCheck;
-		board.revertLastMove();
-		return isCheck;
+                Board tempBoard = board;
+                tempBoard.applyMove(move, true, true);
+		return tempBoard.getCheckResult().isCheck;
 	}
 
 	void addLegalMove(const AddLegalMoveContext &ctx, const std::uint8_t targetIdx) {

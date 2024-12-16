@@ -21,6 +21,8 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx
 	srand(time(0));
 	Audio::init();
 
+        m_board.applyFen("6q1/8/q7/7K/8/q7/8/6q1 b - - 0 1");
+
 	if(!m_font.loadFromFile("assets/RobotoMono-Regular.ttf")) {
 		std::cout << "\e[1;31mFailed to load font!\e[0m" << std::endl;
 		return;

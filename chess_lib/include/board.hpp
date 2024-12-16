@@ -27,11 +27,11 @@ enum class BoardStatus {
 class Board {
 	public:
 		Board();
+                Board(const Board &board);
 		void reset();
 		bool applyFen(const std::string &fen);
 		void convertToFen(std::string &fen) const; 
 		bool applyMove(const Move &move, const bool isFake = false, const bool updateCheckResult = true);
-		void revertLastMove();
 		CheckResult calculateCheck(const PieceColor color);
 
 		inline const Player &getPlayer(const PieceColor color) const {
@@ -103,8 +103,5 @@ class Board {
 		std::vector<Move> m_legalMoves;
 
 		std::array<Piece, 64> m_pieces;
-		std::array<Piece, 64> m_previousPieces;
-
 		BoardState m_state;
-		BoardState m_previousState;
 };
