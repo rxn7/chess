@@ -3,6 +3,7 @@
 #include "piece.hpp"
 
 #include <iostream>
+#include <algorithm>
 #include <sstream>
 
 enum FenRecord {
@@ -19,19 +20,30 @@ Board::Board() {
 }
 
 void Board::reset() {
-	std::fill(m_pieces.begin(), m_pieces.end(), 0); // Clear the board
+	m_pieces.fill(0);
 													
 	m_checkResult =(CheckResult){
 		.isCheck = false,
 	};
 
-        m_status = BoardStatus::Playing;
+		m_status = BoardStatus::Playing;
 	m_lastMove = std::nullopt;
 	applyFen(DEFAULT_FEN);
-	updateLegalMoves();
 }
 
-void Board::applyMove(const Move &move, const bool isFake, const bool updateCheckResult) {
+bool Board::applyMove(const Move &move, const bool isFake, const bool updateCheckResult) {
+		if(!isFake) {
+				if(std::find(m_legalMoves.begin(), m_legalMoves.end(), move) == m_legalMoves.end()) {
+						std::cerr << "This move (" << move << ") is not legal" << std::endl;
+						std::cerr << "Legal moves are: ";
+						for(const Move &move : m_legalMoves) {
+								std::cerr << move << std::endl;
+						}
+
+						return false;
+				}
+		}
+
 	m_previousState = m_state;
 	m_previousPieces = m_pieces;
 
@@ -60,43 +72,45 @@ void Board::applyMove(const Move &move, const bool isFake, const bool updateChec
 
 	if(!isFake) {
 		updateLegalMoves();
-                updateStatus();
+				updateStatus();
 	}
+
+		return true;
 }
 
 void Board::performCastling(PieceColor color, bool isQueenSide) {
-	uint8_t kingStartIdx, rookStartIdx, kingEndIdx, rookEndIdx;
-    if (color == Black) {
-        if (isQueenSide) {
-            kingStartIdx = 4;
-            rookStartIdx = 0;
-            kingEndIdx = 3;
-            rookEndIdx = 2;
-        } else {
-            kingStartIdx = 4;
-            rookStartIdx = 7;
-            kingEndIdx = 5;
-            rookEndIdx = 6;
-        }
-    } else {
-        if (isQueenSide) {
-            kingStartIdx = 60;
-            rookStartIdx = 56;
-            kingEndIdx = 59;
-            rookEndIdx = 58;
-        } else {
-            kingStartIdx = 60;
-            rookStartIdx = 63;
-            kingEndIdx = 61;
-            rookEndIdx = 62;
-        }
-    }
+        uint8_t kingStartIdx, rookStartIdx, kingEndIdx, rookEndIdx;
+	if(color == Black) {
+		if(isQueenSide) {
+			kingStartIdx = 4;
+			kingEndIdx = 2;
+			rookStartIdx = 0;
+			rookEndIdx = 3;
+		} else {
+			kingStartIdx = 4;
+			kingEndIdx = 6;
+			rookStartIdx = 7;
+			rookEndIdx = 5;
+		}
+	} else {
+		if(isQueenSide) {
+			kingStartIdx = 60;
+			kingEndIdx = 58;
+			rookStartIdx = 56;
+			rookEndIdx = 59;
+		} else {
+			kingStartIdx = 60;
+			kingEndIdx = 62;
+			rookStartIdx = 63;
+			rookEndIdx = 61;
+		}
+	}
 
-    m_pieces[kingStartIdx] = 0;
-    m_pieces[rookStartIdx] = 0;
+	m_pieces[kingStartIdx] = 0;
+	m_pieces[rookStartIdx] = 0;
 
-    m_pieces[kingEndIdx] = Piece(color, King);
-    m_pieces[rookEndIdx] = Piece(color, Rook);
+	m_pieces[kingEndIdx] = Piece(color, King);
+	m_pieces[rookEndIdx] = Piece(color, Rook);
 }
 
 void Board::revertLastMove() {
@@ -164,7 +178,7 @@ void Board::handleEnPassant(const Move &move) {
 }
 
 // based on: https://www.chess.com/terms/fen-chess
-void Board::applyFen(const std::string &fen) {
+bool Board::applyFen(const std::string &fen) {
 	m_pieces.fill(0);
 	m_state = {};
 
@@ -209,6 +223,7 @@ void Board::applyFen(const std::string &fen) {
 								break;
 							default:
 								std::cerr << "\e[1;31mInvalid piece type: " << (int)c << "!\e[0m\n";
+																return false;
 							}
 
 							m_pieces[rank * 8 + file] = Piece(color, type);
@@ -219,7 +234,11 @@ void Board::applyFen(const std::string &fen) {
 				break;
 
 			case FenRecord::ActiveColor:
-				m_state.turnColor = record[0] == 'w' ? White : Black;
+                                switch(record[0]) {
+                                                case 'w': m_state.turnColor = White; break;
+                                                case 'b': m_state.turnColor = Black; break;
+                                                default: std::cerr << "Invalid active color in fen: " << record[0] << std::endl; return false;
+                                }
 				break;
 
 			case FenRecord::CastlingAvailability:
@@ -249,6 +268,7 @@ void Board::applyFen(const std::string &fen) {
 						case 'q':
 							m_state.blackPlayer.canCastleQueenSide = true;
 							break;
+                                                default: return false;
 					}
 				}
 				break;
@@ -259,7 +279,7 @@ void Board::applyFen(const std::string &fen) {
 					break;
 				}
 
-				m_state.enPassantTarget = getSquareIdx(record[0], record[1]);
+				m_state.enPassantTarget = getSquareIdx(record);
 				break;
 
 			case FenRecord::HalfMoveClock:
@@ -271,6 +291,9 @@ void Board::applyFen(const std::string &fen) {
 				break;
 		}
 	}
+
+	updateLegalMoves();
+		return true;
 }
 
 void Board::convertToFen(std::string &fen) const {
@@ -331,7 +354,7 @@ void Board::convertToFen(std::string &fen) const {
 	stream << ' ';
 
 	if(m_state.enPassantTarget.has_value()) {
-		stream << positionToString(m_state.enPassantTarget.value());
+		stream << Move::positionToString(m_state.enPassantTarget.value());
 	} else {
 		stream << '-';
 	}

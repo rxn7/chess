@@ -137,7 +137,8 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 	if(!Rules::isMoveLegal(m_board.getLegalMoves(), move))
 		return false;
 
-        std::cout << m_board.positionToString(m_heldPieceIdx.value()) << " -> " << m_board.positionToString(toIdx) << std::endl;
+        std::cout << move << std::endl;
+
         if(move.isCapture) {
                 Audio::playSound(Sound::Capture);
         } else {

@@ -3,7 +3,7 @@
 
 namespace Rules {
 	static std::unordered_map<PieceType, AddLegalMovesFunc> s_getLegalMovesFuncMap {
-		ADD_LEGAL_MOVES_MAP_ENTRY(Pawn),   ADD_LEGAL_MOVES_MAP_ENTRY(Rook),	 ADD_LEGAL_MOVES_MAP_ENTRY(Bishop),
+		ADD_LEGAL_MOVES_MAP_ENTRY(Pawn),   ADD_LEGAL_MOVES_MAP_ENTRY(Rook), ADD_LEGAL_MOVES_MAP_ENTRY(Bishop),
 		ADD_LEGAL_MOVES_MAP_ENTRY(Knight), ADD_LEGAL_MOVES_MAP_ENTRY(Queen), ADD_LEGAL_MOVES_MAP_ENTRY(King),
 	};
 

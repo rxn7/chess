@@ -5,7 +5,6 @@
 #include "board_state.hpp"
 
 #include <array>
-#include <format>
 #include <iostream>
 #include <optional> 
 #include <vector> 
@@ -29,9 +28,9 @@ class Board {
 	public:
 		Board();
 		void reset();
-		void applyFen(const std::string &fen);
+		bool applyFen(const std::string &fen);
 		void convertToFen(std::string &fen) const; 
-		void applyMove(const Move &move, const bool isFake = false, const bool updateCheckResult = true);
+		bool applyMove(const Move &move, const bool isFake = false, const bool updateCheckResult = true);
 		void revertLastMove();
 		CheckResult calculateCheck(const PieceColor color);
 
@@ -66,8 +65,10 @@ class Board {
 			return idx >= 0 && idx < 64;
 		}
 
-		static inline std::uint8_t getSquareIdx(const char file, const char rank) {
-			return (rank - '1') * 8 + (file - 'a');
+		static inline std::uint8_t getSquareIdx(const std::string &position) {
+                        uint8_t file = position[0] - 'a';
+                        uint8_t rank = '8' - position[1];
+			return rank * 8 + file;
 		}
 
 		inline CheckResult getCheckResult() const {
@@ -84,16 +85,6 @@ class Board {
 
 		inline std::vector<Move> &getLegalMoves() {
 			return m_legalMoves;
-		}
-
-		static inline std::string positionToString(const std::uint8_t idx) {
-			return positionToString(idx % 8, idx / 8);
-		}
-
-		static inline std::string positionToString(const std::uint8_t x, const std::uint8_t y) {
-			const char file = 'a' + x;
-			const char rank = '8' - y;
-			return std::format("{}{}", file, rank);
 		}
 
 	  private:
