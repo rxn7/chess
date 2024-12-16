@@ -2,6 +2,7 @@
 
 #include "board.hpp"
 #include "debug_data.hpp"
+#include "imgui_layer.hpp"
 #include "renderers/board_renderer.hpp"
 #include "renderers/piece_renderer.hpp"
 
@@ -73,6 +74,8 @@ class Game {
 
   private:
 	static Game *s_instance;
+
+        ImGuiLayer m_imgui;
 
 	GameState m_state = GameState::Playing;
 	Board m_board;
