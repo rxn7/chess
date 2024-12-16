@@ -58,7 +58,7 @@ void Game::start() {
 		if(!m_window.isOpen())
 			break;
 
-                m_imgui.update(m_window, m_frameDelta);
+		m_imgui.update(m_window, m_frameDelta);
 		render();
 	}
 }
@@ -67,9 +67,9 @@ void Game::end(const BoardStatus status) {
 	m_state = GameState::EndScreen;
 	std::ostringstream ss;
 
-        if(status == BoardStatus::BlackWin || status == BoardStatus::WhiteWin) {
-                Audio::playSound(Sound::Checkmate);
-        }
+	if(status == BoardStatus::BlackWin || status == BoardStatus::WhiteWin) {
+		Audio::playSound(Sound::Checkmate);
+	}
 
 	switch(status) {
 		case BoardStatus::WhiteWin:
@@ -127,7 +127,7 @@ void Game::render() {
 	if(m_state == GameState::EndScreen)
 		m_window.draw(m_endGameText);
 
-        m_imgui.render(m_window, m_board);
+	m_imgui.render(m_window, m_board, m_boardRenderer);
 
 	m_window.display();
 }
@@ -140,23 +140,23 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 	if(!Rules::isMoveLegal(m_board.getLegalMoves(), move))
 		return false;
 
-        std::cout << move << std::endl;
+	std::cout << move << std::endl;
 
-        if(move.isCapture) {
-                Audio::playSound(Sound::Capture);
-        } else {
-                Audio::playSound(Sound::Move);
-        }
+	if(move.isCapture) {
+		Audio::playSound(Sound::Capture);
+	} else {
+		Audio::playSound(Sound::Move);
+	}
 
 	m_board.applyMove(move, false, true);
-        if(m_board.getStatus() != BoardStatus::Playing) {
-                end(m_board.getStatus());
-        } else {
-                if(m_board.getCheckResult().isCheck) {
-                        std::cout << "CHECK!";
-                        Audio::playSound(Sound::Check);
-                }
-        }
+	if(m_board.getStatus() != BoardStatus::Playing) {
+		end(m_board.getStatus());
+	} else {
+		if(m_board.getCheckResult().isCheck) {
+			std::cout << "CHECK!";
+			Audio::playSound(Sound::Check);
+		}
+	}
 
 	m_heldPieceIdx = std::nullopt;
 

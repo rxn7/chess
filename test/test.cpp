@@ -1,4 +1,5 @@
 #include "board.hpp"
+#include "fen.hpp"
 
 #include <gtest/gtest.h>
 
@@ -11,27 +12,26 @@ protected:
 #define MOVE(from, to) Move(board, Board::getSquareIdx(from), Board::getSquareIdx(to))
 
 TEST_F(ChessTest, SquareIdx) {
-		EXPECT_FLOAT_EQ(Board::getSquareIdx("a8"), 0u);
-		EXPECT_FLOAT_EQ(Board::getSquareIdx("h1"), 63u);
+	EXPECT_FLOAT_EQ(Board::getSquareIdx("a8"), 0u);
+	EXPECT_FLOAT_EQ(Board::getSquareIdx("h1"), 63u);
 }
 
 TEST_F(ChessTest, ValidMove) {
-		board.applyFen(DEFAULT_FEN);
-		EXPECT_TRUE(board.applyMove(MOVE("e2", "e4")));
-		EXPECT_PIECE_TYPE("e4", Pawn);
-		EXPECT_PIECE_TYPE("e2", None);
+	FEN::applyFen(board, DEFAULT_FEN);
+	EXPECT_TRUE(board.applyMove(MOVE("e2", "e4")));
+	EXPECT_PIECE_TYPE("e4", Pawn);
+	EXPECT_PIECE_TYPE("e2", None);
 }
 
 TEST_F(ChessTest, ValidMove2) {
-		board.applyFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
-		EXPECT_TRUE(board.applyMove(MOVE("e7", "e5")));
-		EXPECT_PIECE_TYPE("e5", Pawn);
-		EXPECT_PIECE_TYPE("e7", None);
+	FEN::applyFen(board, "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+	EXPECT_TRUE(board.applyMove(MOVE("e7", "e5")));
+	EXPECT_PIECE_TYPE("e5", Pawn);
+	EXPECT_PIECE_TYPE("e7", None);
 }
 
 TEST_F(ChessTest, CastlingWhiteQueenSide) {
-	board.applyFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3KBNR w KQkq - 0 1");
-	
+	FEN::applyFen(board, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3KBNR w KQkq - 0 1");
 	EXPECT_TRUE(board.applyMove(MOVE("e1", "c1")));
 	EXPECT_PIECE_TYPE("c1", King);
 	EXPECT_PIECE_TYPE("d1", Rook);
@@ -41,7 +41,7 @@ TEST_F(ChessTest, CastlingWhiteQueenSide) {
 }
 
 TEST_F(ChessTest, CastlingWhiteKingSide) {
-	board.applyFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1");
+	FEN::applyFen(board, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1");
 	
 	EXPECT_TRUE(board.applyMove(MOVE("e1", "g1")));
 	EXPECT_PIECE_TYPE("g1", King);
@@ -51,7 +51,7 @@ TEST_F(ChessTest, CastlingWhiteKingSide) {
 }
 
 TEST_F(ChessTest, CastlingBlackQueenSide) {
-	board.applyFen("r3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
+	FEN::applyFen(board, "r3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
 	
 	EXPECT_TRUE(board.applyMove(MOVE("e8", "c8"))); 
 	EXPECT_PIECE_TYPE("c8", King);
@@ -62,7 +62,7 @@ TEST_F(ChessTest, CastlingBlackQueenSide) {
 }
 
 TEST_F(ChessTest, CastlingBlackKingSide) {
-	board.applyFen("rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
+	FEN::applyFen(board, "rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
 	
 	EXPECT_TRUE(board.applyMove(MOVE("e8", "g8"))); 
 	EXPECT_PIECE_TYPE("g8", King);
@@ -72,15 +72,15 @@ TEST_F(ChessTest, CastlingBlackKingSide) {
 }
 
 TEST_F(ChessTest, CheckMate) {
-        board.applyFen("6r1/8/8/8/7K/8/8/5r2 b - - 0 1"); 
-        EXPECT_TRUE(board.applyMove(MOVE("f1", "h1")));
-        EXPECT_TRUE(board.getCheckResult().isCheck);
-        EXPECT_EQ(board.getStatus(), BoardStatus::BlackWin); 
+	FEN::applyFen(board, "6r1/8/8/8/7K/8/8/5r2 b - - 0 1"); 
+	EXPECT_TRUE(board.applyMove(MOVE("f1", "h1")));
+	EXPECT_TRUE(board.getCheckResult().isCheck);
+	EXPECT_EQ(board.getStatus(), BoardStatus::BlackWin); 
 }
 
 TEST_F(ChessTest, StaleMate) {
-        board.applyFen("6r1/8/r7/7K/8/r7/8/6r1 b - - 0 1"); 
-        EXPECT_TRUE(board.applyMove(MOVE("a3", "a4")));
-        EXPECT_FALSE(board.getCheckResult().isCheck);
-        EXPECT_EQ((int)board.getStatus(), (int)BoardStatus::Draw); 
+	FEN::applyFen(board, "6r1/8/r7/7K/8/r7/8/6r1 b - - 0 1"); 
+	EXPECT_TRUE(board.applyMove(MOVE("a3", "a4")));
+	EXPECT_FALSE(board.getCheckResult().isCheck);
+	EXPECT_EQ((int)board.getStatus(), (int)BoardStatus::Draw); 
 }

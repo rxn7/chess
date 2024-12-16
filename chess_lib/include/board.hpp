@@ -25,12 +25,12 @@ enum class BoardStatus {
 };
 
 class Board {
+	friend class FEN;
+
 	public:
 		Board();
-                Board(const Board &board);
-		void reset();
-		bool applyFen(const std::string &fen);
-		void convertToFen(std::string &fen) const; 
+		Board(const Board &board);
+		void reset(bool applyDefaultFen = true);
 		bool applyMove(const Move &move, const bool isFake = false, const bool updateCheckResult = true);
 		CheckResult calculateCheck(const PieceColor color);
 
@@ -66,8 +66,8 @@ class Board {
 		}
 
 		static inline std::uint8_t getSquareIdx(const std::string &position) {
-                        uint8_t file = position[0] - 'a';
-                        uint8_t rank = '8' - position[1];
+			uint8_t rank = '8' - position[1];
+			uint8_t file = position[0] - 'a';
 			return rank * 8 + file;
 		}
 
@@ -87,15 +87,15 @@ class Board {
 			return m_legalMoves;
 		}
 
-	  private:
+	private:
 		void performCastling(PieceColor color, bool isQueenSide);
 		void handleMove(const Move &move);
 		void handlePawnPromotion(const Move &move);
 		void handleEnPassant(const Move &move);
 		void updateLegalMoves();
-                void updateStatus();
+			void updateStatus();
 
-	  private:
+	private:
 		BoardStatus m_status = BoardStatus::Playing;
 
 		std::optional<Move> m_lastMove;
