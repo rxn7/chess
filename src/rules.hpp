@@ -24,7 +24,7 @@ namespace Rules {
 	using AddLegalMovesFunc = std::function<void(const AddLegalMoveContext &ctx)>;
 
 	bool isMoveLegal(const std::vector<Move> &legalMoves, const Move &move);
-	bool isInCheckAfterMove(const Board &board, const Move &move);
+	bool isInCheckAfterMove(Board &board, const Move &move);
 	void addLegalMove(const AddLegalMoveContext &ctx, const std::uint8_t targetIdx);
 	bool addMoveIfEmpty(const AddLegalMoveContext &ctx, const std::uint8_t targetIdx);
 	bool addMoveIfHasOpponentPiece(const AddLegalMoveContext &ctx, const std::uint8_t targetIdx);

@@ -42,8 +42,6 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx
 	std::cout << "\e[1;32mPress 'T' to generate random board theme!\e[0m" << std::endl;
 	std::cout << "\e[1;32mPress 'R' to bring back the default board theme!\e[0m" << std::endl;
 	std::cout << "\e[1;32mPress 'Escape' to reset the board!\e[0m" << std::endl;
-
-	restart();
 }
 
 void Game::start() {
@@ -150,7 +148,7 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 		if(m_board.getLegalMoves().empty()) {
 			std::cout << "\e[1;32mCheckmate!\e[0m" << std::endl;
 			Audio::playSound(Sound::Checkmate);
-			end(m_board.getTurnColor() == White ? GameResult::BlackWin : GameResult::WhiteWin);
+			end(m_board.getState().turnColor == White ? GameResult::BlackWin : GameResult::WhiteWin);
 		} else {
 			Audio::playSound(Sound::Check);
 		}
@@ -176,7 +174,7 @@ void Game::handlePieceDrag() {
 
 	const Piece &piece = m_board.getPieces()[idx];
 
-	if(piece.isNull() || piece.isNotColor(m_board.getTurnColor())) {
+	if(piece.isNull() || piece.isNotColor(m_board.getState().turnColor)) {
 		return;
 	}
 
@@ -275,6 +273,10 @@ void Game::handleEvent(const sf::Event &e) {
 				case sf::Keyboard::Key::Escape:
 					restart();
 					break;
+
+				case sf::Keyboard::Key::Left: {
+					break;
+				}
 
 				default:
 					break;

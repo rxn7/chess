@@ -5,22 +5,20 @@
 class Board;
 
 struct Move {
-	Move() {
-	}
-
+	Move() { }
 	Move(const Board &board, const std::uint8_t fromIdx, const std::uint8_t toIdx);
 
 	inline bool operator==(const Move &other) const {
 		return fromIdx == other.fromIdx && toIdx == other.toIdx;
 	}
 
-	Piece piece;
-	Piece targetPiece;
+	Piece piece = 0;
+	Piece targetPiece = 0;
 
-	bool isCapture;
-	bool isPawnPromotion;
-	bool isKingSideCastling;
-	bool isQueenSideCastling;
+	bool isCapture = false;
+	bool isPawnPromotion = false;
+	bool isKingSideCastling = false;
+	bool isQueenSideCastling = false;
 
 	union {
 		struct {

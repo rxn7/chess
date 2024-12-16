@@ -23,7 +23,11 @@ enum PieceColor : std::uint8_t {
 struct Piece {
 	Piece() : value(0) {}
 	Piece(std::uint8_t value) : value(value) {}
+
 	explicit Piece(PieceColor color, PieceType type) : value((std::uint8_t)type | (std::uint8_t)color) {}
+
+	char toChar() const;
+
 	operator std::uint8_t() const {
 		return value;
 	}

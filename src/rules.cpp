@@ -25,10 +25,11 @@ namespace Rules {
 		s_getLegalMovesFuncMap[piece.getType()](ctx);
 	}
 
-	bool isInCheckAfterMove(const Board &board, const Move &move) {
-		Board boardTemp = board;
-		boardTemp.applyMove(move, true, true);
-		return boardTemp.getCheckResult().isCheck;
+	bool isInCheckAfterMove(Board &board, const Move &move) {
+		board.applyMove(move, true, true);
+		bool isCheck = board.getCheckResult().isCheck;
+		board.revertLastMove();
+		return isCheck;
 	}
 
 	void addLegalMove(const AddLegalMoveContext &ctx, const std::uint8_t targetIdx) {

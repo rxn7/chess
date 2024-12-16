@@ -80,7 +80,7 @@ class Game {
   private:
 	static Game *s_instance;
 
-	GameState m_state;
+	GameState m_state = GameState::Playing;
 	Board m_board;
 	BoardRenderer m_boardRenderer;
 	PieceRenderer m_pieceRenderer;

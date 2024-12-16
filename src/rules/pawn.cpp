@@ -7,7 +7,7 @@ namespace Rules {
 			return;
 		}
 
-		if(ctx.board.getEnPassantTarget() == targetIdx) {
+		if(ctx.board.getState().enPassantTarget == targetIdx) {
 			addLegalMove(ctx, targetIdx);
 		}
 	}

@@ -1,15 +1,15 @@
 #pragma once
 
-#include "player.hpp"
 #include "move.hpp"
 #include "piece.hpp"
+#include "board_state.hpp"
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <array>
 #include <format>
-#include <optional>
-#include <unordered_map>
+#include <iostream>
+#include <optional> 
 
 #define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -24,19 +24,31 @@ struct CheckResult {
 class Board {
   public:
 	Board(Game &game);
-	Board(const Board &board);
 
-	void applyFen(const std::string &fen);
-	void applyMove(const Move &move, const bool isFake = false, const bool updateCheckResult = true);
 	void reset();
+	void applyFen(const std::string &fen);
+	void convertToFen(std::string &fen) const; 
+	void applyMove(const Move &move, const bool isFake = false, const bool updateCheckResult = true);
+	void revertLastMove();
+	void performCastling(PieceColor color, bool isQueenSide);
 	void handleMove(const Move &move);
-	void handleCastling(const Move &move);
 	void handlePawnPromotion(const Move &move);
 	void handleEnPassant(const Move &move);
 	CheckResult calculateCheck(const PieceColor color);
 
 	inline const Player &getPlayer(const PieceColor color) const {
-		return m_players.at(color);
+		switch(color) {
+			case White: return m_state.whitePlayer;
+			case Black: return m_state.blackPlayer;
+		}
+
+		std::cerr << "Invalid player color: " << (int)color << std::endl;
+		return m_state.whitePlayer;
+	}
+
+	// For non-const access
+	inline Player &getPlayer(const PieceColor color) {
+		return const_cast<Player &>(const_cast<const Board *>(this)->getPlayer(color));
 	}
 
 	inline const std::array<Piece, 64> &getPieces() const {
@@ -55,20 +67,16 @@ class Board {
 		return (rank - '1') * 8 + (file - 'a');
 	}
 
-	inline PieceColor getTurnColor() const {
-		return m_turnColor;
-	}
-
 	inline CheckResult getCheckResult() const {
 		return m_checkResult;
 	}
 
-	inline const std::optional<Move> &getLastMove() const {
+	inline const std::optional<Move> getLastMove() const {
 		return m_lastMove;
 	}
 
-	inline const std::optional<uint8_t> &getEnPassantTarget() const {
-		return m_enPassantTarget;
+	inline const BoardState &getState() const {
+		return m_state;
 	}
 
 	inline std::vector<Move> &getLegalMoves() {
@@ -90,13 +98,13 @@ class Board {
 
   private:
 	Game &m_game;
-	std::vector<Move> m_legalMoves;
-	PieceColor m_turnColor;
+	std::optional<Move> m_lastMove;
 	CheckResult m_checkResult;
-	std::optional<Move> m_lastMove = std::nullopt;
-	std::uint16_t m_fullMoves;
-	std::uint16_t m_halfMoveClock;
-	std::optional<uint8_t> m_enPassantTarget = std::nullopt;
+	std::vector<Move> m_legalMoves;
+
 	std::array<Piece, 64> m_pieces;
-	std::unordered_map<PieceColor, Player> m_players;
+	std::array<Piece, 64> m_previousPieces;
+
+	BoardState m_state;
+	BoardState m_previousState;
 };
