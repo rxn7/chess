@@ -1,7 +1,7 @@
 [submodule "vendor/sfml"]
 	path = vendor/sfml
 	url = https://github.com/SFML/SFML
-	branch = 2.6.x
+	branch = master
 [submodule "vendor/gtest"]
 	path = vendor/gtest
 	url = https://github.com/google/googletest
