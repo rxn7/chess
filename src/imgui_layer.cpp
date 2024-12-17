@@ -3,9 +3,12 @@
 #include "fen.hpp"
 #include "renderers/board_renderer.hpp"
 
+#ifndef NDEBUG
 #include <imgui-SFML.h>
 #include <imgui.h>
+#endif
 
+#ifndef NDEBUG
 ImGuiLayer::ImGuiLayer(sf::RenderWindow &window) {
 	assert(ImGui::SFML::Init(window));
 }
@@ -33,24 +36,40 @@ void ImGuiLayer::render(sf::RenderWindow &window, Board &board, BoardRenderer &b
 		if(ImGui::Button("Apply FEN")) {
 			FEN::applyFen(board, input);
 		}
+
+		if(ImGui::CollapsingHeader("Theme")) {
+			static float lightColor[3] = {DEFAULT_BOARD_THEME.lightColor.r / 255.0f, DEFAULT_BOARD_THEME.lightColor.g / 255.0f, DEFAULT_BOARD_THEME.lightColor.b / 255.0f};
+			ImGui::ColorEdit3("Light##theme", lightColor);
+
+			static float darkColor[3] = {DEFAULT_BOARD_THEME.darkColor.r / 255.0f, DEFAULT_BOARD_THEME.darkColor.g / 255.0f, DEFAULT_BOARD_THEME.darkColor.b / 255.0f};
+			ImGui::ColorEdit3("Dark##theme", darkColor);
+
+			if(ImGui::Button("Apply")) {
+				BoardTheme theme;
+				theme.lightColor = sf::Color(lightColor[0] * 255.0f, lightColor[1] * 255.0f, lightColor[2] * 255.0f);
+				theme.darkColor = sf::Color(darkColor[0] * 255.0f, darkColor[1] * 255.0f, darkColor[2] * 255.0f);
+				boardRenderer.setTheme(theme);
+			}
+		}
 	}
 	ImGui::End();
 
-	if(ImGui::Begin("Theme")) {
-		static float lightColor[3] = {DEFAULT_BOARD_THEME.lightColor.r / 255.0f, DEFAULT_BOARD_THEME.lightColor.g / 255.0f, DEFAULT_BOARD_THEME.lightColor.b / 255.0f};
-		ImGui::ColorEdit3("Light##theme", lightColor);
+	if(ImGui::Begin("Debug")) {
+		ImGui::Text("FPS: %f", ImGui::GetIO().Framerate);
 
-		static float darkColor[3] = {DEFAULT_BOARD_THEME.darkColor.r / 255.0f, DEFAULT_BOARD_THEME.darkColor.g / 255.0f, DEFAULT_BOARD_THEME.darkColor.b / 255.0f};
-		ImGui::ColorEdit3("Dark##theme", darkColor);
+		static bool vsync = true;
+		ImGui::Checkbox("VSync", &vsync);
 
-		if(ImGui::Button("Apply")) {
-			BoardTheme theme;
-			theme.lightColor = sf::Color(lightColor[0] * 255.0f, lightColor[1] * 255.0f, lightColor[2] * 255.0f);
-			theme.darkColor = sf::Color(darkColor[0] * 255.0f, darkColor[1] * 255.0f, darkColor[2] * 255.0f);
-			boardRenderer.setTheme(theme);
-		}
+		window.setVerticalSyncEnabled(vsync);
 	}
 	ImGui::End();
 
 	ImGui::SFML::Render(window);
 }
+#else
+ImGuiLayer::ImGuiLayer(sf::RenderWindow &window) {}	
+ImGuiLayer::~ImGuiLayer() {}
+void ImGuiLayer::handleEvent(sf::RenderWindow &window, const sf::Event &event) {}
+void ImGuiLayer::update(sf::RenderWindow &window, sf::Time frameTime) {}
+void ImGuiLayer::render(sf::RenderWindow &window, Board &board, BoardRenderer &boardRenderer) {}
+#endif

@@ -17,7 +17,8 @@ set(IMGUI_DIR ${LIB_DIR}/imgui)
 add_subdirectory(${LIB_DIR}/imgui-sfml imgui-sfml)
 
 add_subdirectory(${LIB_DIR}/sfml sfml)
-target_link_libraries(chess PUBLIC sfml-graphics sfml-audio ImGui-SFML)
+target_link_libraries(chess PUBLIC sfml-graphics sfml-audio)
+target_link_libraries(chess PUBLIC debug ImGui-SFML)
 
 add_custom_target(copy_assets
 	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_EXECUTABLE_OUTPUT_DIRECTORY}/assets

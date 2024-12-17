@@ -31,7 +31,10 @@ class Board {
 		Board();
 		Board(const Board &board);
 		void reset(bool applyDefaultFen = true);
-		bool applyMove(const Move &move, const bool isFake = false, const bool updateCheckResult = true);
+
+		bool applyMove(const Move &move, const bool updateCheckResult = true);
+		CheckResult fakeMove(const Move &move);
+
 		CheckResult calculateCheck(const PieceColor color);
 
 		inline const Player &getPlayer(const PieceColor color) const {
@@ -88,12 +91,12 @@ class Board {
 		}
 
 	private:
-		void performCastling(PieceColor color, bool isQueenSide);
-		void handleMove(const Move &move);
+		void castle(PieceColor color, bool isQueenSide);
+		bool handleCastling(const Move &move);
 		void handlePawnPromotion(const Move &move);
-		void handleEnPassant(const Move &move);
+		void handleEnPassant(const Move &move, const bool changeEnPassantTarget);
 		void updateLegalMoves();
-			void updateStatus();
+		void updateStatus();
 
 	private:
 		BoardStatus m_status = BoardStatus::Playing;

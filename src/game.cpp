@@ -148,7 +148,7 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 		Audio::playSound(Sound::Move);
 	}
 
-	m_board.applyMove(move, false, true);
+	m_board.applyMove(move, true);
 	if(m_board.getStatus() != BoardStatus::Playing) {
 		end(m_board.getStatus());
 	} else {

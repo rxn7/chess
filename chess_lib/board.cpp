@@ -28,51 +28,83 @@ void Board::reset(bool applyDefaultFen) {
 	}
 }
 
-bool Board::applyMove(const Move &move, const bool isFake, const bool updateCheckResult) {
-	if(!isFake) {
-		if(std::find(m_legalMoves.begin(), m_legalMoves.end(), move) == m_legalMoves.end()) {
-			std::cerr << "This move (" << move << ") is not legal" << std::endl;
-			std::cerr << "Legal moves are: ";
-			for(const Move &move : m_legalMoves) {
-				std::cerr << move << std::endl;
-			}
-
-			return false;
+bool Board::applyMove(const Move &move, const bool updateCheckResult) {
+	if(std::find(m_legalMoves.begin(), m_legalMoves.end(), move) == m_legalMoves.end()) {
+		std::cerr << "This move (" << move << ") is not legal" << std::endl;
+		std::cerr << "Legal moves are: ";
+		for(const Move &move : m_legalMoves) {
+			std::cerr << move << std::endl;
 		}
+
+		return false;
 	}
 
-	if(move.isKingSideCastling) {
-		performCastling(move.piece.getColor(), false);
-	} else if(move.isQueenSideCastling) {
-		performCastling(move.piece.getColor(), true);
-	} else {
+	if(!handleCastling(move)) {
 		m_pieces[move.toIdx] = move.piece;
 		m_pieces[move.fromIdx] = 0;
 	}
 
 	handlePawnPromotion(move);
-	handleEnPassant(move);
+	handleEnPassant(move, true);
 
-	if(!isFake) {
-		handleMove(move);
-
-		m_state.turnColor = m_state.turnColor == White ? Black : White;
-		m_lastMove = move;
+	if(move.piece.isColor(Black)) {
+		++m_state.fullMoves;
 	}
+
+	if(move.piece.isType(Pawn) || move.isCapture) {
+		m_state.halfMoveClock = 0;
+	} else {
+		++m_state.halfMoveClock;
+		if(m_state.halfMoveClock == 50) {
+			std::cout << "50 half moves without capture or pawn move. Draw!" << std::endl;
+			m_status = BoardStatus::Draw;
+		}
+	}
+
+	Player &player = getPlayer(move.piece.getColor());
+
+	if(move.piece.isType(King)) {
+		player.canCastleQueenSide = false;
+		player.canCastleKingSide = false;
+	} else if(move.piece.isType(Rook)) {
+		if(move.fromIdx == 0 || move.fromIdx == 56) {
+			player.canCastleQueenSide = false;
+		} else {
+			player.canCastleKingSide = false;
+		}
+	}
+
+	m_state.turnColor = m_state.turnColor == White ? Black : White;
+	m_lastMove = move;
 
 	if(updateCheckResult) {
 		m_checkResult = calculateCheck(m_state.turnColor);
 	}
 
-	if(!isFake) {
-		updateLegalMoves();
-		updateStatus();
-	}
+	updateLegalMoves();
+	updateStatus();
 
 	return true;
 }
 
-void Board::performCastling(PieceColor color, bool isQueenSide) {
+CheckResult Board::fakeMove(const Move &move) {
+	std::array<Piece, 64> oldPieces = m_pieces;
+
+	if(!handleCastling(move)) {
+		m_pieces[move.toIdx] = move.piece;
+		m_pieces[move.fromIdx] = 0;
+	}
+
+	handlePawnPromotion(move);
+	handleEnPassant(move, false);
+
+	CheckResult result = calculateCheck(m_state.turnColor);
+	m_pieces = oldPieces;
+
+	return result;
+}
+
+void Board::castle(PieceColor color, bool isQueenSide) {
 	uint8_t kingStartIdx, rookStartIdx, kingEndIdx, rookEndIdx;
 	if(color == Black) {
 		if(isQueenSide) {
@@ -107,36 +139,17 @@ void Board::performCastling(PieceColor color, bool isQueenSide) {
 	m_pieces[rookEndIdx] = Piece(color, Rook);
 }
 
-void Board::handleMove(const Move &move) {
-	if(move.piece.isColor(Black)) {
-		++m_state.fullMoves;
-	}
+bool Board::handleCastling(const Move &move) {
+	if(move.isKingSideCastling) {
+		castle(move.piece.getColor(), false);
+		return true;
+	} 
+	if(move.isQueenSideCastling) {
+		castle(move.piece.getColor(), true);
+		return true;
+	} 
 
-	if(move.piece.isType(Pawn) || move.isCapture) {
-		m_state.halfMoveClock = 0;
-	} else {
-		++m_state.halfMoveClock;
-		if(m_state.halfMoveClock == 50) {
-			std::cout << "50 half moves without capture or pawn move. Draw!" << std::endl;
-			m_status = BoardStatus::Draw;
-		}
-	}
-
-	Player &player = getPlayer(move.piece.getColor());
-
-	if(move.piece.isType(King)) {
-		player.canCastleQueenSide = false;
-		player.canCastleKingSide = false;
-	} else if(move.piece.isType(Rook)) {
-		if(move.fromIdx == 0 || move.fromIdx == 56) {
-			player.canCastleQueenSide = false;
-		} else {
-			player.canCastleKingSide = false;
-		}
-	}
-
-	std::cout << "Half move clock: " << m_state.halfMoveClock << std::endl;
-	std::cout << "Full moves: " << m_state.fullMoves << std::endl;
+	return false;
 }
 
 void Board::handlePawnPromotion(const Move &move) {
@@ -144,7 +157,7 @@ void Board::handlePawnPromotion(const Move &move) {
 		m_pieces[move.toIdx] = Piece(move.piece.getColor(), Queen);
 }
 
-void Board::handleEnPassant(const Move &move) {
+void Board::handleEnPassant(const Move &move, const bool changeEnPassantTarget) {
 	if(move.piece.getType() == Pawn) {
 		// If moved 2 files
 		if(move.toIdx == m_state.enPassantTarget) {
@@ -154,7 +167,7 @@ void Board::handleEnPassant(const Move &move) {
 				m_pieces[move.toIdx - 8] = 0;
 		}
 
-		if(std::abs(move.fromIdx - move.toIdx) == 16) {
+		if(changeEnPassantTarget && std::abs(move.fromIdx - move.toIdx) == 16) {
 			if(move.piece.getColor() == White)
 				m_state.enPassantTarget = move.toIdx + 8;
 			else
@@ -163,7 +176,10 @@ void Board::handleEnPassant(const Move &move) {
 			return;
 		}
 	} 
-	m_state.enPassantTarget = std::nullopt;
+
+	if(changeEnPassantTarget) {
+		m_state.enPassantTarget = std::nullopt;
+	}
 }
 
 CheckResult Board::calculateCheck(const PieceColor color) {
