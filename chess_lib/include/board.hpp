@@ -25,86 +25,86 @@ enum class BoardStatus {
 };
 
 class Board {
-	friend class FEN;
+friend class FEN;
 
-	public:
-		Board();
-		Board(const Board &board);
-		void reset(bool applyDefaultFen = true);
+public:
+	Board();
+	Board(const Board &board);
+	void reset(bool applyDefaultFen = true);
 
-		bool applyMove(const Move &move, const bool updateCheckResult = true);
-		CheckResult fakeMove(const Move &move);
+	bool applyMove(const Move &move, const bool updateCheckResult = true);
+	CheckResult fakeMove(const Move &move);
 
-		CheckResult calculateCheck(const PieceColor color);
+	CheckResult calculateCheck(const PieceColor color);
 
-		inline const Player &getPlayer(const PieceColor color) const {
-			switch(color) {
-				case White: return m_state.whitePlayer;
-				case Black: return m_state.blackPlayer;
-			}
-
-			std::cerr << "Invalid player color: " << (int)color << std::endl;
-			return m_state.whitePlayer;
+	inline const Player &getPlayer(const PieceColor color) const {
+		switch(color) {
+			case White: return m_state.whitePlayer;
+			case Black: return m_state.blackPlayer;
 		}
 
-		// For non-const access
-		inline Player &getPlayer(const PieceColor color) {
-			return const_cast<Player &>(const_cast<const Board *>(this)->getPlayer(color));
-		}
+		std::cerr << "Invalid player color: " << (int)color << std::endl;
+		return m_state.whitePlayer;
+	}
 
-		inline BoardStatus getStatus() const {
-			return m_status;
-		}
+	// For non-const access
+	inline Player &getPlayer(const PieceColor color) {
+		return const_cast<Player &>(const_cast<const Board *>(this)->getPlayer(color));
+	}
 
-		inline const std::array<Piece, 64> &getPieces() const {
-			return m_pieces;
-		}
+	inline BoardStatus getStatus() const {
+		return m_status;
+	}
 
-		inline const Piece &getPiece(const std::uint8_t idx) const {
-			return m_pieces[idx];
-		}
+	inline const std::array<Piece, 64> &getPieces() const {
+		return m_pieces;
+	}
 
-		static inline bool isSquareIdxCorrect(const std::uint8_t idx) {
-			return idx >= 0 && idx < 64;
-		}
+	inline const Piece &getPiece(const std::uint8_t idx) const {
+		return m_pieces[idx];
+	}
 
-		static inline std::uint8_t getSquareIdx(const std::string &position) {
-			uint8_t rank = '8' - position[1];
-			uint8_t file = position[0] - 'a';
-			return rank * 8 + file;
-		}
+	static inline bool isSquareIdxCorrect(const std::uint8_t idx) {
+		return idx >= 0 && idx < 64;
+	}
 
-		inline CheckResult getCheckResult() const {
-			return m_checkResult;
-		}
+	static inline std::uint8_t getSquareIdx(const std::string &position) {
+		uint8_t rank = '8' - position[1];
+		uint8_t file = position[0] - 'a';
+		return rank * 8 + file;
+	}
 
-		inline const std::optional<Move> getLastMove() const {
-			return m_lastMove;
-		}
+	inline CheckResult getCheckResult() const {
+		return m_checkResult;
+	}
 
-		inline const BoardState &getState() const {
-			return m_state;
-		}
+	inline const std::optional<Move> getLastMove() const {
+		return m_lastMove;
+	}
 
-		inline std::vector<Move> &getLegalMoves() {
-			return m_legalMoves;
-		}
+	inline const BoardState &getState() const {
+		return m_state;
+	}
 
-	private:
-		void castle(PieceColor color, bool isQueenSide);
-		bool handleCastling(const Move &move);
-		void handlePawnPromotion(const Move &move);
-		void handleEnPassant(const Move &move, const bool changeEnPassantTarget);
-		void updateLegalMoves();
-		void updateStatus();
+	inline std::vector<Move> &getLegalMoves() {
+		return m_legalMoves;
+	}
 
-	private:
-		BoardStatus m_status = BoardStatus::Playing;
+private:
+	void castle(PieceColor color, bool isQueenSide);
+	bool handleCastling(const Move &move);
+	void handlePawnPromotion(const Move &move);
+	void handleEnPassant(const Move &move, const bool changeEnPassantTarget);
+	void updateLegalMoves();
+	void updateStatus();
 
-		std::optional<Move> m_lastMove;
-		CheckResult m_checkResult;
-		std::vector<Move> m_legalMoves;
+private:
+	BoardStatus m_status = BoardStatus::Playing;
 
-		std::array<Piece, 64> m_pieces;
-		BoardState m_state;
+	std::optional<Move> m_lastMove;
+	CheckResult m_checkResult;
+	std::vector<Move> m_legalMoves;
+
+	std::array<Piece, 64> m_pieces;
+	BoardState m_state;
 };

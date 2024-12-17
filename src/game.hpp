@@ -23,7 +23,7 @@ enum class GameState {
 };
 
 class Game {
-  public:
+public:
 	Game();
 	void start();
 	void end(const BoardStatus status);
@@ -40,7 +40,7 @@ class Game {
 		return m_frameDelta;
 	}
 
-  private:
+private:
 	void renderHeldPiece();
 	void renderPieces();
 	void handlePieceDrag();
@@ -69,10 +69,10 @@ class Game {
 		return m_heldPieceIdx && !getHeldPiece().isNull();
 	}
 
-  public:
+public:
 	DebugData debugData;
 
-  private:
+private:
 	static Game *s_instance;
 
 	GameState m_state = GameState::Playing;
@@ -81,7 +81,7 @@ class Game {
 	PieceRenderer m_pieceRenderer;
 
 	std::optional<std::uint8_t> m_heldPieceIdx;
-        sf::Time m_frameDelta;
+	sf::Time m_frameDelta;
 	float m_fps;
 
 	sf::RenderWindow m_window;
@@ -89,5 +89,5 @@ class Game {
 	sf::Font m_font;
 	sf::View m_view;
 
-        ImGuiLayer m_imgui;
+	ImGuiLayer m_imgui;
 };

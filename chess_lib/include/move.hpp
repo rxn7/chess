@@ -14,20 +14,20 @@ struct Move {
 		return fromIdx == other.fromIdx && toIdx == other.toIdx;
 	}
 
-        friend inline std::ostream &operator<<(std::ostream &os, const Move &move) {
-                os << positionToString(move.fromIdx) << "(" << move.piece.toChar() << ") -> " << positionToString(move.toIdx) << "(" << move.targetPiece.toChar() << ")";
-                return os;
-        }
+	friend inline std::ostream &operator<<(std::ostream &os, const Move &move) {
+		os << positionToString(move.fromIdx) << "(" << move.piece.toChar() << ") -> " << positionToString(move.toIdx) << "(" << move.targetPiece.toChar() << ")";
+		return os;
+	}
 
-        static inline std::string positionToString(const std::uint8_t idx) {
-                return positionToString(idx % 8, idx / 8);
-        }
+	static inline std::string positionToString(const std::uint8_t idx) {
+		return positionToString(idx % 8, idx / 8);
+	}
 
-        static inline std::string positionToString(const std::uint8_t x, const std::uint8_t y) {
-                const char file = 'a' + x;
-                const char rank = '8' - y;
-                return std::format("{}{}", file, rank);
-        }
+	static inline std::string positionToString(const std::uint8_t x, const std::uint8_t y) {
+		const char file = 'a' + x;
+		const char rank = '8' - y;
+		return std::format("{}{}", file, rank);
+	}
 
 	Piece piece = 0;
 	Piece targetPiece = 0;

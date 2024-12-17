@@ -10,7 +10,7 @@
 #include <cstdint>
 
 class BoardRenderer {
-  public:
+public:
 	BoardRenderer();
 
 	void init(const sf::Font &font);
@@ -26,13 +26,13 @@ class BoardRenderer {
 		return m_theme;
 	}
 
-  private:
+private:
 	void renderSquareHighlight(sf::RenderTarget &target, const std::uint8_t idx, const sf::Color &color);
 	void generateVa();
 	void generateCoordTexts(const sf::Font &font);
 	void updateCoordTextsColors();
 
-  private:
+private:
 	BoardTheme m_theme;
 
 	sf::VertexArray m_vertexArray;

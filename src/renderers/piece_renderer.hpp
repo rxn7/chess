@@ -8,15 +8,15 @@
 #include <unordered_map>
 
 class PieceRenderer {
-  public:
+public:
 	PieceRenderer(const std::string_view piecesTexurePath = "assets/pieces.png");
 	void renderPiece(sf::RenderTarget &target, const Piece piece, const std::uint8_t idx);
 	void renderPiece(sf::RenderTarget &target, const Piece piece, const sf::Vector2f &pos);
 
-  private:
+private:
 	void generateSprites();
 
-  private:
+private:
 	sf::Texture m_texture;
 	std::unordered_map<std::uint8_t, sf::Sprite> m_sprites;
 };
