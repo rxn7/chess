@@ -136,16 +136,15 @@ std::string FEN::convertToFen(const Board &board) {
 			}
 
 			if(emptyCount != 0) {
-				stream << emptyCount;
+				stream << (int)emptyCount;
 				emptyCount = 0;
 			}
 
-			std::cout << piece.getType() << piece.getColor() << std::endl;
 			stream << piece.toChar();
 		}
 
 		if(emptyCount != 0) {
-			stream << emptyCount;
+			stream << (int)emptyCount;
 		}
 
 		if(rank != 7) {

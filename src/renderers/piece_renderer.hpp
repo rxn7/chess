@@ -16,6 +16,9 @@ public:
 private:
 	void generateSprites();
 
+public:
+	bool m_flipped = false;
+
 private:
 	sf::Texture m_texture;
 	std::unordered_map<std::uint8_t, sf::Sprite> m_sprites;

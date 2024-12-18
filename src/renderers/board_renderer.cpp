@@ -1,4 +1,5 @@
 #include "board_renderer.hpp"
+#include "../game.hpp"
 
 #include "board.hpp"
 
@@ -34,7 +35,7 @@ void BoardRenderer::renderCoords(sf::RenderTarget &target) {
 		target.draw(coordText);
 }
 
-void BoardRenderer::renderSquareHighlight(sf::RenderTarget &target, const std::uint8_t idx, const sf::Color &color) {
+void BoardRenderer::renderSquareHighlight(sf::RenderTarget &target, std::uint8_t idx, const sf::Color &color) {
 	if(!Board::isSquareIdxCorrect(idx))
 		return;
 
@@ -67,20 +68,27 @@ void BoardRenderer::setTheme(const BoardTheme &theme) {
 	m_theme = theme;
 	m_squareOutline.setOutlineColor(theme.outlineColor);
 
-	generateVa();
 	updateCoordTextsColors();
+	generateVa();
+}
+
+void BoardRenderer::setFlipped(const bool flipped) {
+	m_flipped = flipped;
+
+	generateVa();
+	generateCoordTexts(*m_coordTexts[0].getFont());
 }
 
 void BoardRenderer::updateCoordTextsColors() {
 	for(std::uint8_t i = 0; i < 8; ++i) {
 		sf::Text &text = m_coordTexts[i];
-		const sf::Color &color = i % 2 != 0 ? m_theme.lightColor : m_theme.darkColor;
+		const sf::Color &color = i % 2 != m_flipped ? m_theme.lightColor : m_theme.darkColor;
 		text.setFillColor(color);
 	}
 
 	for(std::uint8_t i = 8; i < 16; ++i) {
 		sf::Text &text = m_coordTexts[i];
-		const sf::Color &color = i % 2 == 0 ? m_theme.lightColor : m_theme.darkColor;
+		const sf::Color &color = i % 2 == m_flipped ? m_theme.lightColor : m_theme.darkColor;
 		text.setFillColor(color);
 	}
 }
@@ -89,13 +97,17 @@ void BoardRenderer::generateCoordTexts(const sf::Font &font) {
 	for(std::uint8_t rank = 0; rank < 8; ++rank) {
 		m_coordTexts[rank] = sf::Text(std::to_string(rank + 1), font, 16);
 		sf::Text &text = m_coordTexts[rank];
-		text.setPosition(0, rank * 64);
+
+		const uint8_t realRank = m_flipped ? 7 - rank : rank;
+		text.setPosition(0, realRank * 64);
 	}
 
 	for(std::uint8_t file = 0; file < 8; ++file) {
 		m_coordTexts[8 + file] = sf::Text(sf::String((char)('a' + file)), font, 16);
 		sf::Text &text = m_coordTexts[8 + file];
-		text.setPosition(file * 64 + 64 - 12, 512 - 20);
+
+		const uint8_t realFile = m_flipped ? 7 - file : file;
+		text.setPosition(realFile * 64 + 64 - 12, 512 - 20);
 	}
 
 	updateCoordTextsColors();

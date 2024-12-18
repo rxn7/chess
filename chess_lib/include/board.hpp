@@ -35,7 +35,6 @@ public:
 
 	bool applyMove(const Move &move, const bool updateCheckResult = true);
 	CheckResult fakeMove(const Move &move);
-
 	CheckResult calculateCheck(const PieceColor color);
 
 	inline const Player &getPlayer(const PieceColor color) const {
@@ -73,10 +72,14 @@ public:
 		return idx >= 0 && idx < 64;
 	}
 
-	static inline std::uint8_t getSquareIdx(const std::string &position) {
-		uint8_t rank = '8' - position[1];
-		uint8_t file = position[0] - 'a';
+	static inline std::uint8_t getSquareIdx(const uint8_t file, const uint8_t rank) {
 		return rank * 8 + file;
+	}
+
+	static inline std::uint8_t getSquareIdx(const std::string &position) {
+		uint8_t file = position[0] - 'a';
+		uint8_t rank = '8' - position[1];
+		return getSquareIdx(file, rank);
 	}
 
 	inline CheckResult getCheckResult() const {
@@ -108,8 +111,8 @@ private:
 	DebugData m_debugData;
 
 	std::optional<Move> m_lastMove;
-	CheckResult m_checkResult;
 	std::vector<Move> m_legalMoves;
+	CheckResult m_checkResult;
 
 	std::array<Piece, 64> m_pieces;
 	BoardState m_state;

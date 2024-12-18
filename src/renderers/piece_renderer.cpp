@@ -36,7 +36,14 @@ void PieceRenderer::renderPiece(sf::RenderTarget &target, Piece piece, const std
 	if (!Board::isSquareIdxCorrect(idx))
 		return;
 
-	renderPiece(target, piece, sf::Vector2f((idx % 8) * 64, idx / 8 * 64));
+	sf::Vector2f position;
+	if(m_flipped) {
+		position = sf::Vector2f((7 - idx % 8) * 64, (7 - idx / 8) * 64);
+	} else {
+		position = sf::Vector2f((idx % 8) * 64, idx / 8 * 64);
+	}
+
+	renderPiece(target, piece, position);
 }
 
 void PieceRenderer::generateSprites() {

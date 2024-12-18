@@ -5,6 +5,8 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
+class Game;
+
 class ImGuiLayer {
 public:
 	ImGuiLayer(sf::RenderWindow &window);
@@ -12,5 +14,5 @@ public:
 
 	void handleEvent(sf::RenderWindow &window, const sf::Event &e);
 	void update(sf::RenderWindow &window, sf::Time frameTime);
-	void render(sf::RenderWindow &window, Board &board, BoardRenderer &boardRenderer);
+	void render(sf::RenderWindow &window, Game &game);
 };

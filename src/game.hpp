@@ -27,9 +27,25 @@ public:
 	Game();
 	void start();
 	void end(const BoardStatus status);
+	void restart();
+	void performAutoFlip();
 
 	static inline Game *getInstance() {
 		return s_instance;
+	}
+
+	inline std::uint8_t getRealIdx(const std::uint8_t idx) {
+		return m_boardRenderer.isFlipped() ? 63 - idx : idx;
+	}
+
+	inline std::uint8_t getIdxFromPosition(const sf::Vector2f &position, const bool real) {
+		if (position.x < 0 || position.x > 512 || position.y < 0 || position.y > 512)
+			return 64;
+
+		const int x = (int)position.x / 64;
+		const int y = (int)position.y / 64;
+
+		return real ? getRealIdx(y * 8 + x) : y * 8 + x;
 	}
 
 	inline float getFps() const {
@@ -40,6 +56,14 @@ public:
 		return m_frameDelta;
 	}
 
+	inline Board &getBoard() {
+		return m_board;
+	}
+
+	inline BoardRenderer &getBoardRenderer() {
+		return m_boardRenderer;
+	}
+
 private:
 	void renderHeldPiece();
 	void renderPieces();
@@ -47,7 +71,6 @@ private:
 	void handlePieceDrop();
 	bool moveHeldPiece(std::uint8_t toIdx);
 	void handleEvent(const sf::Event &e);
-	void restart();
 	void render();
 
 	inline Piece getHeldPiece() const {
@@ -58,19 +81,14 @@ private:
 		return m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window));
 	}
 
-	inline std::uint8_t getIdxFromPosition(const sf::Vector2f &position) const {
-		if (position.x < 0 || position.x > 512 || position.y < 0 || position.y > 512)
-			return 64;
-
-		return (int)position.y / 64 * 8 + (int)position.x / 64;
-	}
-
 	inline bool isAnyPieceHeld() const {
 		return m_heldPieceIdx && !getHeldPiece().isNull();
 	}
 
+
+
 public:
-	DebugData debugData;
+	bool m_autoFlip = true;
 
 private:
 	static Game *s_instance;

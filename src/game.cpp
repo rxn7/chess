@@ -91,9 +91,15 @@ void Game::end(const BoardStatus status) {
 	m_endGameText.setOrigin(m_endGameText.getLocalBounds().width * 0.5f, m_endGameText.getLocalBounds().height * 0.5f);
 }
 
+void Game::performAutoFlip() {
+	m_boardRenderer.setFlipped(m_board.getState().turnColor == PieceColor::Black);
+}
+
 void Game::restart() {
 	m_state = GameState::Playing;
 	m_board.reset();
+	m_heldPieceIdx = std::nullopt;
+	m_boardRenderer.setFlipped(false);
 }
 
 void Game::render() {
@@ -103,22 +109,22 @@ void Game::render() {
 	m_boardRenderer.renderSquares(m_window);
 	const CheckResult &checkResult = m_board.getCheckResult();
 	if(checkResult.isCheck) {
-		m_boardRenderer.renderSquareCheck(m_window, checkResult.kingIdx);
-		m_boardRenderer.renderSquareCheck(m_window, checkResult.checkingPieceIdx);
+		m_boardRenderer.renderSquareCheck(m_window, getRealIdx(checkResult.kingIdx));
+		m_boardRenderer.renderSquareCheck(m_window, getRealIdx(checkResult.checkingPieceIdx));
 	}
 
 	if(m_board.getLastMove())
 		for(std::uint8_t idx : m_board.getLastMove()->indices)
-			m_boardRenderer.renderSquareLastMove(m_window, idx);
+			m_boardRenderer.renderSquareLastMove(m_window, getRealIdx(idx));
 
 	for(const Move &move : m_board.getLegalMoves())
 		if(move.fromIdx == m_heldPieceIdx)
-			m_boardRenderer.renderSquareLegalMove(m_window, move.toIdx);
+			m_boardRenderer.renderSquareLegalMove(m_window, getRealIdx(move.toIdx));
 
 	if(isAnyPieceHeld())
-		m_boardRenderer.renderSquareOutline(m_window, m_heldPieceIdx.value());
+		m_boardRenderer.renderSquareOutline(m_window, Game::getRealIdx(m_heldPieceIdx.value()));
 
-	m_boardRenderer.renderSquareOutline(m_window, getIdxFromPosition(getMousePosition()));
+	m_boardRenderer.renderSquareOutline(m_window, getIdxFromPosition(getMousePosition(), false));
 
 	renderPieces();
 	m_boardRenderer.renderCoords(m_window);
@@ -129,7 +135,7 @@ void Game::render() {
 	if(m_state == GameState::EndScreen)
 		m_window.draw(m_endGameText);
 
-	m_imgui.render(m_window, m_board, m_boardRenderer);
+	m_imgui.render(m_window, *this);
 
 	m_window.display();
 }
@@ -151,6 +157,11 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 	}
 
 	m_board.applyMove(move, true);
+
+	if(m_autoFlip) {
+		performAutoFlip();
+	}
+
 	if(m_board.getStatus() != BoardStatus::Playing) {
 		end(m_board.getStatus());
 	} else {
@@ -165,7 +176,7 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 }
 
 void Game::handlePieceDrag() {
-	const std::uint8_t idx = getIdxFromPosition(getMousePosition());
+	const std::uint8_t idx = getIdxFromPosition(getMousePosition(), true);
 	if(!Board::isSquareIdxCorrect(idx))
 		return;
 
@@ -188,7 +199,7 @@ void Game::handlePieceDrop() {
 		return;
 	}
 
-	const std::uint8_t idx = getIdxFromPosition(mousePosition);
+	const std::uint8_t idx = getIdxFromPosition(mousePosition, true);
 
 	if(!Board::isSquareIdxCorrect(idx)) {
 		m_heldPieceIdx = std::nullopt;
@@ -200,6 +211,8 @@ void Game::handlePieceDrop() {
 }
 
 void Game::renderPieces() {
+	m_pieceRenderer.m_flipped = m_boardRenderer.isFlipped();
+
 	for(std::uint8_t i = 0; i < 64; ++i)
 		if(i != m_heldPieceIdx)
 			m_pieceRenderer.renderPiece(m_window, m_board.getPieces()[i], i);
@@ -229,10 +242,10 @@ void Game::handleEvent(const sf::Event &e) {
 
 			if(winRatio > viewRatio) {
 				sizeX = viewRatio / winRatio;
-				posX =(1 - sizeX) * 0.5f;
+				posX = (1 - sizeX) * 0.5f;
 			} else {
 				sizeY = winRatio / viewRatio;
-				posY =(1 - sizeY) * 0.5f;
+				posY = (1 - sizeY) * 0.5f;
 			}
 
 			m_view.setViewport({posX, posY, sizeX, sizeY});
