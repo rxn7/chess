@@ -30,12 +30,12 @@ void BoardRenderer::renderSquares(sf::RenderTarget &target) {
 }
 
 void BoardRenderer::renderCoords(sf::RenderTarget &target) {
-	for (sf::Text &coordText : m_coordTexts)
+	for(sf::Text &coordText : m_coordTexts)
 		target.draw(coordText);
 }
 
 void BoardRenderer::renderSquareHighlight(sf::RenderTarget &target, const std::uint8_t idx, const sf::Color &color) {
-	if (!Board::isSquareIdxCorrect(idx))
+	if(!Board::isSquareIdxCorrect(idx))
 		return;
 
 	m_squareHighlight.setFillColor(color);
@@ -56,7 +56,7 @@ void BoardRenderer::renderSquareLegalMove(sf::RenderTarget &target, const std::u
 }
 
 void BoardRenderer::renderSquareOutline(sf::RenderTarget &target, const std::uint8_t idx) {
-	if (!Board::isSquareIdxCorrect(idx))
+	if(!Board::isSquareIdxCorrect(idx))
 		return;
 
 	m_squareOutline.setPosition(sf::Vector2f(idx % 8 * 64 + OUTLINE_THICKNESS, idx / 8 * 64 + OUTLINE_THICKNESS));
@@ -72,30 +72,30 @@ void BoardRenderer::setTheme(const BoardTheme &theme) {
 }
 
 void BoardRenderer::updateCoordTextsColors() {
-	for (std::uint8_t i = 0; i < 8; ++i) {
+	for(std::uint8_t i = 0; i < 8; ++i) {
 		sf::Text &text = m_coordTexts[i];
-		sf::Color &color = i % 2 != 0 ? m_theme.lightColor : m_theme.darkColor;
+		const sf::Color &color = i % 2 != 0 ? m_theme.lightColor : m_theme.darkColor;
 		text.setFillColor(color);
 	}
 
-	for (std::uint8_t i = 8; i < 16; ++i) {
+	for(std::uint8_t i = 8; i < 16; ++i) {
 		sf::Text &text = m_coordTexts[i];
-		sf::Color &color = i % 2 == 0 ? m_theme.lightColor : m_theme.darkColor;
+		const sf::Color &color = i % 2 == 0 ? m_theme.lightColor : m_theme.darkColor;
 		text.setFillColor(color);
 	}
 }
 
 void BoardRenderer::generateCoordTexts(const sf::Font &font) {
-	for (std::uint8_t rank = 0; rank < 8; ++rank) {
-		sf::Text text(std::to_string(rank + 1), font, 16);
+	for(std::uint8_t rank = 0; rank < 8; ++rank) {
+		m_coordTexts[rank] = sf::Text(std::to_string(rank + 1), font, 16);
+		sf::Text &text = m_coordTexts[rank];
 		text.setPosition(0, rank * 64);
-		m_coordTexts[rank] = text;
 	}
 
-	for (std::uint8_t file = 0; file < 8; ++file) {
-		sf::Text text(sf::String((char)('a' + file)), font, 16);
+	for(std::uint8_t file = 0; file < 8; ++file) {
+		m_coordTexts[8 + file] = sf::Text(sf::String((char)('a' + file)), font, 16);
+		sf::Text &text = m_coordTexts[8 + file];
 		text.setPosition(file * 64 + 64 - 12, 512 - 20);
-		m_coordTexts[8 + file] = text;
 	}
 
 	updateCoordTextsColors();
@@ -104,12 +104,12 @@ void BoardRenderer::generateCoordTexts(const sf::Font &font) {
 void BoardRenderer::generateVa() {
 	m_vertexArray.clear();
 
-	for (std::uint8_t c = 0; c < 8; ++c) {
-		for (std::uint8_t r = 0; r < 8; ++r) {
+	for(std::uint8_t c = 0; c < 8; ++c) {
+		for(std::uint8_t r = 0; r < 8; ++r) {
 			sf::Vertex vertex;
 			vertex.texCoords = {};
 
-			const bool isLight = (r + c) % 2 == 0;
+			const bool isLight =(r + c) % 2 == 0;
 			vertex.color = isLight ? m_theme.lightColor : m_theme.darkColor;
 
 			// bot left
@@ -121,11 +121,11 @@ void BoardRenderer::generateVa() {
 			m_vertexArray.append(vertex);
 
 			// top right
-			vertex.position = sf::Vector2f((r * 64) + 64, (c * 64) + 64);
+			vertex.position = sf::Vector2f((r * 64) + 64,(c * 64) + 64);
 			m_vertexArray.append(vertex);
 
 			// top left
-			vertex.position = sf::Vector2f(r * 64, (c * 64) + 64);
+			vertex.position = sf::Vector2f(r * 64,(c * 64) + 64);
 			m_vertexArray.append(vertex);
 		}
 	}

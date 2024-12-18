@@ -25,6 +25,8 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx
 		std::cout << "\e[1;31mFailed to load font!\e[0m" << std::endl;
 		return;
 	}
+	
+	m_boardRenderer.init(m_font);
 
 	m_view.setCenter(256, 256);
 	m_view.setSize(512, 512);
