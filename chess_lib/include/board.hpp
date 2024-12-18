@@ -1,5 +1,6 @@
 #pragma once
 
+#include "debug_data.hpp"
 #include "move.hpp"
 #include "piece.hpp"
 #include "board_state.hpp"
@@ -56,6 +57,10 @@ public:
 		return m_status;
 	}
 
+	inline const DebugData &getDebugData() const {
+		return m_debugData;
+	}
+
 	inline const std::array<Piece, 64> &getPieces() const {
 		return m_pieces;
 	}
@@ -100,6 +105,7 @@ private:
 
 private:
 	BoardStatus m_status = BoardStatus::Playing;
+	DebugData m_debugData;
 
 	std::optional<Move> m_lastMove;
 	CheckResult m_checkResult;

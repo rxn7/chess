@@ -2,6 +2,7 @@
 #include "board_theme.hpp"
 #include "fen.hpp"
 #include "renderers/board_renderer.hpp"
+#include <cstdio>
 
 #ifndef NDEBUG
 #include <imgui-SFML.h>
@@ -31,10 +32,15 @@ void ImGuiLayer::render(sf::RenderWindow &window, Board &board, BoardRenderer &b
 			board.reset();
 		}
 
-		static char input[91];
-		ImGui::InputText("##feninput", input, sizeof(input));
-		if(ImGui::Button("Apply FEN")) {
-			FEN::applyFen(board, input);
+		if(ImGui::CollapsingHeader("FEN")) {
+			std::string fen = FEN::convertToFen(board);
+			ImGui::Text("fen: %s", fen.c_str());
+
+			static char input[91];
+			ImGui::InputText("##feninput", input, sizeof(input));
+			if(ImGui::Button("Apply FEN")) {
+				FEN::applyFen(board, input);
+			}
 		}
 
 		if(ImGui::CollapsingHeader("Theme")) {
@@ -59,8 +65,13 @@ void ImGuiLayer::render(sf::RenderWindow &window, Board &board, BoardRenderer &b
 
 		static bool vsync = true;
 		ImGui::Checkbox("VSync", &vsync);
-
 		window.setVerticalSyncEnabled(vsync);
+		
+		const DebugData &debug = board.getDebugData();
+		if(ImGui::CollapsingHeader("Legal moves")) {
+			ImGui::Text("found: %u", debug.legalMovesCount);
+			ImGui::Text("took: %fms", debug.legalMovesCalculationTime.count() * 1000.0f);
+		}
 	}
 	ImGui::End();
 

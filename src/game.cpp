@@ -153,7 +153,6 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 		end(m_board.getStatus());
 	} else {
 		if(m_board.getCheckResult().isCheck) {
-			std::cout << "CHECK!";
 			Audio::playSound(Sound::Check);
 		}
 	}

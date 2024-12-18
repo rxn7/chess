@@ -140,6 +140,7 @@ std::string FEN::convertToFen(const Board &board) {
 				emptyCount = 0;
 			}
 
+			std::cout << piece.getType() << piece.getColor() << std::endl;
 			stream << piece.toChar();
 		}
 

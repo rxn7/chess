@@ -206,6 +206,10 @@ CheckResult Board::calculateCheck(const PieceColor color) {
 }
 
 void Board::updateLegalMoves() {
+#ifndef NDEBUG
+	auto timeStart = std::chrono::high_resolution_clock::now();
+#endif
+
 	m_legalMoves.clear();
 
 	for(std::uint8_t i = 0; i < 64; ++i) {
@@ -215,6 +219,12 @@ void Board::updateLegalMoves() {
 
 		Rules::addLegalMoves(m_legalMoves, *this, i);
 	}
+
+#ifndef NDEBUG
+	auto timeEnd = std::chrono::high_resolution_clock::now();
+	m_debugData.legalMovesCalculationTime = timeEnd - timeStart;
+	m_debugData.legalMovesCount = m_legalMoves.size();
+#endif
 }
 
 void Board::updateStatus() {
