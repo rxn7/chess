@@ -42,3 +42,9 @@
 ## Run
 - ```./run.sh```- Debug version
 - ```./run.sh -r```- Release version
+
+# Attribution
+Textures used in this project are by [jurgenwesterhof]() and are licensed under CC BY-SA 3.0.  
+Original textures available at: [https://commons.wikimedia.org/wiki/Template:SVG_chess_pieces]  
+License: [https://creativecommons.org/licenses/by-sa/3.0/](https://creativecommons.org/licenses/by-sa/3.0/)
+
