@@ -45,5 +45,5 @@
 
 # Attribution
 ## Chess pieces textures
-[https://commons.wikimedia.org/wiki/Template:SVG_chess_pieces#Table_of_chess_piece_SVG-images](files)
-[https://www.gnu.org/licenses/gpl-3.0.html](license).  
+[files](https://commons.wikimedia.org/wiki/Template:SVG_chess_pieces#Table_of_chess_piece_SVG-images)
+[license](https://www.gnu.org/licenses/gpl-3.0.html).  
