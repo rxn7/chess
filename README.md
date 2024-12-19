@@ -44,7 +44,6 @@
 - ```./run.sh -r```- Release version
 
 # Attribution
-Textures used in this project are by [jurgenwesterhof]() and are licensed under CC BY-SA 3.0.  
-Original textures available at: [https://commons.wikimedia.org/wiki/Template:SVG_chess_pieces]  
-License: [https://creativecommons.org/licenses/by-sa/3.0/](https://creativecommons.org/licenses/by-sa/3.0/)
-
+## Chess pieces textures
+[https://commons.wikimedia.org/wiki/Template:SVG_chess_pieces#Table_of_chess_piece_SVG-images](files)
+[https://www.gnu.org/licenses/gpl-3.0.html](license).  
