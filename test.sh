@@ -10,12 +10,10 @@ while getopts 'r' OPTION; do
 done
 
 if [ "$RELEASE" = 1 ] ; then
-	printf "\033[32;1;4mRunning the release version\n\n\033[0m"
-	pushd build/release/test >/dev/null
+	cmake --build build/release
+	ctest --test-dir build/release/test --output-on-failure --rerun-failed
 else
-	printf "\033[32;1;4mRunning the debug version\n\n\033[0m"
-	pushd build/debug/test >/dev/null
+	cmake --build build/debug
+	ctest --test-dir build/debug/test --output-on-failure --rerun-failed
 fi
 
-./chess_test
-popd >/dev/null
