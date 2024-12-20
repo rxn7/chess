@@ -20,6 +20,8 @@ enum PieceColor : std::uint8_t {
 	Black = 16,
 };
 
+#define OPPOSITE_COLOR(color) (color == White ? Black : White)
+
 struct Piece {
 	Piece() : value(0) {}
 	Piece(std::uint8_t value) : value(value) {}

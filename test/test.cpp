@@ -80,7 +80,7 @@ TEST_F(ChessTest, CheckMate) {
 
 TEST_F(ChessTest, StaleMate) {
 	FEN::applyFen(board, "6r1/8/r7/7K/8/r7/8/6r1 b - - 0 1"); 
-	EXPECT_FALSE(board.applyMove(MOVE("a3", "a4")));
+	EXPECT_TRUE(board.applyMove(MOVE("a3", "a4")));
 	EXPECT_FALSE(board.getCheckResult().isCheck);
 	EXPECT_EQ((int)board.getStatus(), (int)BoardStatus::Draw); 
 }

@@ -1,5 +1,7 @@
 #include "game.hpp"
+#include "SFML/System/Time.hpp"
 #include "board.hpp"
+#include "clock.hpp"
 #include "renderers/board_renderer.hpp"
 #include "renderers/piece_renderer.hpp"
 #include "board_theme.hpp"
@@ -14,9 +16,15 @@
 #include <SFML/Window/VideoMode.hpp>
 #include <sstream>
 
+#define CLOCK_START_TIME 60 * 3
+
 Game *Game::s_instance;
 
-Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx(std::nullopt), m_imgui(m_window) {
+Game::Game() : 
+m_window(sf::VideoMode(512, 512), "Chess by rxn"),
+m_heldPieceIdx(std::nullopt),
+m_imgui(m_window),
+m_clocks({Clock(PieceColor::White, m_font, sf::Vector2f()), Clock(PieceColor::Black, m_font, sf::Vector2f())}) {
 	s_instance = this;
 	srand(time(0));
 	Audio::init();
@@ -27,9 +35,10 @@ Game::Game() : m_window(sf::VideoMode(512, 512), "Chess by rxn"), m_heldPieceIdx
 	}
 	
 	m_boardRenderer.init(m_font);
+	restart();
 
 	m_view.setCenter(256, 256);
-	m_view.setSize(512, 512);
+	m_view.setSize(512, 512 + 64);
 
 	m_window.setVerticalSyncEnabled(true);
 	m_window.setKeyRepeatEnabled(false);
@@ -60,12 +69,17 @@ void Game::start() {
 		if(!m_window.isOpen())
 			break;
 
+
+		updateClocks();
 		m_imgui.update(m_window, m_frameDelta);
+
 		render();
 	}
 }
 
 void Game::end(const BoardStatus status) {
+	m_heldPieceIdx = std::nullopt;
+
 	m_state = GameState::EndScreen;
 	std::ostringstream ss;
 
@@ -96,6 +110,10 @@ void Game::performAutoFlip() {
 }
 
 void Game::restart() {
+	for(Clock &clock : m_clocks) {
+		clock.restart(sf::seconds(CLOCK_START_TIME));
+	}
+
 	m_state = GameState::Playing;
 	m_board.reset();
 	m_heldPieceIdx = std::nullopt;
@@ -131,6 +149,9 @@ void Game::render() {
 
 	if(isAnyPieceHeld())
 		renderHeldPiece();
+
+	for(Clock &clock : m_clocks)
+		clock.render(m_window, m_frameDelta.asSeconds(), clock.getColor() == m_board.getState().turnColor);
 
 	if(m_state == GameState::EndScreen)
 		m_window.draw(m_endGameText);
@@ -296,5 +317,24 @@ void Game::handleEvent(const sf::Event &e) {
 			break;
 
 		default: break;
+	}
+}
+
+void Game::updateClocks() {
+	Clock &currentClock = getClock(m_board.getState().turnColor);
+
+	if(m_board.getState().fullMoves != 1) { // NOTE: Full move counter starts at 1 for some reason: "The number of the full moves in a game. It starts at 1, and is incremented after each Black's move. "
+		currentClock.decrement(m_frameDelta);
+	}
+
+	if(m_state == GameState::Playing && currentClock.hasFinished()) {
+		end(currentClock.getColor() == PieceColor::White ? BoardStatus::BlackWin : BoardStatus::WhiteWin);
+	}
+}
+
+Clock &Game::getClock(PieceColor color) {
+	switch(color) {
+		case PieceColor::White: return m_clocks[0];
+		case PieceColor::Black: return m_clocks[1];
 	}
 }

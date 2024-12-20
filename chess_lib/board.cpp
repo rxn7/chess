@@ -47,6 +47,7 @@ bool Board::applyMove(const Move &move, const bool updateCheckResult) {
 	handlePawnPromotion(move);
 	handleEnPassant(move, true);
 
+	++m_state.moves;
 	if(move.piece.isColor(Black)) {
 		++m_state.fullMoves;
 	}

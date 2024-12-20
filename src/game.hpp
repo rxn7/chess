@@ -1,6 +1,7 @@
 #pragma once
 
 #include "board.hpp"
+#include "clock.hpp"
 #include "debug_data.hpp"
 #include "imgui_layer.hpp"
 #include "renderers/board_renderer.hpp"
@@ -73,6 +74,9 @@ private:
 	void handleEvent(const sf::Event &e);
 	void render();
 
+	void updateClocks();
+	Clock &getClock(PieceColor color);
+
 	inline Piece getHeldPiece() const {
 		return m_board.getPieces()[m_heldPieceIdx.value()];
 	}
@@ -84,7 +88,6 @@ private:
 	inline bool isAnyPieceHeld() const {
 		return m_heldPieceIdx && !getHeldPiece().isNull();
 	}
-
 
 
 public:
@@ -106,6 +109,7 @@ private:
 	sf::Text m_endGameText;
 	sf::Font m_font;
 	sf::View m_view;
+	std::array<Clock, 2> m_clocks;
 
 	ImGuiLayer m_imgui;
 };

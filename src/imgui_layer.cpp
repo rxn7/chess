@@ -95,5 +95,5 @@ ImGuiLayer::ImGuiLayer(sf::RenderWindow &window) {}
 ImGuiLayer::~ImGuiLayer() {}
 void ImGuiLayer::handleEvent(sf::RenderWindow &window, const sf::Event &event) {}
 void ImGuiLayer::update(sf::RenderWindow &window, sf::Time frameTime) {}
-void ImGuiLayer::render(sf::RenderWindow &window, Board &board, BoardRenderer &boardRenderer) {}
+void ImGuiLayer::render(sf::RenderWindow &window, Game &game) {}
 #endif
