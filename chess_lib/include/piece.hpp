@@ -15,18 +15,19 @@ enum PieceType : std::uint8_t {
 	Pawn = 6,
 };
 
-enum PieceColor : std::uint8_t {
+enum ChessColor : std::uint8_t {
 	White = 8,
 	Black = 16,
 };
 
 #define OPPOSITE_COLOR(color) (color == White ? Black : White)
 
-struct Piece {
+class Piece {
+public:
 	Piece() : value(0) {}
 	Piece(std::uint8_t value) : value(value) {}
 
-	explicit Piece(PieceColor color, PieceType type) : value((std::uint8_t)type | (std::uint8_t)color) {}
+	explicit Piece(ChessColor color, PieceType type) : value((std::uint8_t)type | (std::uint8_t)color) {}
 
 	char toChar() const;
 
@@ -34,19 +35,19 @@ struct Piece {
 		return value;
 	}
 
-	inline PieceColor getColor() const {
-		return (PieceColor)(value & COLOR_MASK);
+	inline ChessColor getColor() const {
+		return (ChessColor)(value & COLOR_MASK);
 	}
 
 	inline PieceType getType() const {
 		return (PieceType)(value & TYPE_MASK);
 	}
 
-	inline bool isColor(PieceColor color) const {
+	inline bool isColor(ChessColor color) const {
 		return getColor() == color;
 	}
 
-	inline bool isNotColor(PieceColor color) const {
+	inline bool isNotColor(ChessColor color) const {
 		return getColor() != color;
 	}
 
@@ -58,5 +59,21 @@ struct Piece {
 		return value == 0;
 	}
 
+	inline std::uint8_t getMaterialValue() const {
+		return getMaterialValue(getType());
+	}
+
+	static constexpr std::uint8_t getMaterialValue(PieceType type) {
+		switch(type) {
+			case PieceType::Pawn: return 1;
+			case PieceType::Knight: return 3;
+			case PieceType::Bishop: return 3;
+			case PieceType::Rook: return 5;
+			case PieceType::Queen: return 9;
+			default: return 0;
+		}
+	}
+
+public:
 	std::uint8_t value;
 };

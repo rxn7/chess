@@ -1,6 +1,4 @@
 #include "board_renderer.hpp"
-#include "../game.hpp"
-
 #include "board.hpp"
 
 #include <SFML/Graphics/Color.hpp>
@@ -98,7 +96,7 @@ void BoardRenderer::generateCoordTexts(const sf::Font &font) {
 		m_coordTexts[rank] = sf::Text(std::to_string(rank + 1), font, 16);
 		sf::Text &text = m_coordTexts[rank];
 
-		const uint8_t realRank = m_flipped ? 7 - rank : rank;
+		const std::uint8_t realRank = m_flipped ? 7 - rank : rank;
 		text.setPosition(0, realRank * 64);
 	}
 
@@ -106,7 +104,7 @@ void BoardRenderer::generateCoordTexts(const sf::Font &font) {
 		m_coordTexts[8 + file] = sf::Text(sf::String((char)('a' + file)), font, 16);
 		sf::Text &text = m_coordTexts[8 + file];
 
-		const uint8_t realFile = m_flipped ? 7 - file : file;
+		const std::uint8_t realFile = m_flipped ? 7 - file : file;
 		text.setPosition(realFile * 64 + 64 - 12, 512 - 20);
 	}
 

@@ -15,7 +15,7 @@ Board::Board(const Board &board) : m_pieces(board.m_pieces), m_state(board.m_sta
 void Board::reset(bool applyDefaultFen) {
 	m_pieces.fill(0);
 	m_state = {};
-													
+
 	m_checkResult = (CheckResult){
 		.isCheck = false,
 	};
@@ -23,9 +23,8 @@ void Board::reset(bool applyDefaultFen) {
 	m_status = BoardStatus::Playing;
 	m_lastMove = std::nullopt;
 
-	if(applyDefaultFen) {
+	if(applyDefaultFen)
 		FEN::applyFen(*this, DEFAULT_FEN);
-	}
 }
 
 bool Board::applyMove(const Move &move, const bool updateCheckResult) {
@@ -45,7 +44,7 @@ bool Board::applyMove(const Move &move, const bool updateCheckResult) {
 	}
 
 	handlePawnPromotion(move);
-	handleEnPassant(move, true);
+	handleEnPassant(move, true, true);
 
 	++m_state.moves;
 	if(move.piece.isColor(Black)) {
@@ -63,6 +62,13 @@ bool Board::applyMove(const Move &move, const bool updateCheckResult) {
 	}
 
 	Player &player = getPlayer(move.piece.getColor());
+
+	if(move.isCapture) {
+		player.capturePiece(move.targetPiece.getType());
+
+		Player &otherPlayer = getPlayer(OPPOSITE_COLOR(move.piece.getColor()));
+		otherPlayer.calculateMaterialValue(m_pieces);
+	}
 
 	if(move.piece.isType(King)) {
 		player.canCastleQueenSide = false;
@@ -97,7 +103,7 @@ CheckResult Board::fakeMove(const Move &move) {
 	}
 
 	handlePawnPromotion(move);
-	handleEnPassant(move, false);
+	handleEnPassant(move, false, true);
 
 	CheckResult result = calculateCheck(m_state.turnColor);
 	m_pieces = oldPieces;
@@ -105,7 +111,7 @@ CheckResult Board::fakeMove(const Move &move) {
 	return result;
 }
 
-void Board::castle(PieceColor color, bool isQueenSide) {
+void Board::castle(ChessColor color, bool isQueenSide) {
 	uint8_t kingStartIdx, rookStartIdx, kingEndIdx, rookEndIdx;
 	if(color == Black) {
 		if(isQueenSide) {
@@ -158,14 +164,23 @@ void Board::handlePawnPromotion(const Move &move) {
 		m_pieces[move.toIdx] = Piece(move.piece.getColor(), Queen);
 }
 
-void Board::handleEnPassant(const Move &move, const bool changeEnPassantTarget) {
+void Board::handleEnPassant(const Move &move, const bool changeEnPassantTarget, const bool isFake) {
 	if(move.piece.getType() == Pawn) {
 		// If moved 2 files
 		if(move.toIdx == m_state.enPassantTarget) {
-			if(move.piece.getColor() == White)
+			ChessColor color = move.piece.getColor();
+			if(color == White)
 				m_pieces[move.toIdx + 8] = 0;
 			else
 				m_pieces[move.toIdx - 8] = 0;
+
+			if(!isFake) {
+				Player &player = getPlayer(color);
+				player.capturePiece(Pawn);
+
+				Player &otherPlayer = getPlayer(OPPOSITE_COLOR(color));
+				otherPlayer.calculateMaterialValue(m_pieces);
+			}
 		}
 
 		if(changeEnPassantTarget && std::abs(move.fromIdx - move.toIdx) == 16) {
@@ -183,7 +198,7 @@ void Board::handleEnPassant(const Move &move, const bool changeEnPassantTarget) 
 	}
 }
 
-CheckResult Board::calculateCheck(const PieceColor color) {
+CheckResult Board::calculateCheck(const ChessColor color) {
 	std::vector<Move> legalMoves;
 
 	// Get all legal moves of the opponent
@@ -204,6 +219,16 @@ CheckResult Board::calculateCheck(const PieceColor color) {
 	}
 
 	return(CheckResult){.isCheck = false};
+}
+
+const Player &Board::getPlayer(const ChessColor color) const {
+	switch(color) {
+		case White: return m_state.whitePlayer;
+		case Black: return m_state.blackPlayer;
+	}
+
+	std::cerr << "Invalid player color: " << (int)color << std::endl;
+	return m_state.whitePlayer;
 }
 
 void Board::updateLegalMoves() {

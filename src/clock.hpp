@@ -9,7 +9,7 @@
 
 class Clock {
 public:
-	Clock(PieceColor color, const sf::Font &font, const sf::Vector2f &position);
+	Clock(ChessColor color, const sf::Font &font, const sf::Vector2f &position);
 	void render(sf::RenderTarget &renderTarget, float dt, bool active);
 
 	inline bool hasFinished() const {
@@ -24,12 +24,12 @@ public:
 		m_timeLeftSeconds = std::max(0.0f, m_timeLeftSeconds - dt.asSeconds());
 	}
 	
-	inline PieceColor getColor() const {
+	inline ChessColor getColor() const {
 		return m_color;
 	}
 
 private:
-	PieceColor m_color;
+	ChessColor m_color;
 	float m_timeLeftSeconds;
 	sf::Text m_text;
 };

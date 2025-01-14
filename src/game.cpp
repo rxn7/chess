@@ -21,9 +21,10 @@ const sf::Time CLOCK_START_TIME = sf::seconds(60 * 3);
 Game *Game::s_instance;
 
 Game::Game() : 
+m_capturedPiecesRenderer(m_font),
 m_heldPieceIdx(std::nullopt),
 m_window(sf::VideoMode(512, 512), "Chess by rxn"),
-m_clocks({Clock(PieceColor::White, m_font, sf::Vector2f()), Clock(PieceColor::Black, m_font, sf::Vector2f())}),
+m_clocks({Clock(ChessColor::White, m_font, sf::Vector2f()), Clock(ChessColor::Black, m_font, sf::Vector2f())}),
 m_imgui(m_window) {
 	s_instance = this;
 	srand(time(0));
@@ -107,7 +108,7 @@ void Game::end(const BoardStatus status) {
 }
 
 void Game::performAutoFlip() {
-	m_boardRenderer.setFlipped(m_board.getState().turnColor == PieceColor::Black);
+	m_boardRenderer.setFlipped(m_board.getState().turnColor == ChessColor::Black);
 }
 
 void Game::restart() {
@@ -125,6 +126,26 @@ void Game::render() {
 	m_window.setView(m_view);
 	m_window.clear(CLEAR_COLOR);
 
+	renderBoard();
+
+	if(isAnyPieceHeld())
+		renderHeldPiece();
+
+	for(Clock &clock : m_clocks) {
+		clock.render(m_window, m_frameDelta.asSeconds(), clock.getColor() == m_board.getState().turnColor);
+	}
+
+	m_capturedPiecesRenderer.render(ChessColor::White, m_board, m_pieceRenderer, m_window);
+	m_capturedPiecesRenderer.render(ChessColor::Black, m_board, m_pieceRenderer, m_window);
+
+	if(m_state == GameState::EndScreen)
+		m_window.draw(m_endGameText);
+
+	m_imgui.render(m_window, *this);
+	m_window.display();
+}
+
+void Game::renderBoard() {
 	m_boardRenderer.renderSquares(m_window);
 	const CheckResult &checkResult = m_board.getCheckResult();
 	if(checkResult.isCheck) {
@@ -147,19 +168,13 @@ void Game::render() {
 
 	renderPieces();
 	m_boardRenderer.renderCoords(m_window);
+}
 
-	if(isAnyPieceHeld())
-		renderHeldPiece();
+void Game::renderCapturedPieces(ChessColor color) {
+	sf::Vector2f position;
 
-	for(Clock &clock : m_clocks)
-		clock.render(m_window, m_frameDelta.asSeconds(), clock.getColor() == m_board.getState().turnColor);
-
-	if(m_state == GameState::EndScreen)
-		m_window.draw(m_endGameText);
-
-	m_imgui.render(m_window, *this);
-
-	m_window.display();
+	if(m_board.getState().turnColor == color) {
+	}
 }
 
 bool Game::moveHeldPiece(std::uint8_t toIdx) {
@@ -180,7 +195,7 @@ bool Game::moveHeldPiece(std::uint8_t toIdx) {
 
 	m_board.applyMove(move, true);
 
-	if(m_autoFlip) {
+	if(autoFlip) {
 		performAutoFlip();
 	}
 
@@ -233,7 +248,7 @@ void Game::handlePieceDrop() {
 }
 
 void Game::renderPieces() {
-	m_pieceRenderer.m_flipped = m_boardRenderer.isFlipped();
+	m_pieceRenderer.flipped = m_boardRenderer.isFlipped();
 
 	for(std::uint8_t i = 0; i < 64; ++i)
 		if(i != m_heldPieceIdx)
@@ -325,19 +340,19 @@ void Game::updateClocks() {
 	Clock &currentClock = getClock(m_board.getState().turnColor);
 
 	// NOTE: Full move counter starts at 1 for some reason: "The number of the full moves in a game. It starts at 1, and is incremented after each Black's move. "
-	const bool isFirstMove = m_board.getState().fullMoves != 1;
+	const bool isFirstMove = m_board.getState().fullMoves == 1;
 	if(!isFirstMove) { 
 		currentClock.decrement(m_frameDelta);
 	}
 
 	if(m_state == GameState::Playing && currentClock.hasFinished()) {
-		end(currentClock.getColor() == PieceColor::White ? BoardStatus::BlackWin : BoardStatus::WhiteWin);
+		end(currentClock.getColor() == ChessColor::White ? BoardStatus::BlackWin : BoardStatus::WhiteWin);
 	}
 }
 
-Clock &Game::getClock(PieceColor color) {
+Clock &Game::getClock(ChessColor color) {
 	switch(color) {
-		case PieceColor::White: return m_clocks[0];
-		case PieceColor::Black: return m_clocks[1];
+		case ChessColor::White: return m_clocks[0];
+		case ChessColor::Black: return m_clocks[1];
 	}
 }

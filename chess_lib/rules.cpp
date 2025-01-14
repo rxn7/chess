@@ -15,7 +15,7 @@ namespace Rules {
 		return false;
 	}
 
-	void addLegalMoves(std::vector<Move> &legalMoves, Board &board, const uint8_t idx, const bool ignoreCheck) {
+	void addLegalMoves(std::vector<Move> &legalMoves, Board &board, const std::uint8_t idx, const bool ignoreCheck) {
 		const Piece &piece = board.getPiece(idx);
 
 		const std::uint8_t pieceX = idx % 8;

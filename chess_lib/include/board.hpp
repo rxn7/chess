@@ -6,11 +6,10 @@
 #include "board_state.hpp"
 
 #include <array>
-#include <iostream>
 #include <optional> 
 #include <vector> 
 
-#define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+constexpr std::string_view DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 struct CheckResult {
 	bool isCheck;
@@ -35,20 +34,11 @@ public:
 
 	bool applyMove(const Move &move, const bool updateCheckResult = true);
 	CheckResult fakeMove(const Move &move);
-	CheckResult calculateCheck(const PieceColor color);
-
-	inline const Player &getPlayer(const PieceColor color) const {
-		switch(color) {
-			case White: return m_state.whitePlayer;
-			case Black: return m_state.blackPlayer;
-		}
-
-		std::cerr << "Invalid player color: " << (int)color << std::endl;
-		return m_state.whitePlayer;
-	}
+	CheckResult calculateCheck(const ChessColor color);
+	const Player &getPlayer(const ChessColor color) const;
 
 	// For non-const access
-	inline Player &getPlayer(const PieceColor color) {
+	inline Player &getPlayer(const ChessColor color) {
 		return const_cast<Player &>(const_cast<const Board *>(this)->getPlayer(color));
 	}
 
@@ -84,11 +74,15 @@ public:
 		return m_legalMoves;
 	}
 
+	inline std::int16_t getMaterialBalance(const ChessColor color) const {
+		return getPlayer(color).materialValue - getPlayer(OPPOSITE_COLOR(color)).materialValue;
+	}
+
 	static constexpr bool isSquareIdxCorrect(const std::uint8_t idx)  {
 		return idx >= 0 && idx < 64;
 	}
 
-	static constexpr std::uint8_t getSquareIdx(const uint8_t file, const uint8_t rank) {
+	static constexpr std::uint8_t getSquareIdx(const std::uint8_t file, const std::uint8_t rank) {
 		return rank * 8 + file;
 	}
 
@@ -99,10 +93,10 @@ public:
 	}
 
 private:
-	void castle(PieceColor color, bool isQueenSide);
+	void castle(ChessColor color, bool isQueenSide);
 	bool handleCastling(const Move &move);
 	void handlePawnPromotion(const Move &move);
-	void handleEnPassant(const Move &move, const bool changeEnPassantTarget);
+	void handleEnPassant(const Move &move, const bool changeEnPassantTarget, const bool isFake);
 	void updateLegalMoves();
 	void updateStatus();
 

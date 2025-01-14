@@ -4,6 +4,7 @@
 #include "clock.hpp"
 #include "imgui_layer.hpp"
 #include "renderers/board_renderer.hpp"
+#include "renderers/captured_pieces_renderer.hpp"
 #include "renderers/piece_renderer.hpp"
 
 #include <SFML/Graphics/Font.hpp>
@@ -68,6 +69,7 @@ private:
 	void renderHeldPiece();
 	void renderPieces();
 	void renderBoard();
+	void renderCapturedPieces(ChessColor color);
 	void handlePieceDrag();
 	void handlePieceDrop();
 	bool moveHeldPiece(std::uint8_t toIdx);
@@ -75,7 +77,7 @@ private:
 	void render();
 
 	void updateClocks();
-	Clock &getClock(PieceColor color);
+	Clock &getClock(ChessColor color);
 
 	inline Piece getHeldPiece() const {
 		return m_board.getPieces()[m_heldPieceIdx.value()];
@@ -91,7 +93,7 @@ private:
 
 
 public:
-	bool m_autoFlip = true;
+	bool autoFlip = true;
 
 private:
 	static Game *s_instance;
@@ -100,6 +102,7 @@ private:
 	Board m_board;
 	BoardRenderer m_boardRenderer;
 	PieceRenderer m_pieceRenderer;
+	CapturedPiecesRenderer m_capturedPiecesRenderer;
 
 	std::optional<std::uint8_t> m_heldPieceIdx;
 	sf::Time m_frameDelta;

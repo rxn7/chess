@@ -37,7 +37,7 @@ void ImGuiLayer::render(sf::RenderWindow &window, Game &game) {
 			game.getBoardRenderer().setFlipped(flipped);
 		}
 
-		if(ImGui::Checkbox("Auto flip", &game.m_autoFlip)) {
+		if(ImGui::Checkbox("Auto flip", &game.autoFlip)) {
 			game.performAutoFlip();
 		}
 
@@ -50,6 +50,14 @@ void ImGuiLayer::render(sf::RenderWindow &window, Game &game) {
 			if(ImGui::Button("Apply FEN")) {
 				FEN::applyFen(game.getBoard(), input);
 			}
+		}
+
+		if(ImGui::CollapsingHeader("Material balance")) {
+			std::uint8_t whiteMaterialValue = game.getBoard().getPlayer(ChessColor::White).materialValue;
+			std::uint8_t blackMaterialValue = game.getBoard().getPlayer(ChessColor::Black).materialValue;
+			std::int16_t balance = whiteMaterialValue - blackMaterialValue;
+			ImGui::Text("White: %u (%c%d)", whiteMaterialValue, balance < 0 ? '-' : '+', std::abs(balance));
+			ImGui::Text("Black: %u (%c%d)", blackMaterialValue, balance <= 0 ? '+' : '-', std::abs(balance));
 		}
 
 		if(ImGui::CollapsingHeader("Theme")) {

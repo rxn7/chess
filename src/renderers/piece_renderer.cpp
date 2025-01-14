@@ -1,5 +1,4 @@
 #include "piece_renderer.hpp"
-
 #include "board.hpp"
 
 #include <iostream>
@@ -16,7 +15,7 @@ PieceRenderer::PieceRenderer(const std::string_view piecesTexturePath) {
 	generateSprites();
 }
 
-void PieceRenderer::renderPiece(sf::RenderTarget &target, Piece piece, const sf::Vector2f &pos) {
+void PieceRenderer::renderPiece(sf::RenderTarget &target, Piece piece, const sf::Vector2f &pos, float scale) {
 	if (piece.isNull())
 		return;
 
@@ -29,7 +28,11 @@ void PieceRenderer::renderPiece(sf::RenderTarget &target, Piece piece, const sf:
 
 	sf::Sprite &sprite = it->second;
 	sprite.setPosition(pos);
+
+	float originalScale = sprite.getScale().x;
+	sprite.setScale(scale * originalScale, scale * originalScale);
 	target.draw(sprite);
+	sprite.setScale(originalScale, originalScale);
 }
 
 void PieceRenderer::renderPiece(sf::RenderTarget &target, Piece piece, const std::uint8_t idx) {
@@ -37,7 +40,7 @@ void PieceRenderer::renderPiece(sf::RenderTarget &target, Piece piece, const std
 		return;
 
 	sf::Vector2f position;
-	if(m_flipped) {
+	if(flipped) {
 		position = sf::Vector2f((7 - idx % 8) * 64, (7 - idx / 8) * 64);
 	} else {
 		position = sf::Vector2f((idx % 8) * 64, idx / 8 * 64);
@@ -58,7 +61,7 @@ void PieceRenderer::generateSprites() {
 
 	// Six types of pieces
 	for (std::uint8_t c = 0; c < 6; ++c) {
-		Piece piece = (c + 1) | PieceColor::White;
+		Piece piece = (c + 1) | ChessColor::White;
 		const int x = c * singleTextureSize.x;
 
 		for (std::uint8_t r = 0; r < 2; ++r) {
@@ -71,7 +74,7 @@ void PieceRenderer::generateSprites() {
 
 			m_sprites.insert({piece.value, sprite});
 
-			piece = (c + 1) | PieceColor::Black;
+			piece = (c + 1) | ChessColor::Black;
 		}
 	}
 }

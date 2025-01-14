@@ -11,13 +11,13 @@ class PieceRenderer {
 public:
 	PieceRenderer(const std::string_view piecesTexurePath = "assets/pieces.png");
 	void renderPiece(sf::RenderTarget &target, const Piece piece, const std::uint8_t idx);
-	void renderPiece(sf::RenderTarget &target, const Piece piece, const sf::Vector2f &pos);
+	void renderPiece(sf::RenderTarget &target, const Piece piece, const sf::Vector2f &pos, float scale = 1.0f);
 
 private:
 	void generateSprites();
 
 public:
-	bool m_flipped = false;
+	bool flipped = false;
 
 private:
 	sf::Texture m_texture;

@@ -2,12 +2,12 @@
 #include "SFML/Graphics/Rect.hpp"
 #include <format>
 
-Clock::Clock(PieceColor color, const sf::Font &font, const sf::Vector2f &position) : m_color(color){
+Clock::Clock(ChessColor color, const sf::Font &font, const sf::Vector2f &position) : m_color(color){
 	m_text.setFont(font);
 	m_text.setCharacterSize(32);
 	m_text.setPosition(position);
-	m_text.setFillColor(color == PieceColor::White ? sf::Color::White : sf::Color::Black);
-	m_text.setOutlineColor(color == PieceColor::White ? sf::Color::Black : sf::Color::White);
+	m_text.setFillColor(color == ChessColor::White ? sf::Color::White : sf::Color::Black);
+	m_text.setOutlineColor(color == ChessColor::White ? sf::Color::Black : sf::Color::White);
 	m_text.setOutlineThickness(1);
 }
 
