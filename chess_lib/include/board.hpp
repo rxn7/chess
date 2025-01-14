@@ -68,20 +68,6 @@ public:
 		return m_pieces[idx];
 	}
 
-	static inline bool isSquareIdxCorrect(const std::uint8_t idx) {
-		return idx >= 0 && idx < 64;
-	}
-
-	static inline std::uint8_t getSquareIdx(const uint8_t file, const uint8_t rank) {
-		return rank * 8 + file;
-	}
-
-	static inline std::uint8_t getSquareIdx(const std::string_view position) {
-		uint8_t file = position[0] - 'a';
-		uint8_t rank = '8' - position[1];
-		return getSquareIdx(file, rank);
-	}
-
 	inline CheckResult getCheckResult() const {
 		return m_checkResult;
 	}
@@ -96,6 +82,20 @@ public:
 
 	inline std::vector<Move> &getLegalMoves() {
 		return m_legalMoves;
+	}
+
+	static constexpr bool isSquareIdxCorrect(const std::uint8_t idx)  {
+		return idx >= 0 && idx < 64;
+	}
+
+	static constexpr std::uint8_t getSquareIdx(const uint8_t file, const uint8_t rank) {
+		return rank * 8 + file;
+	}
+
+	static constexpr std::uint8_t getSquareIdx(const std::string_view position) {
+		uint8_t file = position[0] - 'a';
+		uint8_t rank = '8' - position[1];
+		return getSquareIdx(file, rank);
 	}
 
 private:

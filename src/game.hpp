@@ -34,11 +34,11 @@ public:
 		return s_instance;
 	}
 
-	inline std::uint8_t getRealIdx(const std::uint8_t idx) {
+	constexpr std::uint8_t getRealIdx(const std::uint8_t idx) {
 		return m_boardRenderer.isFlipped() ? 63 - idx : idx;
 	}
 
-	inline std::uint8_t getIdxFromPosition(const sf::Vector2f &position, const bool real) {
+	constexpr std::uint8_t getIdxFromPosition(const sf::Vector2f &position, const bool real) {
 		if (position.x < 0 || position.x > 512 || position.y < 0 || position.y > 512)
 			return 64;
 
@@ -67,6 +67,7 @@ public:
 private:
 	void renderHeldPiece();
 	void renderPieces();
+	void renderBoard();
 	void handlePieceDrag();
 	void handlePieceDrop();
 	bool moveHeldPiece(std::uint8_t toIdx);

@@ -1,5 +1,4 @@
 #include "game.hpp"
-#include "SFML/System/Time.hpp"
 #include "board.hpp"
 #include "clock.hpp"
 #include "renderers/board_renderer.hpp"
@@ -9,14 +8,15 @@
 #include "piece.hpp"
 #include "audio.hpp"
 
-#include <SFML/Graphics/Color.hpp>
 #include <iostream>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Time.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
 #include <sstream>
 
-#define CLOCK_START_TIME 60 * 3
+const sf::Time CLOCK_START_TIME = sf::seconds(60 * 3);
 
 Game *Game::s_instance;
 
@@ -69,7 +69,6 @@ void Game::start() {
 		if(!m_window.isOpen())
 			break;
 
-
 		updateClocks();
 		m_imgui.update(m_window, m_frameDelta);
 
@@ -113,7 +112,7 @@ void Game::performAutoFlip() {
 
 void Game::restart() {
 	for(Clock &clock : m_clocks) {
-		clock.restart(sf::seconds(CLOCK_START_TIME));
+		clock.restart(CLOCK_START_TIME);
 	}
 
 	m_state = GameState::Playing;

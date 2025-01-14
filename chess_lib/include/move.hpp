@@ -10,7 +10,7 @@ struct Move {
 	Move() { }
 	Move(const Board &board, const std::uint8_t fromIdx, const std::uint8_t toIdx);
 
-	inline bool operator==(const Move &other) const {
+	constexpr bool operator==(const Move &other) const {
 		return fromIdx == other.fromIdx && toIdx == other.toIdx;
 	}
 
