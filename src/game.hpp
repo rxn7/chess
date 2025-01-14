@@ -2,7 +2,6 @@
 
 #include "board.hpp"
 #include "clock.hpp"
-#include "debug_data.hpp"
 #include "imgui_layer.hpp"
 #include "renderers/board_renderer.hpp"
 #include "renderers/piece_renderer.hpp"

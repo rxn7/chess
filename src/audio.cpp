@@ -34,7 +34,7 @@ void Audio::playSound(Sound type) {
 
 void Audio::addSoundBuffer(Sound type, const std::string_view path) {
 	sf::SoundBuffer buf;
-	if(!buf.loadFromFile(std::string(path))) {
+	if(!buf.loadFromFile(path.data())) {
 		std::cerr << "\e[1;31mFailed to load sound " << path << "!\e[0m\n";
 		return;
 	}

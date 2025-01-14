@@ -16,6 +16,6 @@ enum FenRecord {
 
 class FEN {
 public:
-	static bool applyFen(Board &board, const std::string &fen);
+	static bool applyFen(Board &board, const std::string_view fen);
 	static std::string convertToFen(const Board &board);
 };

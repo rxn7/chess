@@ -21,10 +21,10 @@
 Game *Game::s_instance;
 
 Game::Game() : 
-m_window(sf::VideoMode(512, 512), "Chess by rxn"),
 m_heldPieceIdx(std::nullopt),
-m_imgui(m_window),
-m_clocks({Clock(PieceColor::White, m_font, sf::Vector2f()), Clock(PieceColor::Black, m_font, sf::Vector2f())}) {
+m_window(sf::VideoMode(512, 512), "Chess by rxn"),
+m_clocks({Clock(PieceColor::White, m_font, sf::Vector2f()), Clock(PieceColor::Black, m_font, sf::Vector2f())}),
+m_imgui(m_window) {
 	s_instance = this;
 	srand(time(0));
 	Audio::init();
@@ -97,6 +97,8 @@ void Game::end(const BoardStatus status) {
 		case BoardStatus::Draw:
 			ss << "Draw";
 			break;
+
+		default: break;
 	}
 
 	ss << "\nPress any key to restart";
@@ -323,7 +325,9 @@ void Game::handleEvent(const sf::Event &e) {
 void Game::updateClocks() {
 	Clock &currentClock = getClock(m_board.getState().turnColor);
 
-	if(m_board.getState().fullMoves != 1) { // NOTE: Full move counter starts at 1 for some reason: "The number of the full moves in a game. It starts at 1, and is incremented after each Black's move. "
+	// NOTE: Full move counter starts at 1 for some reason: "The number of the full moves in a game. It starts at 1, and is incremented after each Black's move. "
+	const bool isFirstMove = m_board.getState().fullMoves != 1;
+	if(!isFirstMove) { 
 		currentClock.decrement(m_frameDelta);
 	}
 

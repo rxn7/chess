@@ -1,10 +1,10 @@
 #include "board.hpp"
 
 Move::Move(const Board &board, const std::uint8_t fromIdx, const std::uint8_t toIdx) :
-	fromIdx(fromIdx),
-	toIdx(toIdx),
 	piece(board.getPiece(fromIdx)),
-	targetPiece(board.getPiece(toIdx))
+	targetPiece(board.getPiece(toIdx)),
+	fromIdx(fromIdx),
+	toIdx(toIdx)
 {
 	isCapture = !targetPiece.isNull() || board.getState().enPassantTarget == toIdx;
 	isPawnPromotion = piece.isType(Pawn) && (toIdx / 8 == 0 || toIdx / 8 == 7);

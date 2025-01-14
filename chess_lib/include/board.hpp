@@ -76,7 +76,7 @@ public:
 		return rank * 8 + file;
 	}
 
-	static inline std::uint8_t getSquareIdx(const std::string &position) {
+	static inline std::uint8_t getSquareIdx(const std::string_view position) {
 		uint8_t file = position[0] - 'a';
 		uint8_t rank = '8' - position[1];
 		return getSquareIdx(file, rank);

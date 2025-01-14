@@ -4,11 +4,11 @@
 #include <sstream>
 
 // based on: https://www.chess.com/terms/fen-chess
-bool FEN::applyFen(Board &board, const std::string &fen) {
+bool FEN::applyFen(Board &board, const std::string_view fen) {
 	board.reset(false);
 
 	std::uint8_t file = 0, rank = 0;
-	std::istringstream stream(fen);
+	std::istringstream stream(fen.data());
 	std::string record;
 
 	int recordIdx = 0;
