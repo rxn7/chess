@@ -33,15 +33,18 @@
 - ```git clone https://github.com/rxn7/chess --recurse-submodules```
 
 ## Setup
-- ```./configure.sh```
+```./configure.sh``` sets up the build folder (running this script or ```build.sh -c``` is required after cloning the project)
 
 ## Compile
-- ```./build.sh``` - Debug version
-- ```./build.sh -r``` - Release version
+```./build.sh```:
+- -r: release mode
+- -w: windows (requires mingw and all of the mingw libraries to be installed)
+- -c: clean (delete the build folder and run configure.sh) 
 
 ## Run
-- ```./run.sh```- Debug version
-- ```./run.sh -r```- Release version
+```./run.sh```:
+- -r: release mode
+- -w: windows (requires wine to be installed)
 
 # Attribution
 ## Chess pieces textures
