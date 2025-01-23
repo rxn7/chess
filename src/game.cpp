@@ -217,7 +217,7 @@ void Game::handlePieceDrag() {
 	if(!Board::isSquareIdxCorrect(idx))
 		return;
 
-	const Piece &piece = m_board.getPieces()[idx];
+	const Piece &piece = m_board.getPiece(idx);
 
 	if(piece.isNull() || piece.isNotColor(m_board.getState().turnColor)) {
 		return;
@@ -252,7 +252,7 @@ void Game::renderPieces() {
 
 	for(std::uint8_t i = 0; i < 64; ++i)
 		if(i != m_heldPieceIdx)
-			m_pieceRenderer.renderPiece(m_window, m_board.getPieces()[i], i);
+			m_pieceRenderer.renderPiece(m_window, m_board.getPiece(i), i);
 }
 
 void Game::renderHeldPiece() {
@@ -260,7 +260,7 @@ void Game::renderHeldPiece() {
 		return;
 
 	const sf::Vector2f pos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window)) - sf::Vector2f(32.0f, 32.0f);
-	m_pieceRenderer.renderPiece(m_window, m_board.getPieces()[m_heldPieceIdx.value()], pos);
+	m_pieceRenderer.renderPiece(m_window, m_board.getPiece(m_heldPieceIdx.value()), pos);
 }
 
 void Game::handleEvent(const sf::Event &e) {

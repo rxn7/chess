@@ -24,5 +24,4 @@ private:
 
 private:
 	static std::unordered_map<Sound, std::vector<sf::SoundBuffer>> s_soundBuffers;
-	static sf::Sound s_sound;
 };

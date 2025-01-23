@@ -47,8 +47,11 @@ namespace Rules {
 	}
 
 	bool addMoveIfHasOpponentPiece(const AddLegalMoveContext &ctx, const std::uint8_t targetIdx) {
+		if(!Board::isSquareIdxCorrect(targetIdx))
+			return false;
+
 		const Piece &targetPiece = ctx.board.getPiece(targetIdx);
-		if(!Board::isSquareIdxCorrect(targetIdx) || targetPiece.isNull() || targetPiece.isColor(ctx.piece.getColor()))
+		if(targetPiece.isNull() || targetPiece.isColor(ctx.piece.getColor()))
 			return false;
 
 		addLegalMove(ctx, targetIdx);

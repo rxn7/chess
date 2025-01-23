@@ -6,6 +6,7 @@
 #include "board_state.hpp"
 
 #include <array>
+#include <cassert>
 #include <optional> 
 #include <vector> 
 
@@ -55,6 +56,7 @@ public:
 	}
 
 	inline const Piece &getPiece(const std::uint8_t idx) const {
+		assert(isSquareIdxCorrect(idx));
 		return m_pieces[idx];
 	}
 

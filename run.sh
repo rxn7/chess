@@ -1,22 +1,26 @@
 #!/usr/bin/env bash
 
-RELEASE=0
+BUILD_TYPE="debug"
+PLATFORM="linux"
 
-while getopts 'r' OPTION; do
+while getopts 'rw' OPTION; do
 	case "$OPTION" in
 		r)
-			RELEASE=1
+			BUILD_TYPE="release"
+			;;
+		w)
+			PLATFORM="windows"
 			;;
 	esac
 done
 
-if [ "$RELEASE" = 1 ] ; then
-	printf "\033[32;1;4mRunning the release version\n\n\033[0m"
-	pushd build/release/bin >/dev/null
+printf "\033[32;1;4mRunning the $BUILD_TYPE version for $PLATFORM\n\n\033[0m"
+pushd build/$PLATFORM/$BUILD_TYPE/bin >/dev/null
+
+if [ "$PLATFORM" = "windows" ] ; then
+	wine chess.exe
 else
-	printf "\033[32;1;4mRunning the debug version\n\n\033[0m"
-	pushd build/debug/bin >/dev/null
+	./chess
 fi
 
-./chess
 popd >/dev/null

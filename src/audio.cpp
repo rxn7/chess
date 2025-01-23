@@ -1,7 +1,6 @@
 #include "audio.hpp"
 #include <iostream>
 
-sf::Sound Audio::s_sound;
 std::unordered_map<Sound, std::vector<sf::SoundBuffer>> Audio::s_soundBuffers;
 
 void Audio::init() {
@@ -27,9 +26,10 @@ void Audio::playSound(Sound type) {
 	const std::size_t idx = it->second.size() == 1 ? 0 : rand() % it->second.size();
 	const sf::SoundBuffer &buf = it->second[idx];
 
-	s_sound.setBuffer(buf);
-	s_sound.setPitch((9 + (rand() % 3)) / 10.0f);
-	s_sound.play();
+	static sf::Sound sound;
+	sound.setBuffer(buf);
+	sound.setPitch((9 + (rand() % 3)) / 10.0f);
+	sound.play();
 }
 
 void Audio::addSoundBuffer(Sound type, const std::string_view path) {

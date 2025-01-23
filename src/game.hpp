@@ -12,6 +12,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/Window/Event.hpp>
+#include <cassert>
 
 const sf::Color LIGHT_COLOR(0xf0d9b5ff);
 const sf::Color DARK_COLOR(0xb58863ff);
@@ -36,6 +37,7 @@ public:
 	}
 
 	constexpr std::uint8_t getRealIdx(const std::uint8_t idx) {
+		assert(Board::isSquareIdxCorrect(idx));
 		return m_boardRenderer.isFlipped() ? 63 - idx : idx;
 	}
 
@@ -80,7 +82,8 @@ private:
 	Clock &getClock(ChessColor color);
 
 	inline Piece getHeldPiece() const {
-		return m_board.getPieces()[m_heldPieceIdx.value()];
+		assert(m_heldPieceIdx.has_value());
+		return m_board.getPiece(m_heldPieceIdx.value());
 	}
 
 	inline sf::Vector2f getMousePosition() const {
@@ -88,7 +91,7 @@ private:
 	}
 
 	inline bool isAnyPieceHeld() const {
-		return m_heldPieceIdx && !getHeldPiece().isNull();
+		return m_heldPieceIdx.has_value() && !getHeldPiece().isNull();
 	}
 
 
