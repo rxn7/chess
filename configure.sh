@@ -5,7 +5,6 @@ rm -rf build
 COMMON="-GNinja -DBUILD_SHARED_LIBS=OFF"
 
 cmake -Bbuild/linux/debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON $COMMON
-cp build/debug/compile_commands.json .
 cmake -Bbuild/linux/release -DCMAKE_BUILD_TYPE=Release $COMMON
 
 # Mingw builds

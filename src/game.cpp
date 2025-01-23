@@ -40,6 +40,7 @@ m_imgui(m_window) {
 
 	m_view.setCenter(256, 256);
 	m_view.setSize(512, 512 + 64);
+	handleResize();
 
 	m_window.setVerticalSyncEnabled(true);
 	m_window.setKeyRepeatEnabled(false);
@@ -264,7 +265,7 @@ void Game::renderHeldPiece() {
 }
 
 void Game::handleEvent(const sf::Event &e) {
-        m_imgui.handleEvent(m_window, e);
+	m_imgui.handleEvent(m_window, e);
 
 	switch(e.type) {
 		case sf::Event::Closed:
@@ -272,21 +273,7 @@ void Game::handleEvent(const sf::Event &e) {
 			break;
 
 		case sf::Event::Resized: {
-			const float winRatio = e.size.width /(float)e.size.height;
-			const float viewRatio = m_view.getSize().x /(float)m_view.getSize().y;
-			float sizeX = 1, sizeY = 1;
-			float posX = 0, posY = 0;
-
-			if(winRatio > viewRatio) {
-				sizeX = viewRatio / winRatio;
-				posX = (1 - sizeX) * 0.5f;
-			} else {
-				sizeY = winRatio / viewRatio;
-				posY = (1 - sizeY) * 0.5f;
-			}
-
-			m_view.setViewport({posX, posY, sizeX, sizeY});
-
+			handleResize();
 			break;
 		}
 
@@ -334,6 +321,23 @@ void Game::handleEvent(const sf::Event &e) {
 
 		default: break;
 	}
+}
+
+void Game::handleResize() {
+	const float winRatio = m_window.getSize().x /(float)m_window.getSize().y;
+	const float viewRatio = m_view.getSize().x /(float)m_view.getSize().y;
+	float sizeX = 1, sizeY = 1;
+	float posX = 0, posY = 0;
+
+	if(winRatio > viewRatio) {
+		sizeX = viewRatio / winRatio;
+		posX = (1 - sizeX) * 0.5f;
+	} else {
+		sizeY = winRatio / viewRatio;
+		posY = (1 - sizeY) * 0.5f;
+	}
+
+	m_view.setViewport({posX, posY, sizeX, sizeY});
 }
 
 void Game::updateClocks() {

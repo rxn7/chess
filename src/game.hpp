@@ -76,6 +76,7 @@ private:
 	void handlePieceDrop();
 	bool moveHeldPiece(std::uint8_t toIdx);
 	void handleEvent(const sf::Event &e);
+	void handleResize();
 	void render();
 
 	void updateClocks();
@@ -93,7 +94,6 @@ private:
 	inline bool isAnyPieceHeld() const {
 		return m_heldPieceIdx.has_value() && !getHeldPiece().isNull();
 	}
-
 
 public:
 	bool autoFlip = true;
