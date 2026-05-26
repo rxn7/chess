@@ -1,5 +1,5 @@
 # ⚠️ REPOSITORY MOVED ⚠️
-### this repository is now hosted at [https://codeberg/rxn/chess](https://codeberg/rxn/chess)</b>
+### this repository is now hosted at [https://codeberg.org/rxn/chess](https://codeberg.org/rxn/chess)</b>
 
 # Implements every chess rule:
 ### Castling
